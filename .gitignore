@@ -1,4 +1,7 @@
 sample.js
+urls.json
+snippets.json
+resources.json
 
 npm-debug.log*
 node_modules
