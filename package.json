@@ -1,0 +1,7 @@
+{
+	"dependencies": {
+		"safe-eval": "*",
+		"uuid": "*",
+		"js-beautify": "*"
+	}
+}
