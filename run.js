@@ -13,21 +13,22 @@ fs.writeFileSync("urls.json", JSON.stringify(urls, null, '\t'));
 fs.writeFileSync("snippets.json", JSON.stringify(snippets, null, '\t'));
 fs.writeFileSync("resources.json", JSON.stringify(resources, null, '\t'))
 
-function evaluator(code) {
+function evaluator(code, globals) {
 	var self = this;
-	code = "1;" + code; // For whatever reason, it prevents many parsers from breaking
+	// For whatever reason, the "1;" prevents many parsers from breaking
+	code = "1; eval = function(x) { return _eval(x, this); };" + code; 
 	var filename = uuid.v4() + ".js";
 	console.log("Code saved to", filename);
 	snippets[filename] = {as: "JS"};
 	fs.writeFileSync(filename, beautify("1;" + code));
 
-	safe("1;" + code, {
-		//eval: code => evaluator(code),
+	safe("1;" + code, globals ? globals : {
+		_eval: evaluator,
 		console: {
 			log: x => console.log(x)
 		},
 		ActiveXObject: function(name) {
-			console.log("New ActiveXObject created:", name);
+			// console.log("New ActiveXObject created:", name);
 			switch (name) {
 				case "WScript.Shell": {
 					this.ExpandEnvironmentStrings = function(arg) {
@@ -42,6 +43,7 @@ function evaluator(code) {
 						var filename = uuid.v4();
 						fs.writeFileSync(filename, command);
 						snippets[filename] = {as: "WScript code"}
+						throw new Error();
 					}				
 				}
 				break;
