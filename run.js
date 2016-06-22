@@ -9,62 +9,144 @@ var urls = [],
 
 evaluator(fs.readFileSync("sample.js", "utf8"));
 
-fs.writeFileSync("urls.json", JSON.stringify(urls, null, '\t'));
-fs.writeFileSync("snippets.json", JSON.stringify(snippets, null, '\t'));
-fs.writeFileSync("resources.json", JSON.stringify(resources, null, '\t'))
+function saveUrls() {
+	fs.writeFileSync("urls.json", JSON.stringify(urls, null, '\t'))
+}
+function saveSnippets() {
+	fs.writeFileSync("snippets.json", JSON.stringify(snippets, null, '\t'))
+}
+function saveResources() {
+	fs.writeFileSync("resources.json", JSON.stringify(resources, null, '\t'))
+}
+
+function kill(msg) {
+	require("util").log(msg);
+	console.trace()
+	process.exit(0);
+}
+
+function URLLogger(method, url) {
+	console.log("Request made:", method, url);
+	if (urls.indexOf(url) == -1) urls.push(url);
+	saveUrls()
+}
 
 function evaluator(code, globals) {
-	var self = this;
 	// For whatever reason, the "1;" prevents many parsers from breaking
 	code = "1; eval = function(x) { return _eval(x, this); };" + code; 
 	var filename = uuid.v4() + ".js";
-	console.log("Code saved to", filename);
-	snippets[filename] = {as: "JS"};
+
+	console.log("Code saved to", filename)
 	fs.writeFileSync(filename, beautify("1;" + code));
 
-	safe("1;" + code, globals ? globals : {
+	snippets[filename] = {as: "JS"}
+	saveSnippets()
+
+	return safe("1;" + code, globals ? globals : {
 		_eval: evaluator,
 		console: {
 			log: x => console.log(x)
 		},
-		ActiveXObject: function(name) {
-			// console.log("New ActiveXObject created:", name);
-			switch (name) {
-				case "WScript.Shell": {
-					this.ExpandEnvironmentStrings = function(arg) {
-						switch (arg) {
-							case "%TEMP%":
-								return "(path)";
-							default:
-								throw new Error(`Unknown argument ${arg}`);
-						}
-					}
-					this.Run = function(command) {
-						var filename = uuid.v4();
-						fs.writeFileSync(filename, command);
-						snippets[filename] = {as: "WScript code"}
-						throw new Error();
-					}				
+		WScript: new Proxy({}, {
+			get: function(target, name, receiver) {
+				switch (name) {
+					case "CreateObject":
+						return ActiveXObject
+					case "Sleep":
+						// return x => console.log(`Sleeping for ${x} ms...`)
+						return x => {}
+					default:
+						kill(`WScriptShell.${name} not implemented!`)
 				}
-				break;
-				case "MSXML2.XMLHTTP":
-					return new ProxiedXMLHTTP();
-				break;
-				case "ADODB.Stream":
-					return new ProxiedADODBStream();
-				case "Msxml2.DOMDocument.3.0":
-					this.createElement = ProxiedVirtualDOMTag;
-					break;
-				default:
-					console.log('!!!');
-					console.log(`Unknown ActiveXObject ${name}`);
-					console.log('!!!');
-					break;
 			}
-		}
+		}),
+		ActiveXObject
 	}, {
 		timeout: 10000
 	});
+}
+
+function ActiveXObject(name) {
+	// console.log("New ActiveXObject created:", name);
+	switch (name) {
+		case "WScript.Shell":
+			return new ProxiedWScriptShell();
+		case "MSXML2.XMLHTTP":
+			return new ProxiedXMLHTTP();
+		case "ADODB.Stream":
+			return new ProxiedADODBStream();
+		case "Msxml2.DOMDocument.3.0":
+			this.createElement = ProxiedVirtualDOMTag;
+			break;
+		case "WinHttp.WinHttpRequest.5.1":
+			return new ProxiedWinHttpRequest();
+		default:
+			kill(`Unknown ActiveXObject ${name}`);
+			break;
+	}
+}
+
+function ProxiedWinHttpRequest() {
+	return new Proxy(new WinHttpRequest(), {
+		get: function(target, name, receiver) {
+			switch (name) {
+				/* Add here "special" traps with case statements */
+				default:
+					if (!(name in target)) {
+						kill(`WinHttpRequest.${name} not implemented!`)
+					}
+					return target[name];
+			}
+		}
+	})
+}
+
+function WinHttpRequest() {
+	this.open = function(method, url) {
+		URLLogger(method, url);
+		this.url = url;
+	}
+	this.send = function(data) {
+		if (data)
+			console.log(`Data sent to ${this.url}:`, data);
+		this.readystate = 4;
+		this.status = 200;
+		this.ResponseBody = `(Content of ${this.url})`;
+		//this.onreadystatechange();
+	}
+}
+
+function WScriptShell() {
+	this.ExpandEnvironmentStrings = function(arg) {
+		switch (arg) {
+			case "%TEMP%":
+				return "(path)";
+			case "%TEMP%/":
+				return "(path)/";
+			default:
+				kill(`Unknown argument ${arg}`);
+		}
+	}
+	this.Run = function(command) {
+		var filename = uuid.v4();
+		fs.writeFileSync(filename, command);
+		snippets[filename] = {as: "WScript code"}
+		throw new Error();
+	}
+}
+
+function ProxiedWScriptShell(name) {
+	return new Proxy(new WScriptShell(name), {
+		get: function(target, name, receiver) {
+			switch (name) {
+				default:
+					if (!(name in target)) {
+						kill(`WScriptShell.${name} not implemented!`)
+					}
+					return target[name];
+			}
+		}
+	})
 }
 
 function VirtualDOMTag(name) {
@@ -77,14 +159,13 @@ function VirtualDOMTag(name) {
 function ProxiedVirtualDOMTag(name) {
 	return new Proxy(new VirtualDOMTag(name), {
 		get: function(target, name, receiver) {
-			//console.log(`Getting VirtualDOMTag.${name}`);
-			if (!(name in target)) {
-				//console.log("Not implemented!")
-			}
 			switch (name) {
 				case "nodeTypedValue":
 					return target.text;
 				default:
+					if (!(name in target)) {
+						kill(`VirtualDOMTag.${name} not implemented!`)
+					}
 					return target[name];
 			}
 		}
@@ -94,31 +175,35 @@ function ProxiedVirtualDOMTag(name) {
 function ADODBStream() {
 	this.buffer = "";
 	this.open = () => {}
-	this.Open = this.open;
 	var resourcename = uuid.v4();
-	this.Write = this.write = function(chunk) {
+	this.write = function(chunk) {
 		this.buffer += String(chunk);
 	}
-	this.SaveToFile = this.saveToFile = function(filename) {
+	this.savetofile = function(filename) {
 		this.virtual_filename = filename;
 	}
-	this.Close = this.close = () => {
+	this.close = () => {
 		resources[resourcename] = {as: this.virtual_filename};
-		console.log("ADODB stream created:", resourcename);
+		saveResources()
+		// console.log("ADODB stream created:", resourcename);
 		fs.writeFileSync(resourcename, this.buffer);
+	}
+	this.loadfromfile = function(filename) {
+		// console.log(`Loading ${filename}...`)
+		this.readtext = `(Content of ${filename})`
 	}
 }
 
 function ProxiedADODBStream() {
 	return new Proxy(new ADODBStream(), {
 		get: function(target, name, receiver) {
-			//console.log(`Getting ProxiedADODBStream.${name}`);
+			name = name.toLowerCase();
 			switch (name) {
 				case "size":
 					return target.buffer.length;
 				default:
 					if (!(name in target)) {
-						//console.log("Not implemented!")
+						kill(`ADODBStream.${name} not implemented!`)
 					}
 					return target[name];
 			}
@@ -128,16 +213,15 @@ function ProxiedADODBStream() {
 
 function XMLHTTP() {
 	this.open = function(method, url) {
-		console.log("Request made:", method, url);
-		urls.push(url);
 		this.url = url;
+		URLLogger(method, url);
 	}
 	this.setRequestHeader = function(key, val) {
-		console.log("Header set:", key, val);
+		console.log(`Header set for ${this.url}:`, key, val);
 	}
 	this.send = function(data) {
 		if (data)
-			console.log("Data sent:", data);
+			console.log(`Data sent to ${this.url}:`, data);
 		this.readyState = 4;
 		this.status = 200;
 		this.ResponseBody = `(Content of ${this.url})`;
@@ -148,11 +232,10 @@ function XMLHTTP() {
 function ProxiedXMLHTTP() {
 	return new Proxy(new XMLHTTP(), {
 		get: function(target, name, receiver) {
-			//console.log(`Getting XMLHTTP.${name}`);
 			switch (name) {
 				default:
 					if (!(name in target)) {
-						//console.log("Not implemented!")
+						kill(`XMLHTTP.${name} not implemented!`)
 					}
 					return target[name];
 			}
