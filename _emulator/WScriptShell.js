@@ -13,7 +13,7 @@ function WScriptShell() {
 	}
 	this.run = function(command) {
 		controller.logSnippet(controller.getUUID(), {as: "WScript code"}, command)
-		throw new Error(); // See README
+		// throw new Error(); // See README
 	}
 }
 

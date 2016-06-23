@@ -7,7 +7,7 @@ function VirtualDOMTag(name) {
 }
 
 // Catches requests to <tag>.nodeTypedValue in order to emulate them correctly
-module.exports = function(name, kill) {
+module.exports = function(name) {
 	return new Proxy(new VirtualDOMTag(name), {
 		get: function(target, name) {
 			switch (name) {

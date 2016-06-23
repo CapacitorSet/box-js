@@ -49,7 +49,7 @@ function ActiveXObject(name) {
 		case "ADODB.Stream":
 			return require("./_emulator/ADODBStream")();
 		case "Msxml2.DOMDocument.3.0":
-			this.createElement = require("./_emulator/DOMTag");
+			this.createElement = require("./_emulator/DOM");
 			break;
 		case "WinHttp.WinHttpRequest.5.1":
 			return require("./_emulator/WinHttpRequest")();
