@@ -96,6 +96,10 @@ Javascript code
 
 and remove them (leave the plain JavaScript code).
 
+--------
+
+Some scripts in the wild have been observed to use `new Date().getYear()` where `new Date().getFullYear()`. If a sample isn't showing any suspicious behaviour, look out for `Date` checks.
+
 ## Expanding
 
 You may occasionally run into unsupported components. In this case, you can file an issue on GitHub, or emulate the component yourself if you know JavaScript.
