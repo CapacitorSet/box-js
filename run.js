@@ -11,9 +11,9 @@ function evaluator(code, globals) {
 	const filename = controller.getUUID() + ".js";
 
 	console.log("Code saved to", filename)
-	controller.logSnippet(filename, {as: "JS"}, beautify("1;" + code))
+	controller.logSnippet(filename, {as: "eval'd JS"}, beautify("1;" + code))
 
-	return safe("1;" + code, globals ? globals : {
+	var sandbox = {
 		_eval: evaluator,
 		console: {
 			log: x => console.log(x)
@@ -34,9 +34,11 @@ function evaluator(code, globals) {
 			}
 		}),
 		ActiveXObject
-	}, {
-		timeout: 10000
-	});
+	}
+
+	if (globals) Object.keys(globals).forEach(key => sandbox[key] = globals[key])
+
+	return safe("1;" + code, sandbox, { timeout: 10000 });
 }
 
 function ActiveXObject(name) {

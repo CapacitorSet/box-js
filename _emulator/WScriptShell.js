@@ -12,7 +12,9 @@ function WScriptShell() {
 		}
 	}
 	this.run = function(command) {
-		controller.logSnippet(controller.getUUID(), {as: "WScript code"}, command)
+		const filename = controller.getUUID()
+		console.log("Executing", filename, "in the WScript shell")
+		controller.logSnippet(filename, {as: "WScript code"}, command)
 		// throw new Error(); // See README
 	}
 }
