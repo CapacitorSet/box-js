@@ -1,4 +1,4 @@
-var safe = require("safe-eval"),
+var v8 = require("v8"),
 	fs = require("fs"),
 	controller = require("./_controller");
 
@@ -31,7 +31,7 @@ function evaluator(code) {
 		ActiveXObject
 	}
 
-	return safe(code, sandbox, {
+	return vm.runInNewContext(code, sandbox, {
 		displayErrors: true,
 		filename: "sample.js",
 		timeout: 10000
