@@ -57,33 +57,6 @@ Every HTTP request is both printed on the terminal and logged in `urls.json`. Du
 
 ## Patching
 
-Sometimes calls to `eval` may throw an error, because they only have access to globals because of how they are implemented. This is an example:
-
-```
-// box-js implementation
-eval = function(code) {
-	// Calls the internal function _eval (see run.js) and passes the global variables
-	return _eval(code, this)
-}
-
-function foo(x) {
-	eval("x.bar = 1")
-}
-foo({})
-```
-
-In this case, `eval` will fail, because `x` is not global but rather a parameter. To patch this, make a global variable `x`, and rename the parameter:
-
-```
-x = null
-function foo(param) {
-	x = param
-	eval("x.bar = 1")
-}
-```
-
--------
-
 Some droppers use [conditional compilation](https://en.wikipedia.org/wiki/Conditional_comment#Conditional_comments_in_JScript), which is a feature of JScript but not of JavaScript, and thus isn't implemented in V8. Watch out for blocks like
 
 ```

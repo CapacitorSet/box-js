@@ -1,20 +1,15 @@
 var safe = require("safe-eval"),
 	fs = require("fs"),
-	beautify = require("js-beautify").js_beautify,
 	controller = require("./_controller");
 
-evaluator(fs.readFileSync("sample.js", "utf8"));
+const sample = fs.readFileSync("patch.js", "utf8") + fs.readFileSync("sample.js", "utf8");
+evaluator(sample);
 
-function evaluator(code, globals) {
-	// For whatever reason, the "1;" prevents many parsers from breaking
-	code = "1; eval = function(x) { return _eval(x, this); };" + code;
-	const filename = controller.getUUID() + ".js";
-
-	console.log("Code saved to", filename)
-	controller.logSnippet(filename, {as: "eval'd JS"}, beautify("1;" + code))
+function evaluator(code) {
+	controller.logJS(code);
 
 	var sandbox = {
-		_eval: evaluator,
+		_evalHook: controller.logJS,
 		console: {
 			log: x => console.log(x)
 		},
@@ -36,9 +31,11 @@ function evaluator(code, globals) {
 		ActiveXObject
 	}
 
-	if (globals) Object.keys(globals).forEach(key => sandbox[key] = globals[key])
-
-	return safe("1;" + code, sandbox, { timeout: 10000 });
+	return safe(code, sandbox, {
+		displayErrors: true,
+		filename: "sample.js",
+		timeout: 10000
+	});
 }
 
 function ActiveXObject(name) {
