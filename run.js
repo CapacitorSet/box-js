@@ -1,4 +1,4 @@
-var v8 = require("v8"),
+var vm = require("vm"),
 	fs = require("fs"),
 	controller = require("./_controller");
 
