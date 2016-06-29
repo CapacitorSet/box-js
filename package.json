@@ -1,6 +1,7 @@
 {
 	"dependencies": {
 		"uuid": "*",
-		"js-beautify": "*"
+		"esprima": "*",
+		"escodegen": "*"
 	}
 }

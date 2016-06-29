@@ -1,6 +1,5 @@
 var fs = require("fs"),
-	uuid = require("uuid"),
-	beautify = require("js-beautify").js_beautify
+	uuid = require("uuid")
 
 var urls = [],
 	snippets = {},
@@ -32,6 +31,7 @@ module.exports = {
 	logJS: function(code) {
 		const filename = uuid.v4() + ".js";
 		console.log("Code saved to", filename)
-		logSnippet(filename, {as: "eval'd JS"}, beautify(code))
+		logSnippet(filename, {as: "eval'd JS"}, code)
+		return code; // Helps with tail call optimization
 	}
 }
