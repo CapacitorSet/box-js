@@ -1,6 +1,7 @@
 var controller = require("../_controller")
 
 function WScriptShell() {
+	this.environment = x => `(Environment variable ${x})`;
 	this.expandenvironmentstrings = function(arg) {
 		switch (arg) {
 			case "%TEMP%":
