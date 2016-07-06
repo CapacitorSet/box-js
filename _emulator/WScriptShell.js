@@ -12,7 +12,7 @@ function WScriptShell() {
 				controller.kill(`Unknown argument ${arg}`);
 		}
 	}
-	this.run = function(command) {
+	this.exec = this.run = function(command) {
 		const filename = controller.getUUID()
 		console.log("Executing", filename, "in the WScript shell")
 		controller.logSnippet(filename, {as: "WScript code"}, command)
