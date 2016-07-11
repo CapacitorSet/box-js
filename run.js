@@ -19,7 +19,7 @@ function evaluator(code) {
 	});
 	//console.log(JSON.stringify(tree, null, "\t"));
 	code = escodegen.generate(tree);
-	if (code.match("/*@")) {
+	if (code.match("@cc_on")) {
 		console.log("The code appears to contain conditional compilation statements.");
 		console.log("If you run into unexpected results, try uncommenting lines that look like")
 		console.log("")
