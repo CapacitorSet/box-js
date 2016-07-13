@@ -2,6 +2,7 @@
 	"dependencies": {
 		"uuid": "*",
 		"esprima": "*",
-		"escodegen": "*"
+		"escodegen": "*",
+		"sync-request": "*"
 	}
 }

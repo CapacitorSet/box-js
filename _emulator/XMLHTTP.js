@@ -4,6 +4,7 @@ function XMLHTTP() {
 	this.onreadystatechange = () => {};
 	this.open = function(method, url) {
 		this.url = url;
+		this.method = method;
 		controller.logUrl(method, url);
 	}
 	this.setrequestheader = function(key, val) {
@@ -14,7 +15,7 @@ function XMLHTTP() {
 			console.log(`Data sent to ${this.url}:`, data);
 		this.readystate = 4;
 		this.status = 200;
-		this.responsebody = `(Content of ${this.url})`;
+		this.responsebody = controller.fetchUrl(this.method, this.url);
 		this.onreadystatechange();
 	}
 }

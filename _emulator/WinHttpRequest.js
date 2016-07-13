@@ -3,6 +3,7 @@ var controller = require("../_controller")
 function WinHttpRequest() {
 	this.open = function(method, url) {
 		controller.logUrl(method, url);
+		this.method = method;
 		this.url = url;
 	}
 	this.send = function(data) {
@@ -10,7 +11,7 @@ function WinHttpRequest() {
 			console.log(`Data sent to ${this.url}:`, data);
 		this.readystate = 4;
 		this.status = 200;
-		this.ResponseBody = `(Content of ${this.url})`;
+		this.ResponseBody = controller.fetchUrl(this.method, this.url);
 		//this.onreadystatechange();
 	}
 }

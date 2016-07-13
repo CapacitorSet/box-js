@@ -15,7 +15,9 @@ function ADODBStream() {
 	}
 	this.loadfromfile = function(filename) {
 		// console.log(`Loading ${filename}...`)
-		this.readtext = `(Content of ${filename})`
+		
+		//this.readtext = `(Content of ${filename})`
+		this.readtext = this.buffer;
 	}
 }
 
