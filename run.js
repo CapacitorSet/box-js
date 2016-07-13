@@ -8,6 +8,16 @@ const sample = fs.readFileSync("patch.js", "utf8") + fs.readFileSync("sample.js"
 evaluator(sample);
 
 function evaluator(code) {
+	if (code.match("@cc_on")) {
+		console.log("The code appears to contain conditional compilation statements.");
+		console.log("If you run into unexpected results, try uncommenting lines that look like")
+		console.log("")
+		console.log("    /*@cc_on")
+		console.log("    <JavaScript code>")
+		console.log("    @*/")
+		console.log("")
+	}
+
 	var tree = esprima.parse(code);
 	traverse(tree, function(key, val) {
 		if (key != "callee") return;
@@ -19,15 +29,6 @@ function evaluator(code) {
 	});
 	//console.log(JSON.stringify(tree, null, "\t"));
 	code = escodegen.generate(tree);
-	if (code.match("@cc_on")) {
-		console.log("The code appears to contain conditional compilation statements.");
-		console.log("If you run into unexpected results, try uncommenting lines that look like")
-		console.log("")
-		console.log("    /*@cc_on")
-		console.log("    <JavaScript code>")
-		console.log("    @*/")
-		console.log("")
-	}
 	controller.logJS(code);
 
 	var sandbox = {
