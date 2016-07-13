@@ -48,6 +48,8 @@ function evaluator(code) {
 					case "Sleep":
 						// return x => console.log(`Sleeping for ${x} ms...`)
 						return x => {}
+					case "Quit":
+						return () => {};
 					case "ScriptFullName":
 						return "(ScriptFullName)";
 					default:

@@ -3,7 +3,7 @@ var controller = require("../_controller")
 function ADODBStream() {
 	this.buffer = "";
 	this.open = () => {}
-	this.write = function(chunk) {
+	this.write = this.writetext = function(chunk) {
 		this.buffer += String(chunk);
 	}
 	this.savetofile = function(filename) {
