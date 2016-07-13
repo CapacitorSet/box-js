@@ -59,7 +59,13 @@ function evaluator(code) {
 					case "ScriptFullName":
 						return "(ScriptFullName)";
 					case "Echo":
-						return x => console.log("Script wrote:", x);
+						if (process.argv.indexOf("--no-rewrite") == -1)
+							return x => {
+								console.log("Script wrote:", x);
+								console.log("Add flag --no-echo to disable this.");
+							}
+						else
+							return () => {}
 					default:
 						controller.kill(`WScript.${name} not implemented!`)
 				}
