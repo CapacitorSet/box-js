@@ -59,7 +59,7 @@ function evaluator(code) {
 					case "ScriptFullName":
 						return "(ScriptFullName)";
 					case "Echo":
-						if (process.argv.indexOf("--no-rewrite") == -1)
+						if (process.argv.indexOf("--no-echo") == -1)
 							return x => {
 								console.log("Script wrote:", x);
 								console.log("Add flag --no-echo to disable this.");
