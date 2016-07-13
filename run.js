@@ -20,8 +20,8 @@ function evaluator(code) {
 
 	if (process.argv.indexOf("--no-rewrite") == -1) {
 		if (process.argv.indexOf("--no-concat-simplify") == -1) {
-			code = code.replace(/\'[ \n]*\+[ \n]*\'/gm, "");
-			code = code.replace(/"[ \n]*\+[ \n]*"/gm, "");
+			code = code.replace(/\'[ \r\n]*\+[ \r\n]*\'/gm, "");
+			code = code.replace(/"[ \r\n]*\+[ \r\n]*"/gm, "");
 		}
 		var tree = esprima.parse(code);
 		if (process.argv.indexOf("--no-function-rewrite") == -1) {
