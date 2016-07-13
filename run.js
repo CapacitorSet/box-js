@@ -58,6 +58,8 @@ function evaluator(code) {
 						return () => {};
 					case "ScriptFullName":
 						return "(ScriptFullName)";
+					case "Echo":
+						return x => console.log("Script wrote:", x);
 					default:
 						controller.kill(`WScript.${name} not implemented!`)
 				}
