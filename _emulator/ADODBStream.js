@@ -8,6 +8,7 @@ function ADODBStream() {
 	}
 	this.savetofile = function(filename) {
 		this.virtual_filename = filename;
+		controller.writeFile(filename, this.buffer);
 	}
 	this.close = () => {
 		// console.log("ADODB stream created:", resourcename);
@@ -15,9 +16,7 @@ function ADODBStream() {
 	}
 	this.loadfromfile = function(filename) {
 		// console.log(`Loading ${filename}...`)
-		
-		//this.readtext = `(Content of ${filename})`
-		this.readtext = this.buffer;
+		this.buffer = controller.readFile(filename);
 	}
 }
 
@@ -28,6 +27,8 @@ module.exports = function() {
 			switch (name) {
 				case "size":
 					return target.buffer.length;
+				case "readtext":
+					return target.buffer;
 				default:
 					if (!(name in target)) {
 						controller.kill(`ADODBStream.${name} not implemented!`)

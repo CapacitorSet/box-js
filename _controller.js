@@ -4,7 +4,8 @@ var fs = require("fs"),
 
 var urls = [],
 	snippets = {},
-	resources = {};
+	resources = {},
+	files = [];
 
 var logSnippet = function(filename, logContent, content) {
 	snippets[filename] = logContent;
@@ -19,13 +20,13 @@ module.exports = {
 		process.exit(0)
 	},
 	fetchUrl: function(method, url) {
-		if (process.argv.indexOf("--no-download") != -1) {
+		if (process.argv.indexOf("--download") == -1) {
 			console.log(`Faking a ${method} request to ${url}`);
+			console.log("Use the flag --download to actually download the file (eg. for encoded payloads).");
 			return `(Content of ${url})`;
 		}
 
 		console.log(`Emulating a ${method} request to ${url}`);
-		console.log("Use the flag --no-download to fake the HTTP request.");
 		if (method == "POST")
 			throw new Error("Emulating a POST request is not yet supported.")
 		var file = request(method, url, {
@@ -36,6 +37,12 @@ module.exports = {
 			timeout: 5000
 		});
 		return file.body.toString("utf8");
+	},
+	writeFile: function(filename, contents) {
+		files[filename] = contents;
+	},
+	readFile: function(filename) {
+		return files[filename];
 	},
 	logUrl: function(method, url) {
 		if (urls.indexOf(url) == -1) urls.push(url);
