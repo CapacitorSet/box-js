@@ -1,10 +1,14 @@
-var controller = require("../_controller")
+var controller = require("../_controller");
 
 function ADODBStream() {
 	this.buffer = "";
 	this.open = () => {}
 	this.write = this.writetext = function(chunk) {
-		this.buffer += String(chunk);
+		if (typeof chunk === "object") { // This should be a Buffer from Node.js. Store it directly.
+			this.buffer = chunk;
+		} else {
+			this.buffer += String(chunk);
+		}
 	}
 	this.savetofile = function(filename) {
 		this.virtual_filename = filename;

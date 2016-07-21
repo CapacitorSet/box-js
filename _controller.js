@@ -36,7 +36,7 @@ module.exports = {
 			maxRedirects: 20,
 			timeout: 5000
 		});
-		return file.body.toString("utf8");
+		return file.body;
 	},
 	writeFile: function(filename, contents) {
 		files[filename] = contents;
