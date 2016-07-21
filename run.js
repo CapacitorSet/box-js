@@ -47,7 +47,6 @@ controller.logJS(code);
 
 var sandbox = {
 	_logJS: code => rewrite(controller.logJS(code)),
-	thing: require("fs").readFileSync("hrzl8dw5", "utf8"),
 	console: {
 		log: x => console.log(x)
 	},
