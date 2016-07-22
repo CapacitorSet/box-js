@@ -14,7 +14,9 @@ function WScriptShell() {
 	}
 	this.exec = this.run = function(command) {
 		const filename = controller.getUUID()
-		console.log("Executing", filename, "in the WScript shell")
+		console.log("======================================");
+		console.log("    Executing", filename, "in the WScript shell")
+		console.log("======================================");
 		controller.logSnippet(filename, {as: "WScript code"}, command)
 		if (process.argv.indexOf("--no-shell-error") == -1)
 			throw new Error("If you can read this, re-run box.js with the --no-shell-error flag.");

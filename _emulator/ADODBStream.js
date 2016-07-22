@@ -54,13 +54,10 @@ function ADODBStream() {
 		}
 	}
 	this.loadfromfile = function(filename) {
-		if (this.type == 2 && this.charset.length > 0) {
-            console.log("Going for the encoding.");
+		if (this.type == 2 && this.charset.length > 0)
 			this.buffer = iconv.decode(controller.readFile(filename), this.charset);
-		} else {
-            console.log("Going raw.");
+		else
 			this.buffer = controller.readFile(filename);
-		}
 	}
 }
 
