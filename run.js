@@ -67,7 +67,8 @@ var sandbox = {
 					return {
 						AtEndOfStream: {
 							typeof: "unknown"
-						}
+						},
+						Line: 1
 					}
 				case "Arguments":
 					return new Proxy([], {
