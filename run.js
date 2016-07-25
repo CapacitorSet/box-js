@@ -111,8 +111,9 @@ function ActiveXObject(name) {
 	if (name.match("WinHttpRequest"))
 		return require("./_emulator/WinHttpRequest")();
 	if (name.match("DOMDocument")) {
-		this.createElement = require("./_emulator/DOM");
-		return;
+		return {
+			createElement: require("./_emulator/DOM")
+		};
 	}
 
 	switch (name) {

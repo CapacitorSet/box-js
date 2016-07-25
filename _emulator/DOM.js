@@ -1,7 +1,6 @@
 var controller = require("../_controller")
 
 function VirtualDOMTag(name) {
-	//console.log(`Creating a <${name}> tag...`);
 	this.name = name;
 	return this;
 }
@@ -12,7 +11,8 @@ module.exports = function(name) {
 		get: function(target, name) {
 			switch (name) {
 				case "nodeTypedValue":
-					return target.text;
+					if (target.dataType != "bin.base64") return target.text;
+					return new Buffer(target.text, "base64").toString("utf8");
 				default:
 					if (!(name in target)) {
 						controller.kill(`VirtualDOMTag.${name} not implemented!`)
