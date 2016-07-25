@@ -64,12 +64,18 @@ var sandbox = {
 		get: function(target, name) {
 			switch (name) {
 				case "StdIn":
-					return {
+					return new Proxy({
 						AtEndOfStream: {
 							typeof: "unknown"
 						},
 						Line: 1
-					}
+					}, {
+						get: function(target, name) {
+							if (!(name in target))
+								controller.kill(`WScript.StdIn.${name} not implemented!`);
+							return target[name];
+						}
+					});
 				case "Arguments":
 					return new Proxy([], {
 						get: function(target, name) {
