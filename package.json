@@ -3,6 +3,7 @@
 		"uuid": "*",
 		"esprima": "*",
 		"escodegen": "*",
-		"sync-request": "*"
+		"sync-request": "*",
+		"iconv-lite": "*"
 	}
 }
