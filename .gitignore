@@ -2,7 +2,7 @@ sample.js
 urls.json
 snippets.json
 resources.json
-[0-f]*
+*.results
 
 npm-debug.log*
 node_modules

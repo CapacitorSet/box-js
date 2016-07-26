@@ -2,6 +2,8 @@ var fs = require("fs"),
 	uuid = require("uuid"),
 	request = require("sync-request");
 
+const directory = process.argv[3];
+
 var urls = [],
 	snippets = {},
 	resources = {},
@@ -9,8 +11,8 @@ var urls = [],
 
 var logSnippet = function(filename, logContent, content) {
 	snippets[filename] = logContent;
-	fs.writeFileSync(filename, content);
-	fs.writeFileSync("snippets.json", JSON.stringify(snippets, null, "\t"));
+	fs.writeFileSync(directory + filename, content);
+	fs.writeFileSync(directory + "snippets.json", JSON.stringify(snippets, null, "\t"));
 };
 
 module.exports = {
@@ -46,12 +48,12 @@ module.exports = {
 	},
 	logUrl: function(method, url) {
 		if (urls.indexOf(url) == -1) urls.push(url);
-		fs.writeFileSync("urls.json", JSON.stringify(urls, null, "\t"))
+		fs.writeFileSync(directory + "urls.json", JSON.stringify(urls, null, "\t"))
 	},
 	logResource: function(resourceName, logContent, content) {
 		resources[resourceName] = logContent;
-		fs.writeFileSync(resourceName, content);
-		fs.writeFileSync("resources.json", JSON.stringify(resources, null, "\t"))
+		fs.writeFileSync(directory + resourceName, content);
+		fs.writeFileSync(directory + "resources.json", JSON.stringify(resources, null, "\t"))
 	},
 	logSnippet,
 	logJS: function(code) {

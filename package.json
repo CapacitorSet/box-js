@@ -4,6 +4,9 @@
 		"esprima": "*",
 		"escodegen": "*",
 		"sync-request": "*",
-		"iconv-lite": "*"
+		"iconv-lite": "*",
+		"walk": "*",
+		"async": "*",
+		"minimist": "*"
 	}
 }
