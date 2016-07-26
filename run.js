@@ -5,7 +5,7 @@ var cp = require('child_process'),
 
 var argv = require('minimist')(process.argv.slice(2));
 
-let timeout = argv.timeout || 10000;
+let timeout = argv.timeout || 10;
 if (!argv.timeout)
 	console.log("Using a 10 seconds timeout, pass --timeout to specify another timeout in seconds")
 
@@ -36,9 +36,9 @@ if (tasks.length == 0) {
 	process.exit(-1);
 }
 
-tasks.forEach(task => task());
-
 process.setMaxListeners(Infinity);
+
+tasks.forEach(task => task());
 
 function isDir(path) {
 	let exists = false;
@@ -51,7 +51,6 @@ function isDir(path) {
 function analyze(path, filename) {
 	let directory = filename + ".results";
 	let i = 1;
-	let killed = false;
 	while (isDir(directory)) {
 		i++;
 		directory = filename + "." + i + ".results";
@@ -61,22 +60,18 @@ function analyze(path, filename) {
 	let worker = cp.fork('./analyze', [path, directory, ...options]);
 
 	worker.on('message', function(data) {
-		killed = true;
 		worker.kill();
 	});
 
 	worker.on('exit', function (code, signal) {
-		killed = true;
 		worker.kill();
 	});
 
 	worker.on('error', function (err) {
-		killed = true;
 		worker.kill();
 	});
 
 	setTimeout(function killOnTimeOut() {
-		if (killed) return;
 		console.log(`Analysis for ${filename} timed out.`);
 		worker.kill();
 	}, timeout * 1000);
