@@ -3,6 +3,7 @@ urls.json
 snippets.json
 resources.json
 *.results
+decoder
 
 npm-debug.log*
 node_modules

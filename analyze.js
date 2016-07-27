@@ -32,7 +32,22 @@ function rewrite(code) {
 		try {
 			var tree = esprima.parse(code);
 		} catch (e) {
-			console.log("This doesn't seem to be a JavaScript/WScript file.");
+			if (filename.match(/jse$/)) {
+				console.log("This appears to be a JSE (JScript.Encode) file.");
+				console.log("Please compile the decoder and decode it first:");
+				console.log("");
+				console.log("cc decoder.c -o decoder");
+				console.log("./decoder " + filename + " " + filename.replace(/jse$/, "js"));
+				console.log("");
+			} else {
+				console.log("This doesn't seem to be a JavaScript/WScript file.");
+				console.log("If this is a JSE file (JScript.Encode), compile")
+				console.log("decoder.c and run it on the file, like this:")				
+				console.log("");
+				console.log("cc decoder.c -o decoder");
+				console.log("./decoder " + filename + " " + filename + ".js");
+				console.log("");
+			}
 			process.exit(-1);
 		}
 		if (process.argv.indexOf("--no-function-rewrite") == -1) {
