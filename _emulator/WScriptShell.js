@@ -3,10 +3,11 @@ var controller = require("../_controller")
 function WScriptShell() {
 	this.environment = x => `(Environment variable ${x})`;
 	this.expandenvironmentstrings = function(arg) {
+		arg = arg.toLowerCase();
 		switch (arg) {
-			case "%TEMP%":
+			case "%temp%":
 				return "(path)";
-			case "%TEMP%/":
+			case "%temp%/":
 				return "(path)/";
 			default:
 				controller.kill(`Unknown argument ${arg}`);

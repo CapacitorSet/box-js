@@ -101,6 +101,7 @@ var sandbox = {
 				case "ScriptFullName":
 					return "(ScriptFullName)";
 				case "Echo":
+				case "echo":
 					if (process.argv.indexOf("--no-echo") == -1)
 						return x => {
 							console.log("Script wrote:", x);
