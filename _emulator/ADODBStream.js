@@ -38,7 +38,6 @@ function ADODBStream() {
 		controller.writeFile(filename, this.buffer);
 	}
 	this.close = () => {
-		// console.log("ADODB stream created:", resourcename);
 		controller.logResource(controller.getUUID(), this.virtual_filename, this.buffer)
 	}
 

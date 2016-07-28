@@ -1,6 +1,7 @@
 var controller = require("../_controller")
 
 function XMLHTTP() {
+	this.headers = {};
 	this.onreadystatechange = () => {};
 	this.open = function(method, url) {
 		this.url = url;
@@ -8,6 +9,7 @@ function XMLHTTP() {
 		controller.logUrl(method, url);
 	}
 	this.setrequestheader = function(key, val) {
+		this.headers[key] = val;
 		console.log(`Header set for ${this.url}:`, key, val);
 	}
 	this.send = function(data) {
@@ -15,7 +17,7 @@ function XMLHTTP() {
 			console.log(`Data sent to ${this.url}:`, data);
 		this.readystate = 4;
 		this.status = 200;
-		this.responsebody = controller.fetchUrl(this.method, this.url);
+		this.responsebody = controller.fetchUrl(this.method, this.url, this.headers, data);
 		this.onreadystatechange();
 	}
 }

@@ -21,7 +21,7 @@ module.exports = {
 		console.trace(message)
 		process.exit(0)
 	},
-	fetchUrl: function(method, url) {
+	fetchUrl: function(method, url, headers = {}, body) {
 		if (process.argv.indexOf("--download") == -1) {
 			console.log(`Faking a ${method} request to ${url}`);
 			console.log("Use the flag --download to actually download the file (eg. for encoded payloads).");
@@ -29,15 +29,15 @@ module.exports = {
 		}
 
 		console.log(`Emulating a ${method} request to ${url}`);
-		if (method == "POST")
-			throw new Error("Emulating a POST request is not yet supported.")
-		var file = request(method, url, {
-			headers: {
-				"User-Agent": "Mozilla/4.0 (Windows; MSIE 6.0; Windows NT 6.0)"
-			},
+		headers["User-Agent"] = "Mozilla/4.0 (Windows; MSIE 6.0; Windows NT 6.0)";
+		let options = {
+			headers,
 			maxRedirects: 20,
 			timeout: 5000
-		});
+		};
+		if (body)
+			options.body = body;
+		var file = request(method, url, options);
 		return file.body;
 	},
 	writeFile: function(filename, contents) {
