@@ -10,7 +10,7 @@ console.log(`Analyzing ${filename}`);
 let code = fs.readFileSync("patch.js", "utf8") + fs.readFileSync(filename, "utf8");
 
 if (code.match("<job") || code.match("<script")) { // The sample may actually be a .wsf, which is <job><script>..</script><script>..</script></job>.
-	code = code.replace(/<\/?\w+( [\w\d='"]+)?>/g, "");
+	code = code.replace(/<\/?\w+( [\w\d='"]+)*>/g, "");
 }
 
 function rewrite(code) {
