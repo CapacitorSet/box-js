@@ -38,6 +38,8 @@ module.exports = {
 		if (body)
 			options.body = body;
 		var file = request(method, url, options);
+		Buffer.prototype.charCodeAt = function(index) { return this[index]; }
+		console.log("Length: " + file.body.length + " bytes.");
 		return file.body;
 	},
 	writeFile: function(filename, contents) {
