@@ -99,6 +99,11 @@ var sandbox = {
 	WScript: new Proxy({}, {
 		get: function(target, name) {
 			switch (name) {
+				case Symbol.toPrimitive:
+					return () => "Windows Script Host";
+				case "toString":
+					return "Windows Script Host";
+
 				case "StdIn":
 					return new Proxy({
 						AtEndOfStream: {
