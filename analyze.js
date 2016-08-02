@@ -126,6 +126,8 @@ var sandbox = {
 				case "toString":
 					return "Windows Script Host";
 
+				case "Path":
+					return "C:\\TestFolder\\";
 				case "StdIn":
 					return new Proxy({
 						AtEndOfStream: {
