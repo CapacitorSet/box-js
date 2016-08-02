@@ -41,20 +41,17 @@ function ADODBStream() {
 		controller.logResource(controller.getUUID(), this.virtual_filename, this.buffer)
 	}
 
-	this.write = function(text) {
-		this.buffer = text;
-	}
-
-	this.writetext = function(text) {
-		if (this.type == 2 && this.charset.length > 0) {
+	this.write = this.writetext = function(text) {
+		if (/* this.type == 2 && */ this.charset == 437) {
 			this.buffer = iconv.encode(text, this.charset);
 		} else {
 			this.buffer = text;
 		}
 	}
 	this.loadfromfile = function(filename) {
-		if (this.type == 2 && this.charset.length > 0)
+		if (/* this.type == 2 && */ this.charset == 437) {
 			this.buffer = iconv.decode(controller.readFile(filename), this.charset);
+		}
 		else
 			this.buffer = controller.readFile(filename);
 	}
