@@ -2,6 +2,8 @@ var controller = require("../_controller")
 
 function WScriptShell() {
 	this.environment = x => `(Environment variable ${x})`;
+	this.specialfolders = x => "(some folder)";
+	this.createshortcut = () => ({});
 	this.expandenvironmentstrings = function(arg) {
 		arg = arg.toLowerCase();
 		switch (arg) {
