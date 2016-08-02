@@ -112,7 +112,12 @@ function rewrite(code) {
 code = rewrite(code);
 controller.logJS(code);
 
+Date.prototype.getYear = function() {
+	return new Date().getFullYear();
+};
+
 var sandbox = {
+	Date,
 	_logJS: code => rewrite(controller.logJS(code)),
 	_typeof: x => x.typeof ? x.typeof : typeof x,
 	console: {
@@ -185,7 +190,6 @@ try {
 }
 
 function ActiveXObject(name) {
-	// console.log("New ActiveXObject created:", name);
 	if (name.match("WinHttpRequest"))
 		return require("./_emulator/WinHttpRequest")();
 	if (name.match("DOMDocument")) {
