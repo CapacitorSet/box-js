@@ -2,9 +2,16 @@ var controller = require("../_controller")
 
 function WScriptShell() {
 	this.environment = x => {
-		if (x.toLowerCase() == "system") return (thingie) => {
-			if (thingie != "OS") controller.quit("Unknown parameter for WScriptShell.Environment.System");
-			return "Windows_NT";
+		if (x.toLowerCase() == "system") return argument => {
+			argument = argument.toLowerCase();
+			switch (argument) {
+				case "os":
+					return "Windows_NT";
+				case "comspec":
+					return "\\%SystemRoot\\%\\\\system32\\cmd.exe";
+				default:
+					controller.kill(`Unknown parameter ${argument} for WScriptShell.Environment.System`);
+			}
 		}
 		return `(Environment variable ${x})`;
 	}
