@@ -147,10 +147,16 @@ var sandbox = {
 						}
 					});
 				case "Arguments":
-					return new Proxy([], {
+					return new Proxy(function(n) { return `${n}th argument` }, {
 						get: function(target, name) {
-							if (name != "Unnamed") return target[name];
-							return [];
+							switch (name) {
+								case "Unnamed":
+									return [];
+								case "length":
+									return 0;
+								default:
+									return target[name];
+							}
 						}
 					});
 				case "CreateObject":
@@ -192,9 +198,12 @@ try {
 function ActiveXObject(name) {
 	if (name.match("WinHttpRequest"))
 		return require("./_emulator/WinHttpRequest")();
-	if (name.match("DOMDocument")) {
+	if (name.match("DOM")) {
 		return {
-			createElement: require("./_emulator/DOM")
+			createElement: require("./_emulator/DOM"),
+			load: filename => {
+				//console.log(`Loading ${filename} in a virtual DOM environment...`);
+			}
 		};
 	}
 
