@@ -19,6 +19,7 @@ function TextStream(filename) {
 			this.BufferArray = this.buffer.split("\n");
 		return this.BufferArray.shift();
 	}
+	this.ShortPath = function() {console.log(arguments);}
 }
 
 function ProxiedTextStream(filename) {
@@ -37,6 +38,7 @@ function ProxiedTextStream(filename) {
 
 function File(contents) {
 	this.OpenAsTextStream = () => ProxiedTextStream(contents);
+	this.ShortPath = "C:\\PROGRA~1\\example-file.exe";
 }
 
 function ProxiedFile(filename) {
