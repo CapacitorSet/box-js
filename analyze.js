@@ -97,6 +97,20 @@ function rewrite(code) {
 				return require("./patches/typeof.js")(val.argument);
 			});
 		}
+
+		// Replace (a != b) with (false)
+		if (process.argv.indexOf("--experimental-neq") != -1) {
+			traverse(tree, function(key, val) {
+				if (!val) return;
+				if (val.type != "BinaryExpression") return;
+				if (val.operator != "!=" && val.operator != "!==") return;
+				return {
+					type: "Literal",
+					value: false,
+					raw: "false"
+				};
+			});
+		}
 		//console.log(JSON.stringify(tree, null, "\t"));
 		code = escodegen.generate(tree);
 
@@ -123,6 +137,7 @@ var sandbox = {
 	console: {
 		log: x => console.log(x)
 	},
+	alert: x => {},
 	WScript: new Proxy({}, {
 		get: function(target, name) {
 			switch (name) {
