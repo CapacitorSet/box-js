@@ -4,27 +4,28 @@ function TextStream(filename) {
 	this.buffer = controller.readFile(filename) || "";
 	this.uuid = controller.getUUID();
 	this.filename = filename;
-	this.Write = this.WriteLine = line => {
+	this.write = this.writeline = line => {
 		this.buffer = this.buffer + line;
 		controller.writeFile(filename, this.buffer);
 		controller.logResource(this.uuid, this.filename, this.buffer);
 	}
-	this.ReadAll = () => {
+	this.readall = () => {
 		return this.buffer;
 	}
-	this.Close = () => {};
-	this.BufferArray = [];
-	this.ReadLine = function() {
-		if (this.BufferArray.length == 0)
-			this.BufferArray = this.buffer.split("\n");
-		return this.BufferArray.shift();
+	this.close = () => {};
+	this.bufferarray = [];
+	this.readline = function() {
+		if (this.bufferarray.length == 0)
+			this.bufferarray = this.buffer.split("\n");
+		return this.bufferarray.shift();
 	}
-	this.ShortPath = function() {console.log(arguments);}
+	this.shortpath = path => path;
 }
 
 function ProxiedTextStream(filename) {
 	return new Proxy(new TextStream(filename), {
 		get: function(target, name) {
+			name = name.toLowerCase();
 			switch (name) {
 				default:
 					if (!(name in target)) {
@@ -32,7 +33,14 @@ function ProxiedTextStream(filename) {
 					}
 					return target[name];
 			}
+		},
+		set: function(a, b, c) {
+			b = b.toLowerCase();
+			if (c.length < 1024)
+				console.log(`FSObject[${b}] = ${c};`);
+			a[b] = c;
 		}
+
 	})
 }
 
