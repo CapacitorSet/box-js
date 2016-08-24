@@ -39,7 +39,7 @@ module.exports = {
 			options.body = body;
 		var file = request(method, url, options);
 		Buffer.prototype.charCodeAt = function(index) { return this[index]; }
-		console.log("Length: " + file.body.length + " bytes.");
+		console.log(`Downloaded ${file.body.length} bytes.`);
 		return file.body;
 	},
 	writeFile: function(filename, contents) {
@@ -52,10 +52,15 @@ module.exports = {
 		if (urls.indexOf(url) == -1) urls.push(url);
 		fs.writeFileSync(directory + "urls.json", JSON.stringify(urls, null, "\t"))
 	},
-	logResource: function(resourceName, logContent, content) {
+	logResource: function(resourceName, logContent, content, print = false) {
 		resources[resourceName] = logContent;
 		fs.writeFileSync(directory + resourceName, content);
 		fs.writeFileSync(directory + "resources.json", JSON.stringify(resources, null, "\t"))
+		if (!print) return;
+		let filetype = require("child_process").execSync("file " + JSON.stringify(directory + resourceName)).toString("utf8");
+		filetype = filetype.replace(`${directory + resourceName}: `, "").replace("\n", "");
+		console.log(`Saved ${directory + resourceName} (${content.length})`);
+		console.log(`${directory + resourceName} has been detected as ${filetype}.`);
 	},
 	logSnippet,
 	logJS: function(code) {
