@@ -196,9 +196,11 @@ try {
 }
 
 function ActiveXObject(name) {
-	if (name.match("WinHttpRequest"))
+	// console.log(`New ActiveXObject: ${name}`);
+	name = name.toLowerCase();
+	if (name.match("winhttprequest"))
 		return require("./_emulator/WinHttpRequest")();
-	if (name.match("DOM")) {
+	if (name.match("dom")) {
 		return {
 			createElement: require("./_emulator/DOM"),
 			load: filename => {
@@ -208,16 +210,18 @@ function ActiveXObject(name) {
 	}
 
 	switch (name) {
-		case "WScript.Shell":
-			return require("./_emulator/WScriptShell")();
-		case "MSXML2.XMLHTTP":
-			return require("./_emulator/XMLHTTP")();
-		case "ADODB.Stream":
+		case "adodb.stream":
 			return require("./_emulator/ADODBStream")();
-		case "WScript.Network":
-			return require("./_emulator/WScriptNetwork")();
-		case "Scripting.FileSystemObject":
+		case "msxml2.xmlhttp":
+			return require("./_emulator/XMLHTTP")();
+		case "scripting.filesystemobject":
 			return require("./_emulator/FileSystemObject")();
+		case "shell.application":
+			return require("./_emulator/ShellApplication")();
+		case "wscript.network":
+			return require("./_emulator/WScriptNetwork")();
+		case "wscript.shell":
+			return require("./_emulator/WScriptShell")();
 		default:
 			controller.kill(`Unknown ActiveXObject ${name}`);
 			break;
