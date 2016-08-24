@@ -38,7 +38,7 @@ function ADODBStream() {
 		controller.writeFile(filename, this.buffer);
 	}
 	this.close = () => {
-		controller.logResource(controller.getUUID(), this.virtual_filename, this.buffer)
+		controller.logResource(controller.getUUID(), this.virtual_filename, this.buffer, true)
 	}
 
 	this.write = this.writetext = function(text) {
