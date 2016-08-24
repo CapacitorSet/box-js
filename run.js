@@ -58,20 +58,24 @@ function analyze(path, filename) {
 	fs.mkdirSync(directory);
 	directory += "/"; // For ease of use
 	let worker = cp.fork('./analyze', [path, directory, ...options]);
+	let killTimeout;
 
 	worker.on('message', function(data) {
+		clearTimeout(killTimeout);
 		worker.kill();
 	});
 
 	worker.on('exit', function (code, signal) {
+		clearTimeout(killTimeout);
 		worker.kill();
 	});
 
 	worker.on('error', function (err) {
+		clearTimeout(killTimeout);
 		worker.kill();
 	});
 
-	setTimeout(function killOnTimeOut() {
+	killTimeout = setTimeout(function killOnTimeOut() {
 		console.log(`Analysis for ${filename} timed out.`);
 		worker.kill();
 	}, timeout * 1000);
