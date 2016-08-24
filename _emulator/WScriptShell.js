@@ -5,10 +5,13 @@ function WScriptShell() {
 		if (x.toLowerCase() == "system") return argument => {
 			argument = argument.toLowerCase();
 			switch (argument) {
-				case "os":
-					return "Windows_NT";
 				case "comspec":
 					return "\\%SystemRoot\\%\\\\system32\\cmd.exe";
+				case "os":
+					return "Windows_NT";
+				case "processor_architecture":
+					// Emulate a 32-bit environment for maximum compatibility
+					return "x86";
 				default:
 					controller.kill(`Unknown parameter ${argument} for WScriptShell.Environment.System`);
 			}
@@ -17,17 +20,7 @@ function WScriptShell() {
 	}
 	this.specialfolders = x => "(some folder)";
 	this.createshortcut = () => ({});
-	this.expandenvironmentstrings = function(arg) {
-		arg = arg.toLowerCase();
-		switch (arg) {
-			case "%temp%":
-				return "(path)";
-			case "%temp%/":
-				return "(path)/";
-			default:
-				controller.kill(`Unknown argument ${arg}`);
-		}
-	}
+	this.expandenvironmentstrings = arg => arg;
 	this.exec = this.run = function() {
 		const command = Object.keys(arguments).map(key => arguments[key]).join(" ");
 		const filename = controller.getUUID()
@@ -51,6 +44,13 @@ module.exports = function(name) {
 					}
 					return target[name];
 			}
+		},
+		set: function(a, b, c) {
+			b = b.toLowerCase();
+			if (c.length < 1024)
+				console.log(`WScriptShell[${b}] = ${c};`);
+			a[b] = c;
 		}
+
 	})
 }

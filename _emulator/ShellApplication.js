@@ -7,7 +7,6 @@ function VirtualShellApplication(name) {
 	return this;
 }
 
-// Catches requests to <tag>.nodeTypedValue in order to emulate them correctly
 module.exports = function(name) {
 	return new Proxy(new VirtualShellApplication(name), {
 		get: function(target, name) {

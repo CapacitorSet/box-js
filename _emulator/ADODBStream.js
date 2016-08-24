@@ -76,6 +76,9 @@ module.exports = function() {
 		},
 		set: function(a, b, c) {
 			b = b.toLowerCase();
+/*			if (c.length < 1024)
+				console.log(`ADODBStream[${b}] = ${c};`);
+*/
 			a[b] = c;
 		}
 	})
