@@ -214,7 +214,7 @@ function ActiveXObject(name) {
 	// console.log(`New ActiveXObject: ${name}`);
 	name = name.toLowerCase();
 	if (name.match("winhttprequest"))
-		return require("./_emulator/WinHttpRequest")();
+		return require("./_emulator/XMLHTTP")();
 	if (name.match("dom")) {
 		return {
 			createElement: require("./_emulator/DOM"),
