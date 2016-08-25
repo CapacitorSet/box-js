@@ -4,8 +4,13 @@ function TextStream(filename) {
 	this.buffer = controller.readFile(filename) || "";
 	this.uuid = controller.getUUID();
 	this.filename = filename;
-	this.write = this.writeline = line => {
+	this.write = line => {
 		this.buffer = this.buffer + line;
+		controller.writeFile(filename, this.buffer);
+		controller.logResource(this.uuid, this.filename, this.buffer);
+	}
+	this.writeline = line => {
+		this.buffer = this.buffer + line + "\n";
 		controller.writeFile(filename, this.buffer);
 		controller.logResource(this.uuid, this.filename, this.buffer);
 	}
