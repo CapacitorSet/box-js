@@ -20,13 +20,14 @@ function WScriptShell() {
 	}
 	this.specialfolders = x => "(some folder)";
 	this.createshortcut = () => ({});
-	this.expandenvironmentstrings = arg => arg;
+	this.expandenvironmentstrings = path => {
+		path = path.replace(/%TE?MP%/gi, "C:\\DOCUME~1\\John\\LOCALS~1\\Temp");
+		return path;
+	};
 	this.exec = this.run = function() {
 		const command = Object.keys(arguments).map(key => arguments[key]).join(" ");
 		const filename = controller.getUUID()
-		console.log("======================================");
-		console.log("    Executing", filename, "in the WScript shell")
-		console.log("======================================");
+		console.log(`Executing ${controller.directory + filename} in the WScript shell`);
 		controller.logSnippet(filename, {as: "WScript code"}, command)
 		if (process.argv.indexOf("--no-shell-error") == -1)
 			throw new Error("If you can read this, re-run box.js with the --no-shell-error flag.");

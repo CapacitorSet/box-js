@@ -36,10 +36,9 @@ function ADODBStream() {
 	this.savetofile = function(filename) {
 		this.virtual_filename = filename;
 		controller.writeFile(filename, this.buffer);
-	}
-	this.close = () => {
 		controller.logResource(controller.getUUID(), this.virtual_filename, this.buffer, true)
 	}
+	this.close = () => {}
 
 	this.write = this.writetext = function(text) {
 		if (/* this.type == 2 && */ this.charset == 437) {

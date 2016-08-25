@@ -200,15 +200,10 @@ var sandbox = {
 	ActiveXObject
 }
 
-try {
-	return vm.runInNewContext(code, sandbox, {
-		displayErrors: true,
-		filename: "sample.js"
-	});
-} catch (e) {
-	console.log("Err is:", JSON.stringify(e));
-	console.log(e);
-}
+return vm.runInNewContext(code, sandbox, {
+	displayErrors: true,
+	filename: "sample.js"
+});
 
 function ActiveXObject(name) {
 	// console.log(`New ActiveXObject: ${name}`);

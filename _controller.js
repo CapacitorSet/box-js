@@ -16,10 +16,16 @@ var logSnippet = function(filename, logContent, content) {
 };
 
 module.exports = {
+	directory,
 	getUUID: uuid.v4,
 	kill: function(message) {
-		console.trace(message)
-		process.exit(0)
+		if (process.argv.indexOf("--no-kill") == -1) {
+			console.trace(message);
+			console.log("Exiting (use --no-kill to just simulate a runtime error).")
+			process.exit(0);
+		} else {
+			throw new Error(message);
+		}
 	},
 	fetchUrl: function(method, url, headers = {}, body) {
 		if (process.argv.indexOf("--download") == -1) {
@@ -59,13 +65,13 @@ module.exports = {
 		if (!print) return;
 		let filetype = require("child_process").execSync("file " + JSON.stringify(directory + resourceName)).toString("utf8");
 		filetype = filetype.replace(`${directory + resourceName}: `, "").replace("\n", "");
-		console.log(`Saved ${directory + resourceName} (${content.length})`);
+		console.log(`Saved ${directory + resourceName} (${content.length} bytes)`);
 		console.log(`${directory + resourceName} has been detected as ${filetype}.`);
 	},
 	logSnippet,
 	logJS: function(code) {
 		const filename = uuid.v4() + ".js";
-		console.log("Code saved to", filename)
+		// console.log("Code saved to", filename)
 		logSnippet(filename, {as: "eval'd JS"}, code)
 		return code; // Helps with tail call optimization
 	}
