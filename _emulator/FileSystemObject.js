@@ -69,15 +69,15 @@ function ProxiedFile(filename) {
 }
 
 function FileSystemObject() {
-	this.CreateTextFile = this.OpenTextFile = filename => new ProxiedTextStream(filename);
-	this.BuildPath = function() {
+	this.createtextfile = this.opentextfile = filename => new ProxiedTextStream(filename);
+	this.buildpath = function() {
 		return Array.prototype.slice.call(arguments, 0).join("\\");
 	}
-	this.FileExists = this.DeleteFile = () => true;
-	this.GetFile = function(filename) {
+	this.fileexists = this.deletefile = () => true;
+	this.getfile = function(filename) {
 		return new ProxiedFile(filename);
 	}
-	this.GetSpecialFolder = function(id) {
+	this.getspecialfolder = function(id) {
 		switch (id) {
 			case 0:
 			case "0":
@@ -92,12 +92,13 @@ function FileSystemObject() {
 				return "(Special folder " + id + ")"
 		}
 	}
-	this.GetTempName = () => "(Temporary file)"
+	this.gettempname = () => "(Temporary file)"
 }
 
 module.exports = function() {
 	return new Proxy(new FileSystemObject(), {
 		get: function(target, name) {
+			name = name.toLowerCase();
 			switch (name) {
 				default:
 					if (!(name in target)) {
