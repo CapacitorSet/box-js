@@ -138,6 +138,7 @@ var sandbox = {
 		log: x => console.log(x)
 	},
 	alert: x => {},
+	parse: x => {},
 	WScript: new Proxy({}, {
 		get: function(target, name) {
 			switch (name) {
