@@ -170,6 +170,10 @@ var sandbox = {
 									return [];
 								case "length":
 									return 0;
+								case "ShowUsage":
+									return {
+										typeof: "unknown"
+									};
 								default:
 									return target[name];
 							}
