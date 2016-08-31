@@ -89,7 +89,7 @@ function rewrite(code) {
 			});
 		}
 		if (process.argv.indexOf("--no-typeof-rewrite") == -1) {
-			traverse(tree, function(key, val) {
+-			traverse(tree, function(key, val) {
 				if (!val) return;
 				if (val.type != "UnaryExpression") return;
 				if (val.operator != "typeof") return;
@@ -139,6 +139,22 @@ var sandbox = {
 	},
 	alert: x => {},
 	parse: x => {},
+	JSON: JSON,
+	location: new Proxy({
+		href: "http://www.foobar.com/",
+		protocol: "http:",
+		host: "www.foobar.com",
+		hostname: "www.foobar.com"
+	}, {
+		get: function (target, name) {
+			switch (name) {
+				case Symbol.toPrimitive:
+					return () => "http://www.foobar.com/";
+				default:
+					return target[name.toLowerCase()];
+			}
+		}
+	}),
 	WScript: new Proxy({}, {
 		get: function(target, name) {
 			switch (name) {
@@ -175,7 +191,10 @@ var sandbox = {
 										typeof: "unknown"
 									};
 								default:
-									return target[name];
+									return new Proxy(
+										target[name],
+										{get:(target,name)=>name.toLowerCase()=="typeof"?"unknown":target[name]}
+									);
 							}
 						}
 					});
