@@ -21,7 +21,7 @@ function WScriptShell() {
 	this.specialfolders = x => "(some folder)";
 	this.createshortcut = () => ({});
 	this.expandenvironmentstrings = path => {
-		path = path.replace(/%TE?MP%/gi, "C:\\DOCUME~1\\John\\LOCALS~1\\Temp");
+		path = path.replace(/%TE?MP%/gi, "C:\\DOCUME~1\\MyUsername\\LOCALS~1\\Temp");
 		return path;
 	};
 	this.exec = this.run = function() {
