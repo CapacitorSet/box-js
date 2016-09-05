@@ -6,7 +6,7 @@ function WScriptShell() {
 			argument = argument.toLowerCase();
 			switch (argument) {
 				case "comspec":
-					return "\\%SystemRoot\\%\\\\system32\\cmd.exe";
+					return "\%SystemRoot\%\\system32\\cmd.exe";
 				case "os":
 					return "Windows_NT";
 				case "processor_architecture":
