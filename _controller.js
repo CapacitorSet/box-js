@@ -5,9 +5,12 @@ var fs = require("fs"),
 const directory = process.argv[3];
 
 var urls = [],
+	activeUrls = [],
 	snippets = {},
 	resources = {},
 	files = [];
+
+var latestUrl = "";
 
 var logSnippet = function(filename, logContent, content) {
 	snippets[filename] = logContent;
@@ -28,6 +31,7 @@ module.exports = {
 		}
 	},
 	fetchUrl: function(method, url, headers = {}, body) {
+		latestUrl = url;
 		if (process.argv.indexOf("--download") == -1) {
 			console.log(`Faking a ${method} request to ${url}`);
 			console.log("Use the flag --download to actually download the file (eg. for encoded payloads).");
@@ -67,6 +71,13 @@ module.exports = {
 		filetype = filetype.replace(`${directory + resourceName}: `, "").replace("\n", "");
 		console.log(`Saved ${directory + resourceName} (${content.length} bytes)`);
 		console.log(`${directory + resourceName} has been detected as ${filetype}.`);
+		if (/executable/.test(filetype)) {
+			console.log("Active URL detected: " + latestUrl);
+			// Log active url
+			if (activeUrls.indexOf(latestUrl) == -1)
+				activeUrls.push(latestUrl);
+			fs.writeFileSync(directory + "active_urls.json", JSON.stringify(activeUrls, null, "\t"));
+		}
 	},
 	logSnippet,
 	logJS: function(code) {
