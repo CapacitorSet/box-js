@@ -59,15 +59,6 @@ function rewrite(code) {
 			}
 			process.exit(-1);
 		}
-		if (process.argv.indexOf("--no-sequence-simplify") == -1) {
-			traverse(tree, function(key, val) {
-				if (!val) return;
-				if (val.type != "SequenceExpression") return;
-				let last = val.expressions.pop();
-				if (val.expressions.some(expr => expr.type != "Literal")) return;
-				return last;
-			})
-		}
 		if (process.argv.indexOf("--no-concat-simplify") == -1) {
 			traverse(tree, function(key, val) {
 				if (!val) return;
