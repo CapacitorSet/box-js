@@ -17,13 +17,18 @@ if (code.match("<job") || code.match("<script")) { // The sample may actually be
 
 function rewrite(code) {
 	if (code.match("@cc_on")) {
-		console.log("The code appears to contain conditional compilation statements.");
-		console.log("If you run into unexpected results, try uncommenting lines that look like")
-		console.log("")
-		console.log("    /*@cc_on")
-		console.log("    <JavaScript code>")
-		console.log("    @*/")
-		console.log("")
+		if (process.argv.indexOf("--no-cc_on-rewrite") == -1) {
+			code = code.replace(/\/\*@cc_on/g, "");
+			code = code.replace(/@\*\//g, "");
+		} else {
+			console.log("The code appears to contain conditional compilation statements.");
+			console.log("If you run into unexpected results, try uncommenting lines that look like")
+			console.log("")
+			console.log("    /*@cc_on")
+			console.log("    <JavaScript code>")
+			console.log("    @*/")
+			console.log("")
+		}
 	}
 
 	if (process.argv.indexOf("--no-rewrite") == -1) {
