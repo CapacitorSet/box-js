@@ -13,67 +13,44 @@ node run.js file1.js file2.js folder ...
 
 >Some samples may trigger stack overflow errors. If this happens, add `--stack-size=8192` (`--stack-size` may be restricted to 1024 on Windows).
 
-`snippets.json` contains the fragments of code that were executed; `urls.json`, the URLs requested; `resources.json`, the ADODB streams.
-
-To clear the results, `rm [0-f]* resources.json snippets.json urls.json`.
+It will create a folder called `file1.js.results`; if it already exists, it will create `file1.js.1.results`, and so on. In this folder, `snippets.json` contains the fragments of code that were executed; `urls.json`, the URLs requested; `active_urls.json`, the URLs that seem to drop active malware; `resources.json`, the ADODB streams (i.e. the files that the script wrote to disk).
 
 ## Analyzing the output
-
-It is recommended to 
 
 ### Console output
 
 The first source of information is the console output. On a succesful analysis, it will typically print something like this:
 
 ```
-Code saved to 6084f868-3b26-4173-9bdc-30de0728b958.js
-Code saved to d600003c-cf7e-4a5a-9eab-dd9ccac3bb77.js
-Code saved to 5c713b31-0065-4621-aa1f-8c683c142c2b.js
-POST http://google.com/redir2.php
-Header set for http://google.com/redir2.php: Content-Type application/x-www-form-urlencoded
-Data sent to http://google.com/redir2.php: foo=0.5321231725506976&bar=1000&baz=wTLHfzNQnC
-Executing 2887675c-6693-45f9-9b0e-4cef92cf661c in the WScript shell
+Using a 10 seconds timeout, pass --timeout to specify another timeout in seconds
+Analyzing sample.js
+Header set for http://foo.bar/baz: User-Agent Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)
+Emulating a GET request to http://foo.bar/baz
+Downloaded 301054 bytes.
+Saved sample.js.results/a0af1253-597c-4eed-9e8f-5b633ff5f66a (301054 bytes)
+sample.js.results/a0af1253-597c-4eed-9e8f-5b633ff5f66a has been detected as data.
+Saved sample.js.results/f8df7228-7e0a-4241-9dae-c4e1664dc5d8 (303128 bytes)
+sample.js.results/f8df7228-7e0a-4241-9dae-c4e1664dc5d8 has been detected as PE32 executable (GUI) Intel 80386, for MS Windows.
+http://foo.bar/baz is an active URL.
+Executing sample.js.results/d241e130-346f-4c0c-a698-f925dbd68f0c in the WScript shell
+Header set for http://somethingelse.com/: User-Agent Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)
+Emulating a GET request to http://somethingelse.com/
+...
 ```
 
-The lines with `Code saved to...` represent pieces of JavaScript code that were executed. When you see several line, it's usually because of nested `eval`s. Every piece of code is saved to disk and formatted (beautified) for easier study.
-
-The lines with `GET x` or `POST x` are HTTP requests; `Header set for...` and `Data sent to...` also relates to HTTP. Note that while the requests are logged, they are not actually made, they're just emulated (`box-js` will return the string `(Content of ...)`). This behaviour is typical of droppers; you can download the file yourself and analyze it further.
-
-Finally, the lines with `Executing ...` represent pieces of code that *attempted* to be executed. Again, they weren't really executed, they were just logged to disk.
-
-Sometimes, you'll find that the content of the linked file is something like `(path)\mCzCqYM.js`. To figure out which file is this, consult `resources.json`, and look for a row like
-
-```
-	"9a24d544-f6f4-4523-98e1-9a4c1be6caff": "(path)\\mCzCqYM.js"
-```
-
-* **When a resource points to JavaScript code, the result should be re-run through `box-js`**.
-
-* Sometimes, the files may use base64 encoding.
+In this case, we are seeing a dropper that downloads a file from `http://foo.bar/baz`, setting the HTTP header `User-Agent` to `Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)`. Then, it proceeds to decode it, and write the result to disk (a PE32 executable). Finally, it runs some command in the Windows shell.
 
 ### JSON logs
 
 Every HTTP request is both printed on the terminal and logged in `urls.json`. Duplicate URLs aren't inserted (i.e. requesting the same URL twice will result in only one line in `urls.json`).
 
+`active_urls.json` contains the list of URLs that eventually resulted in an executable payload. This file is the most interesting, if you're looking to take down distribution sites.
+
 `snippets.json` contains every piece of code that `box-js` came across, either executed from `eval` or `WScript.Shell.Run`.
 
-`resources.json` contains every file that the sample tried to write to disk. For instance, if the application tried to save `Hello world!` to `$PATH/foo.txt`, the content of `resources.json` would be `{ "9a24...": "(path)\\foo.txt" }`, and the content of the file `9a24...` would be `Hello world!`.
+`resources.json` contains every file that the sample tried to write to disk. For instance, if the application tried to save `Hello world!` to `$PATH/foo.txt`, the content of `resources.json` would be `{ "9a24...": "(path)\\foo.txt" }`, and the content of the file `9a24...` would be `Hello world!`. This file is also important: watch out for any .dll or .exe resource.
 
 ## Patching
-
-Some droppers use [conditional compilation](https://en.wikipedia.org/wiki/Conditional_comment#Conditional_comments_in_JScript), which is a feature of JScript but not of JavaScript, and thus isn't implemented in V8. Watch out for blocks like
-
-```
-/*@cc_on
-
-Javascript code
-
-@*/
-```
-
-and remove them (leave the plain JavaScript code).
-
---------
 
 Some scripts in the wild have been observed to use `new Date().getYear()` where `new Date().getFullYear()`. If a sample isn't showing any suspicious behaviour, look out for `Date` checks.
 
