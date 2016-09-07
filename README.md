@@ -3,7 +3,7 @@ box.js
 
 An utility to analyze malicious JavaScript (**requires the latest version of Node**, at the moment 6.2.x).
 
-To execute it, simply run
+To execute it, simply install its dependencies (`npm install`) and run
 
 ```
 node run.js file1.js file2.js folder ...
