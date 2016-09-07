@@ -257,6 +257,8 @@ function ActiveXObject(name) {
 			return require("./_emulator/XMLHTTP")();
 		case "scripting.filesystemobject":
 			return require("./_emulator/FileSystemObject")();
+		case "scripting.dictionary":
+			return require("./_emulator/Dictionary")();
 		case "shell.application":
 			return require("./_emulator/ShellApplication")();
 		case "wscript.network":
