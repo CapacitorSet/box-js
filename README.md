@@ -3,11 +3,13 @@ box.js
 
 An utility to analyze malicious JavaScript (**requires the latest version of Node**, at the moment 6.2.x).
 
-To execute it, put your sample file in `sample.js`, and run
+To execute it, simply run
 
 ```
-node run.js
+node run.js file1.js file2.js folder ...
 ```
+
+>If you are interested in receiving the payloads, add the flag `--download`. You may also want to add a longer timeout, eg. `--timeout=30`.
 
 >Some samples may trigger stack overflow errors. If this happens, add `--stack-size=8192` (`--stack-size` may be restricted to 1024 on Windows).
 
@@ -16,6 +18,8 @@ node run.js
 To clear the results, `rm [0-f]* resources.json snippets.json urls.json`.
 
 ## Analyzing the output
+
+It is recommended to 
 
 ### Console output
 
