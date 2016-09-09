@@ -233,6 +233,7 @@ var sandbox = {
 
 return vm.runInNewContext(code, sandbox, {
 	displayErrors: true,
+	lineOffset: -7,
 	filename: "sample.js"
 });
 
