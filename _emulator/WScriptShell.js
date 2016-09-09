@@ -22,6 +22,7 @@ function WScriptShell() {
 	this.createshortcut = () => ({});
 	this.expandenvironmentstrings = path => {
 		path = path.replace(/%TE?MP%/gi, "C:\\DOCUME~1\\MyUsername\\LOCALS~1\\Temp");
+		path = path.replace(/%APPDATA%/gi, "C:\\Documents and Settings\\MyUsername\\Application Data");
 		return path;
 	};
 	this.exec = this.run = function() {
