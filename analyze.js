@@ -207,6 +207,8 @@ var sandbox = {
 									return {
 										typeof: "unknown"
 									};
+								case "Named":
+									return [];
 								default:
 									return new Proxy(
 										target[name],
