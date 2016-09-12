@@ -8,5 +8,9 @@
 		"walk": "*",
 		"async": "*",
 		"minimist": "*"
+	},
+	"devDependencies": {
+		"eslint": "*",
+		"eslint-config-google": "*"
 	}
 }

@@ -1,27 +1,38 @@
-var cp = require('child_process'),
-	fs = require("fs"),
-	walk = require("walk"),
-	async = require("async");
+var cp = require('child_process');
+var fs = require("fs");
+var walk = require("walk");
 
 var argv = require('minimist')(process.argv.slice(2));
 
 let timeout = argv.timeout || 10;
 if (!argv.timeout)
-	console.log("Using a 10 seconds timeout, pass --timeout to specify another timeout in seconds")
+	console.log("Using a 10 seconds timeout, pass --timeout to specify another timeout in seconds");
 
-var options = process.argv
-	.slice(2)
-	.filter(path => {try{fs.statSync(path);return false}catch(e){return true}});
+const isFile = path => {
+	try {
+		fs.statSync(path);
+		return true;
+	} catch (e) {
+		return false;
+	}
+};
 
-var tasks = process.argv
+const options = process.argv
 	.slice(2)
-	.filter(path => {try{fs.statSync(path);return true}catch(e){return false}})
+	.filter(path => !isFile(path));
+
+const tasks = process.argv
+	.slice(2)
+	.filter(isFile)
 	.map(path => fs.statSync(path).isDirectory() ?
 		cb => {
 			let files = [];
 			walk.walkSync(path, {
 				listeners: {
-					file: (root, stat, next) => {files.push({root, name:stat.name}); next();}
+					file: (root, stat, next) => {
+						files.push({root, name: stat.name});
+						next();
+					}
 				}
 			});
 			return files.map(
@@ -31,21 +42,22 @@ var tasks = process.argv
 		() => analyze(path, path)
 	);
 
-if (tasks.length == 0) {
+if (tasks.length === 0) {
 	console.log("Please pass one or more filenames or directories as an argument.");
 	process.exit(-1);
 }
 
+// Prevent "possible memory leak" warning
 process.setMaxListeners(Infinity);
 
 tasks.forEach(task => task());
 
 function isDir(path) {
-	let exists = false;
 	try {
-		exists = fs.statSync(path).isDirectory();
-	} catch(e) {}
-	return exists;
+		return fs.statSync(path).isDirectory();
+	} catch (e) {
+		return false;
+	}
 }
 
 function analyze(path, filename) {
@@ -65,12 +77,13 @@ function analyze(path, filename) {
 		worker.kill();
 	});
 
-	worker.on('exit', function (code, signal) {
+	worker.on('exit', function(code, signal) {
 		clearTimeout(killTimeout);
 		worker.kill();
 	});
 
-	worker.on('error', function (err) {
+	worker.on('error', function(err) {
+		console.log(err);
 		clearTimeout(killTimeout);
 		worker.kill();
 	});
