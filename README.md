@@ -1,7 +1,7 @@
 box.js
 ======
 
-An utility to analyze malicious JavaScript (**requires the latest version of Node**, at the moment 6.2.x).
+An utility to analyze malicious JavaScript (**requires at least Node 6.0.0**).
 
 To execute it, simply install its dependencies (`npm install`) and run
 
@@ -14,6 +14,10 @@ node run.js file1.js file2.js folder ...
 >Some samples may trigger stack overflow errors. If this happens, add `--stack-size=8192` (`--stack-size` may be restricted to 1024 on Windows).
 
 It will create a folder called `file1.js.results`; if it already exists, it will create `file1.js.1.results`, and so on. In this folder, `snippets.json` contains the fragments of code that were executed; `urls.json`, the URLs requested; `active_urls.json`, the URLs that seem to drop active malware; `resources.json`, the ADODB streams (i.e. the files that the script wrote to disk).
+
+>If you have a batch of samples, you can extract all the URLs from the folders with `cat ./*.results/urls.json | sort | uniq` (`active_urls.json` works too).
+
+>You can use `npm run clean` to remove the folders when you're done.
 
 ## Analyzing the output
 
