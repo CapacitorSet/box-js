@@ -1,16 +1,32 @@
 {
-	"dependencies": {
-		"uuid": "*",
-		"esprima": "*",
-		"escodegen": "*",
-		"sync-request": "*",
-		"iconv-lite": "*",
-		"walk": "*",
-		"async": "*",
-		"minimist": "*"
-	},
-	"devDependencies": {
-		"eslint": "*",
-		"eslint-config-google": "*"
-	}
+  "name": "box-js",
+  "version": "1.0.0",
+  "description": "A tool for studying JavaScript malware.",
+  "dependencies": {
+    "uuid": "*",
+    "esprima": "*",
+    "escodegen": "*",
+    "sync-request": "*",
+    "iconv-lite": "*",
+    "walk": "*",
+    "async": "*",
+    "minimist": "*"
+  },
+  "devDependencies": {
+    "eslint": "*",
+    "eslint-config-google": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CapacitorSet/box-js.git"
+  },
+  "author": "CapacitorSet",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CapacitorSet/box-js/issues"
+  },
+  "homepage": "https://github.com/CapacitorSet/box-js#readme",
+  "bin": {
+    "box-js": "run.js"
+  }
 }

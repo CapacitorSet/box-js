@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var cp = require('child_process');
 var fs = require("fs");
 var walk = require("walk");
