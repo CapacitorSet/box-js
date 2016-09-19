@@ -23,11 +23,13 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 
 --download: actually download the payloads (if this flag is not present, downloading eg. `google.com` will create a file which contains `(Contents of http://google.com/)`)
 
+--output-dir: The location on disk to write the results files and folders to (defaults to current directory)
+
 --no-shell-error: do not throw a fake error when executing `WScriptShell.Run` (it throws a fake error by default to pretend that the distribution sites are down, so that the script will attempt to poll every site)
 
 --timeout: the script will timeout after this many seconds (default: `--timeout=30`)
 
---windows-xp: emulate Windows XP (influences the value of environment variables).
+--windows-xp: emulate Windows XP (influences the value of environment variables)
 
 --no-cc_on-rewrite: do not rewrite `/*@cc_on <...> @*/` to `<...>`
 

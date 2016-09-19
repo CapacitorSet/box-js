@@ -24,7 +24,7 @@ Arguments:
     --no-eval-rewrite     Do not rewrite \`eval\` so that its argument is
                           rewritten
 
-    --no-rewrite          Do not rewrite the source doe at all, other than for
+    --no-rewrite          Do not rewrite the source code at all, other than for
                           \`@cc_on\` support
 
     --no-shell-error      Do not throw a fake error when executing
