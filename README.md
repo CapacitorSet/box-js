@@ -169,3 +169,13 @@ function WinHttpRequest() {
 ```
 
 and iterate until the code emulates without errors.
+
+## Contributors
+
+@CapacitorSet: Main developer
+
+@daviesjaime:
+
+ * npm packaging
+ * command-line help
+ * `--output-directory`
