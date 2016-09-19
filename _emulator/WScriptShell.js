@@ -22,7 +22,12 @@ function WScriptShell() {
 	this.createshortcut = () => ({});
 	this.expandenvironmentstrings = path => {
 		path = path.replace(/%TE?MP%/gi, "C:\\DOCUME~1\\MyUsername\\LOCALS~1\\Temp");
-		path = path.replace(/%APPDATA%/gi, "C:\\Documents and Settings\\MyUsername\\Application Data");
+		// %APPDATA% equals C:\Documents and Settings\{username}\Application Data on Windows XP,
+		// but C:\Users\{username}\AppData\Roaming on Win Vista and above
+		if (process.argv.indexOf("--windows-xp") == -1)
+			path = path.replace(/%APPDATA%/gi, "C:\\Documents and Settings\\MyUsername\\Application Data");
+		else
+			path = path.replace(/%APPDATA%/gi, "C:\\Users\\MyUsername\\AppData\\Roaming");
 		return path;
 	};
 	this.exec = this.run = function() {

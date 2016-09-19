@@ -152,7 +152,7 @@ var sandbox = {
 	rewrite: code => rewrite(controller.logJS(code)),
 	_typeof: x => x.typeof ? x.typeof : typeof x,
 	console: {
-		log: x => console.log(x)
+		log: x => console.log(JSON.stringify(x))
 	},
 	alert: x => {},
 	parse: x => {},

@@ -80,11 +80,18 @@ function analyze(path, filename) {
 	});
 
 	worker.on('exit', function(code, signal) {
+		if (code === 1) {
+			console.log(`
+ * If you see garbled text, try emulating Windows XP with --windows-xp.
+ * If the error is about a weird \"Unknown ActiveXObject\", try --no-kill.
+ * If the error is about a legitimate \"Unknown ActiveXObject\", report a bug at https://github.com/CapacitorSet/box-js/issues/ .`);
+		}
 		clearTimeout(killTimeout);
 		worker.kill();
 	});
 
 	worker.on('error', function(err) {
+		console.log("weee");
 		console.log(err);
 		clearTimeout(killTimeout);
 		worker.kill();

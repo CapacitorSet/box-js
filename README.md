@@ -19,6 +19,30 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 
 >You can use `npm run clean` to remove the folders when you're done.
 
+## Flags
+
+--download: actually download the payloads (if this flag is not present, downloading eg. `google.com` will create a file which contains `(Contents of http://google.com/)`)
+
+--no-shell-error: do not throw a fake error when executing `WScriptShell.Run` (it throws a fake error by default to pretend that the distribution sites are down, so that the script will attempt to poll every site)
+
+--timeout: the script will timeout after this many seconds (default: `--timeout=30`)
+
+--windows-xp: emulate Windows XP (influences the value of environment variables).
+
+--no-cc_on-rewrite: do not rewrite `/*@cc_on <...> @*/` to `<...>`
+
+--no-rewrite: do not rewrite the source code at all, other than for `@cc_on` support
+
+--no-concat-simplify: do not simplify `"a"+"b"` to `"ab"`
+
+--no-typeof-rewrite: do not rewrite `typeof` (eg. `typeof ActiveXObject`, which must return `"unknown"` in the JScript standard and not `"object"`)
+
+--no-eval-rewrite: do not rewrite `eval` so that its argument is rewritten
+
+--experimental-neq: [experimental] rewrite `a != b` to `false`
+
+--no-echo: when the script prints data, do not print it to the console
+
 ## Analyzing the output
 
 ### Console output
