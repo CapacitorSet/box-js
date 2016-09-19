@@ -37,6 +37,9 @@ Arguments:
                           (e.g. \`typeof ActiveXObject\`, which must return
                           "unknown" in the JScript standard and not "object")
 
+    --output-dir=./       The location on disk to write the results files and
+                          folders to (defaults to current directory)
+
     --timeout=10          The script will timeout after this many seconds
                           (default 10)
 
@@ -54,6 +57,9 @@ if (argv.h || argv.help || argv.length === 0) {
 let timeout = argv.timeout || 10;
 if (!argv.timeout)
 	console.log("Using a 10 seconds timeout, pass --timeout to specify another timeout in seconds");
+
+let outputDir = argv["output-dir"] || "./";
+outputDir = outputDir.slice(-1) != "/" ? outputDir + "/" : outputDir;
 
 const isFile = path => {
 	try {
@@ -83,10 +89,10 @@ const tasks = process.argv
 				}
 			});
 			return files.map(
-				({root, name}) => analyze(root + name, name)
+				({root, name}) => analyze(root + name, name, outputDir)
 			);
 		} :
-		() => analyze(path, path)
+		() => analyze(path, path, outputDir)
 	);
 
 if (tasks.length === 0) {
@@ -107,12 +113,12 @@ function isDir(path) {
 	}
 }
 
-function analyze(path, filename) {
-	let directory = filename + ".results";
+function analyze(path, filename, outputDir) {
+	let directory = outputDir + filename + ".results";
 	let i = 1;
 	while (isDir(directory)) {
 		i++;
-		directory = filename + "." + i + ".results";
+		directory = outputDir + filename + "." + i + ".results";
 	}
 	fs.mkdirSync(directory);
 	directory += "/"; // For ease of use
