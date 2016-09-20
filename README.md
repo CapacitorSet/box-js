@@ -21,29 +21,31 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 
 ## Flags
 
---download: actually download the payloads (if this flag is not present, downloading eg. `google.com` will create a file which contains `(Contents of http://google.com/)`)
+<!--START_FLAGS-->
+--download: Actually download the payloads
 
---output-dir: The location on disk to write the results files and folders to (defaults to current directory)
+--no-cc_on-rewrite: Do not rewrite `/*@cc_on <...>@*/` to `<...>`
 
---no-shell-error: do not throw a fake error when executing `WScriptShell.Run` (it throws a fake error by default to pretend that the distribution sites are down, so that the script will attempt to poll every site)
+--no-concat-simplify: Do not simplify `'a'+'b'` to `'ab'`
 
---timeout: the script will timeout after this many seconds (default: `--timeout=30`)
+--no-echo: When the script prints data, do not print it to the console
 
---windows-xp: emulate Windows XP (influences the value of environment variables)
+--no-eval-rewrite: Do not rewrite `eval` so that its argument is rewritten
 
---no-cc_on-rewrite: do not rewrite `/*@cc_on <...> @*/` to `<...>`
+--no-rewrite: Do not rewrite the source code at all, other than for `@cc_on` support
 
---no-rewrite: do not rewrite the source code at all, other than for `@cc_on` support
+--no-shell-error: Do not throw a fake error when executing `WScriptShell.Run` (it throws a fake error by default to pretend that the distribution sites are down, so that the script will attempt to poll every site)
 
---no-concat-simplify: do not simplify `"a"+"b"` to `"ab"`
+--no-typeof-rewrite: Do not rewrite `typeof` (e.g. `typeof ActiveXObject`, which must return 'unknown' in the JScript standard and not 'object')
 
---no-typeof-rewrite: do not rewrite `typeof` (eg. `typeof ActiveXObject`, which must return `"unknown"` in the JScript standard and not `"object"`)
+--output-dir: The location on disk to write the results files and folders to (defaults to the current directory)
 
---no-eval-rewrite: do not rewrite `eval` so that its argument is rewritten
+--timeout: The script will timeout after this many seconds (default 10)
+
+--windows-xp: Emulate Windows XP (influences the value of environment variables)
 
 --experimental-neq: [experimental] rewrite `a != b` to `false`
-
---no-echo: when the script prints data, do not print it to the console
+<!--END_FLAGS-->
 
 ## Analyzing the output
 
