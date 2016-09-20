@@ -3,6 +3,7 @@
 var cp = require('child_process');
 var fs = require("fs");
 var walk = require("walk");
+var columnify = require("columnify");
 
 var argv = require('minimist')(process.argv.slice(2));
 
@@ -12,45 +13,21 @@ Usage:
     box-js <files|directories> [args]
 
 Arguments:
-    --download            Actually download the payloads
-
-    --no-cc_on-rewrite    Do not rewrite \`/\*@cc_on <...>@*/\` to \`<...>\`
-
-    --no-concat-simplify  Do not simplify \`"a"+"b"\` to \`"ab"\`
-
-    --no-echo             When the script prints data, do not print it to the
-                          console
-
-    --no-eval-rewrite     Do not rewrite \`eval\` so that its argument is
-                          rewritten
-
-    --no-rewrite          Do not rewrite the source code at all, other than for
-                          \`@cc_on\` support
-
-    --no-shell-error      Do not throw a fake error when executing
-                          \`WScriptShell.Run\` (it throws a fake error by
-                          default to pretend that the distributions sites are
-                          down, so that the script will attempt to poll every
-                          site)
-
-    --no-typeof-rewrite   Do not rewrite \`typeof\`
-                          (e.g. \`typeof ActiveXObject\`, which must return
-                          "unknown" in the JScript standard and not "object")
-
-    --output-dir=./       The location on disk to write the results files and
-                          folders to (defaults to current directory)
-
-    --timeout=10          The script will timeout after this many seconds
-                          (default 10)
-
-    --windows-xp          Emulate Windows XP (influences the value of
-                          environment variables)
-
-    --experimental-neq    [experimental] rewrite \`a != b\` to \`false\`
 `;
 
+// Read and format JSON flag documentation
+var flags = JSON.parse(fs.readFileSync('flags.json', 'utf8'));
+flags = columnify(flags, {
+    showHeaders: false,
+    config: {
+        description: {
+            maxWidth: 50
+        }
+    }
+});
+
 if (argv.h || argv.help || argv.length === 0) {
-    console.log(help);
+    console.log(help + flags.replace(/^/mg, "    "));
     process.exit(0);
 }
 

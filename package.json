@@ -10,7 +10,8 @@
     "iconv-lite": "*",
     "walk": "*",
     "async": "*",
-    "minimist": "*"
+    "minimist": "*",
+    "columnify": "*"
   },
   "devDependencies": {
     "eslint": "*",
