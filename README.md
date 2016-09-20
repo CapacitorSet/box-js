@@ -174,7 +174,7 @@ and iterate until the code emulates without errors.
 
 @CapacitorSet: Main developer
 
-@daviesjaime:
+@daviesjamie:
 
  * npm packaging
  * command-line help
