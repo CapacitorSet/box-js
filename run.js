@@ -36,7 +36,6 @@ if (!argv.timeout)
 	console.log("Using a 10 seconds timeout, pass --timeout to specify another timeout in seconds");
 
 let outputDir = argv["output-dir"] || "./";
-outputDir = outputDir.slice(-1) != "/" ? outputDir + "/" : outputDir;
 
 const isFile = path => {
 	try {
@@ -91,11 +90,11 @@ function isDir(path) {
 }
 
 function analyze(file_path, filename, outputDir) {
-	let directory = outputDir + filename + ".results";
+	let directory = path.join(outputDir, filename + ".results");
 	let i = 1;
 	while (isDir(directory)) {
 		i++;
-		directory = outputDir + filename + "." + i + ".results";
+		directory = path.join(outputDir, filename + "." + i + ".results");
 	}
 	fs.mkdirSync(directory);
 	directory += "/"; // For ease of use
