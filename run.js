@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 
-var cp = require('child_process');
+var argv = require('minimist')(process.argv.slice(2));
+var columnify = require("columnify");
+var cp = require("child_process");
 var fs = require("fs");
 var walk = require("walk");
-var columnify = require("columnify");
-
-var argv = require('minimist')(process.argv.slice(2));
 
 var help = `box-js is a utility to analyze malicious JavaScript files.
 

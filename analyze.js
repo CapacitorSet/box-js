@@ -1,8 +1,8 @@
-var esprima = require("esprima");
-var escodegen = require("escodegen");
-var vm = require("vm");
-var fs = require("fs");
 var controller = require("./_controller");
+var escodegen = require("escodegen");
+var esprima = require("esprima");
+var fs = require("fs");
+var vm = require("vm");
 
 const filename = process.argv[2];
 
