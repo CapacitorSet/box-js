@@ -4,6 +4,7 @@ var argv = require('minimist')(process.argv.slice(2));
 var columnify = require("columnify");
 var cp = require("child_process");
 var fs = require("fs");
+var path = require("path");
 var walk = require("walk");
 
 var help = `box-js is a utility to analyze malicious JavaScript files.
@@ -15,7 +16,7 @@ Arguments:
 `;
 
 // Read and format JSON flag documentation
-var flags = JSON.parse(fs.readFileSync('flags.json', 'utf8'));
+var flags = JSON.parse(fs.readFileSync(path.join(__dirname, 'flags.json'), 'utf8'));
 flags = columnify(flags, {
     showHeaders: false,
     config: {
@@ -89,7 +90,7 @@ function isDir(path) {
 	}
 }
 
-function analyze(path, filename, outputDir) {
+function analyze(file_path, filename, outputDir) {
 	let directory = outputDir + filename + ".results";
 	let i = 1;
 	while (isDir(directory)) {
@@ -98,7 +99,7 @@ function analyze(path, filename, outputDir) {
 	}
 	fs.mkdirSync(directory);
 	directory += "/"; // For ease of use
-	let worker = cp.fork('./analyze', [path, directory, ...options]);
+	let worker = cp.fork(path.join(__dirname, 'analyze'), [file_path, directory, ...options]);
 	let killTimeout;
 
 	worker.on('message', function(data) {
