@@ -22,6 +22,8 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 ## Flags
 
 <!--START_FLAGS-->
+--debug: Die when an emulation error occurs, even in "batch mode"
+
 --download: Actually download the payloads
 
 --no-cc_on-rewrite: Do not rewrite `/*@cc_on <...>@*/` to `<...>`

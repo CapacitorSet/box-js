@@ -115,6 +115,7 @@ function analyze(file_path, filename, outputDir) {
 		}
 		clearTimeout(killTimeout);
 		worker.kill();
+		if (argv.debug) process.exit(-1);
 	});
 
 	worker.on('error', function(err) {

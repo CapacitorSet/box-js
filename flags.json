@@ -1,5 +1,9 @@
 [
     {
+        "flag": "--debug",
+        "description": "Die when an emulation error occurs, even in \"batch mode\""
+    },
+    {
         "flag": "--download",
         "description": "Actually download the payloads"
     },
