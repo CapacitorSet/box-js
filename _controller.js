@@ -55,7 +55,8 @@ module.exports = {
 		} catch (e) {
 			console.log(`An error occurred while emulating a ${method} request to ${url}.`)
 			// console.log(e);
-			throw e;
+			// throw e;
+			return `(Content of ${url})`;
 		}
 	},
 	writeFile: function(filename, contents) {
