@@ -31,26 +31,32 @@ module.exports = {
 		}
 	},
 	fetchUrl: function(method, url, headers = {}, body) {
-		latestUrl = url;
-		if (process.argv.indexOf("--download") == -1) {
-			console.log(`Faking a ${method} request to ${url}`);
-			console.log("Use the flag --download to actually download the file (eg. for encoded payloads).");
-			return `(Content of ${url})`;
-		}
+		try {
+			latestUrl = url;
+			if (process.argv.indexOf("--download") == -1) {
+				console.log(`Faking a ${method} request to ${url}`);
+				console.log("Use the flag --download to actually download the file (eg. for encoded payloads).");
+				return `(Content of ${url})`;
+			}
 
-		console.log(`Emulating a ${method} request to ${url}`);
-		headers["User-Agent"] = "Mozilla/4.0 (Windows; MSIE 6.0; Windows NT 6.0)";
-		let options = {
-			headers,
-			maxRedirects: 20,
-			timeout: 5000
-		};
-		if (body)
-			options.body = body;
-		var file = request(method, url, options);
-		Buffer.prototype.charCodeAt = function(index) { return this[index]; }
-		console.log(`Downloaded ${file.body.length} bytes.`);
-		return file.body;
+			console.log(`Emulating a ${method} request to ${url}`);
+			headers["User-Agent"] = "Mozilla/4.0 (Windows; MSIE 6.0; Windows NT 6.0)";
+			let options = {
+				headers,
+				maxRedirects: 20,
+				timeout: 5000
+			};
+			if (body)
+				options.body = body;
+			var file = request(method, url, options);
+			Buffer.prototype.charCodeAt = function(index) { return this[index]; }
+			console.log(`Downloaded ${file.body.length} bytes.`);
+			return file.body;
+		} catch (e) {
+			console.log(`An error occurred while emulating a ${method} request to ${url}.`)
+			// console.log(e);
+			throw e;
+		}
 	},
 	writeFile: function(filename, contents) {
 		files[filename] = contents;
