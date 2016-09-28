@@ -1,7 +1,7 @@
 box.js
 ======
 
-An utility to analyze malicious JavaScript (**requires at least Node 6.0.0**).
+A utility to analyze malicious JavaScript (**requires at least Node 6.0.0**).
 
 To execute it, simply install its dependencies (`npm install`) and run
 
