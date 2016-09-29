@@ -65,10 +65,10 @@ const tasks = process.argv
 				}
 			});
 			return files.map(
-				({root, name}) => analyze(root + name, name, outputDir)
+				({root, name}) => analyze(path.join(root, name), name, outputDir)
 			);
 		} :
-		() => analyze(filepath, filepath, outputDir)
+		() => analyze(filepath, path.basename(filepath), outputDir)
 	);
 
 if (tasks.length === 0) {
