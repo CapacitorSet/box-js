@@ -183,3 +183,4 @@ and iterate until the code emulates without errors.
  * npm packaging
  * command-line help
  * `--output-directory`
+ * bugfixes
