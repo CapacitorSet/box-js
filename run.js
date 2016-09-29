@@ -37,9 +37,9 @@ if (!argv.timeout)
 
 let outputDir = argv["output-dir"] || "./";
 
-const isFile = path => {
+const isFile = filepath => {
 	try {
-		fs.statSync(path);
+		fs.statSync(filepath);
 		return true;
 	} catch (e) {
 		return false;
@@ -48,15 +48,15 @@ const isFile = path => {
 
 const options = process.argv
 	.slice(2)
-	.filter(path => !isFile(path));
+	.filter(filepath => !isFile(filepath));
 
 const tasks = process.argv
 	.slice(2)
 	.filter(isFile)
-	.map(path => fs.statSync(path).isDirectory() ?
+	.map(filepath => fs.statSync(filepath).isDirectory() ?
 		cb => {
 			let files = [];
-			walk.walkSync(path, {
+			walk.walkSync(filepath, {
 				listeners: {
 					file: (root, stat, next) => {
 						files.push({root, name: stat.name});
@@ -68,7 +68,7 @@ const tasks = process.argv
 				({root, name}) => analyze(root + name, name, outputDir)
 			);
 		} :
-		() => analyze(path, path, outputDir)
+		() => analyze(filepath, filepath, outputDir)
 	);
 
 if (tasks.length === 0) {
@@ -81,15 +81,15 @@ process.setMaxListeners(Infinity);
 
 tasks.forEach(task => task());
 
-function isDir(path) {
+function isDir(filepath) {
 	try {
-		return fs.statSync(path).isDirectory();
+		return fs.statSync(filepath).isDirectory();
 	} catch (e) {
 		return false;
 	}
 }
 
-function analyze(file_path, filename, outputDir) {
+function analyze(filepath, filename, outputDir) {
 	let directory = path.join(outputDir, filename + ".results");
 	let i = 1;
 	while (isDir(directory)) {
@@ -98,7 +98,7 @@ function analyze(file_path, filename, outputDir) {
 	}
 	fs.mkdirSync(directory);
 	directory += "/"; // For ease of use
-	let worker = cp.fork(path.join(__dirname, 'analyze'), [file_path, directory, ...options]);
+	let worker = cp.fork(path.join(__dirname, 'analyze'), [filepath, directory, ...options]);
 	let killTimeout;
 
 	worker.on('message', function(data) {
