@@ -15,7 +15,8 @@
   },
   "devDependencies": {
     "eslint": "*",
-    "eslint-config-google": "*"
+    "eslint-config-google": "*",
+    "mocha": "*"
   },
   "repository": {
     "type": "git",
