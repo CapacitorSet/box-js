@@ -1,30 +1,31 @@
-var controller = require("../_controller")
+const controller = require("../_controller");
 
 function WScriptShell() {
 	this.environment = x => {
-		if (x.toLowerCase() == "system") return argument => {
-			argument = argument.toLowerCase();
-			switch (argument) {
-				case "comspec":
-					return "\%SystemRoot\%\\system32\\cmd.exe";
-				case "os":
-					return "Windows_NT";
-				case "processor_architecture":
-					// Emulate a 32-bit environment for maximum compatibility
-					return "x86";
-				default:
-					controller.kill(`Unknown parameter ${argument} for WScriptShell.Environment.System`);
-			}
-		}
+		if (x.toLowerCase() === "system")
+			return argument => {
+				argument = argument.toLowerCase();
+				switch (argument) {
+					case "comspec":
+						return "%SystemRoot%\\system32\\cmd.exe";
+					case "os":
+						return "Windows_NT";
+					case "processor_architecture":
+						// Emulate a 32-bit environment for maximum compatibility
+						return "x86";
+					default:
+						controller.kill(`Unknown parameter ${argument} for WScriptShell.Environment.System`);
+				}
+			};
 		return `(Environment variable ${x})`;
-	}
+	};
 	this.specialfolders = x => "(some folder)";
 	this.createshortcut = () => ({});
 	this.expandenvironmentstrings = path => {
 		path = path.replace(/%TE?MP%/gi, "C:\\DOCUME~1\\MyUsername\\LOCALS~1\\Temp");
 		// %APPDATA% equals C:\Documents and Settings\{username}\Application Data on Windows XP,
 		// but C:\Users\{username}\AppData\Roaming on Win Vista and above
-		if (process.argv.indexOf("--windows-xp") == -1)
+		if (process.argv.indexOf("--windows-xp") === -1)
 			path = path.replace(/%APPDATA%/gi, "C:\\Documents and Settings\\MyUsername\\Application Data");
 		else
 			path = path.replace(/%APPDATA%/gi, "C:\\Users\\MyUsername\\AppData\\Roaming");
@@ -32,22 +33,22 @@ function WScriptShell() {
 	};
 	this.exec = this.run = function() {
 		const command = Object.keys(arguments).map(key => arguments[key]).join(" ");
-		const filename = controller.getUUID()
+		const filename = controller.getUUID();
 		console.log(`Executing ${controller.directory + filename} in the WScript shell`);
-		controller.logSnippet(filename, {as: "WScript code"}, command)
-		if (process.argv.indexOf("--no-shell-error") == -1)
+		controller.logSnippet(filename, {as: "WScript code"}, command);
+		if (process.argv.indexOf("--no-shell-error") === -1)
 			throw new Error("If you can read this, re-run box.js with the --no-shell-error flag.");
-	}
+	};
 }
 
 module.exports = function(name) {
 	return new Proxy(new WScriptShell(name), {
 		get: function(target, name) {
-			name = name.toLowerCase()
+			name = name.toLowerCase();
 			switch (name) {
 				default:
 					if (!(name in target)) {
-						controller.kill(`WScriptShell.${name} not implemented!`)
+						controller.kill(`WScriptShell.${name} not implemented!`);
 					}
 					return target[name];
 			}
@@ -58,6 +59,5 @@ module.exports = function(name) {
 				console.log(`WScriptShell[${b}] = ${c};`);
 			a[b] = c;
 		}
-
-	})
-}
+	});
+};

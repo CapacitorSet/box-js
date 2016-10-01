@@ -33,7 +33,7 @@
   },
   "scripts": {
     "clean": "rm -r ./*.results",
-    "lint": "eslint src/ test/ _emulator/",
+    "lint": "eslint run.js analyze.js test/ _emulator/",
     "test": "mocha test/"
   }
 }

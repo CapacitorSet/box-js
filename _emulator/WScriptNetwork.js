@@ -1,7 +1,7 @@
-var controller = require("../_controller")
+const controller = require("../_controller");
 
 function WScriptNetwork() {
-	this.ComputerName = "COMPUTER_NAME"
+	this.ComputerName = "COMPUTER_NAME";
 }
 
 module.exports = function() {
@@ -10,10 +10,10 @@ module.exports = function() {
 			switch (name) {
 				default:
 					if (!(name in target)) {
-						controller.kill(`WScriptNetwork.${name} not implemented!`)
+						controller.kill(`WScriptNetwork.${name} not implemented!`);
 					}
 					return target[name];
 			}
 		}
-	})
-}
+	});
+};

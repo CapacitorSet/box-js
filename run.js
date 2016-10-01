@@ -18,17 +18,17 @@ Arguments:
 // Read and format JSON flag documentation
 var flags = JSON.parse(fs.readFileSync(path.join(__dirname, 'flags.json'), 'utf8'));
 flags = columnify(flags, {
-    showHeaders: false,
-    config: {
-        description: {
-            maxWidth: 50
-        }
-    }
+	showHeaders: false,
+	config: {
+		description: {
+			maxWidth: 50
+		}
+	}
 });
 
 if (argv.h || argv.help || argv.length === 0) {
-    console.log(help + flags.replace(/^/mg, "    "));
-    process.exit(0);
+	console.log(help + flags.replace(/^/mg, "    "));
+	process.exit(0);
 }
 
 let timeout = argv.timeout || 10;

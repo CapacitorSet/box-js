@@ -1,5 +1,5 @@
-var controller = require("../_controller");
-var iconv = require("iconv-lite");
+const controller = require("../_controller");
+const iconv = require("iconv-lite");
 
 /* Includes code (ADODBStream.writetext, .loadfromfile) from
  * https://github.com/HynekPetrak/malware-jail. The license follows.
@@ -25,35 +25,30 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 */
-
 
 function ADODBStream() {
 	this.charset = "";
 	this.position = 0;
-	this.open = () => {}
+	this.open = () => {};
 	this.savetofile = function(filename) {
-		this.virtual_filename = filename;
+		this.virtualFilename = filename;
 		controller.writeFile(filename, this.buffer);
-		controller.logResource(controller.getUUID(), this.virtual_filename, this.buffer, true)
-	}
-	this.close = () => {}
-
+		controller.logResource(controller.getUUID(), this.virtualFilename, this.buffer, true);
+	};
+	this.close = () => {};
 	this.write = this.writetext = function(text) {
-		if (/* this.type == 2 && */ this.charset == 437) {
+		if (/* this.type == 2 && */ this.charset === 437)
 			this.buffer = iconv.encode(text, this.charset);
-		} else {
+		else
 			this.buffer = text;
-		}
-	}
+	};
 	this.loadfromfile = function(filename) {
-		if (/* this.type == 2 && */ this.charset == 437) {
+		if (/* this.type == 2 && */ this.charset === 437)
 			this.buffer = iconv.decode(controller.readFile(filename), this.charset);
-		}
 		else
 			this.buffer = controller.readFile(filename);
-	}
+	};
 }
 
 module.exports = function() {
@@ -68,7 +63,7 @@ module.exports = function() {
 					return target.buffer;
 				default:
 					if (!(name in target)) {
-						controller.kill(`ADODBStream.${name} not implemented!`)
+						controller.kill(`ADODBStream.${name} not implemented!`);
 					}
 					return target[name];
 			}
@@ -80,5 +75,5 @@ module.exports = function() {
 */
 			a[b] = c;
 		}
-	})
-}
+	});
+};

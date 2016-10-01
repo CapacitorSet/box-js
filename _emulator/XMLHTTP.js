@@ -1,4 +1,4 @@
-var controller = require("../_controller")
+const controller = require("../_controller");
 
 function XMLHTTP() {
 	this.headers = {};
@@ -7,11 +7,11 @@ function XMLHTTP() {
 		this.url = url;
 		this.method = method;
 		controller.logUrl(method, url);
-	}
+	};
 	this.setrequestheader = function(key, val) {
 		this.headers[key] = val;
 		console.log(`Header set for ${this.url}:`, key, val);
-	}
+	};
 	this.send = function(data) {
 		if (data)
 			console.log(`Data sent to ${this.url}:`, data);
@@ -19,7 +19,7 @@ function XMLHTTP() {
 		this.status = 200;
 		this.responsebody = controller.fetchUrl(this.method, this.url, this.headers, data);
 		this.onreadystatechange();
-	}
+	};
 }
 
 module.exports = function() {
@@ -29,10 +29,10 @@ module.exports = function() {
 			switch (name) {
 				default:
 					if (!(name in target)) {
-						controller.kill(`XMLHTTP.${name} not implemented!`)
+						controller.kill(`XMLHTTP.${name} not implemented!`);
 					}
 					return target[name];
 			}
 		}
-	})
-}
+	});
+};

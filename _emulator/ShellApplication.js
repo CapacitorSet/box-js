@@ -1,9 +1,9 @@
-var controller = require("../_controller")
+const controller = require("../_controller");
 
 function VirtualShellApplication(name) {
 	this.shellexecute = function() {
 		console.log("Executing: " + Object.keys(arguments).map(key => arguments[key]).join(" "));
-	}
+	};
 	return this;
 }
 
@@ -14,10 +14,10 @@ module.exports = function(name) {
 			switch (name) {
 				default:
 					if (!(name in target)) {
-						controller.kill(`ShellApplication.${name} not implemented!`)
+						controller.kill(`ShellApplication.${name} not implemented!`);
 					}
 					return target[name];
 			}
 		}
-	})
-}
+	});
+};
