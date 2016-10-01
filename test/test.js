@@ -5,7 +5,7 @@ const exec = require('child_process').exec;
 const fs = require('fs');
 const tmpDir = require('os').tmpdir();
 const boxDir = `${__dirname}/..`;
-const boxCommand = `nodejs ${boxDir}/run.js`;
+const boxCommand = `node ${boxDir}/run.js`;
 
 describe('package.json', function() {
 	const source = fs.readFileSync(`${boxDir}/package.json`, 'UTF8');
