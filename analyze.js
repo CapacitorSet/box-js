@@ -150,7 +150,9 @@ Date.prototype.getYear = function() {
 	return new Date().getFullYear();
 };
 
-Array.prototype.Count = function() { return this.length; }
+Array.prototype.Count = function() {
+	return this.length;
+};
 
 var sandbox = {
 	Date,

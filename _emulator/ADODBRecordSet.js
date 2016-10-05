@@ -2,13 +2,13 @@ const controller = require("../_controller");
 
 // http://stackoverflow.com/a/30410454
 function nthOfGenerator(generator, n) {
-    let i = 0;
+	let i = 0;
 
-    if (n < 0) throw new Error("Invalid index");
+	if (n < 0) throw new Error("Invalid index");
 
-    for (let value of generator) if (i++ == n) return value;
+	for (let value of generator) if (i++ === n) return value;
 
-    throw new Error(`Generator has fewer than ${n} elements`);
+	throw new Error(`Generator has fewer than ${n} elements`);
 }
 
 /* Because Proxies can't change their targets (i.e. you can't
@@ -27,7 +27,7 @@ function ProxiedField(field, updateFn) {
 		{
 			get: function(target, name) {
 				name = name.toLowerCase();
-				switch(name) {
+				switch (name) {
 					case "appendchunk":
 						return chunk => {
 							target.value = Buffer.concat([
@@ -61,19 +61,19 @@ function ADODBRecordSet() {
 	this.movefirst = () => {
 		this._index = 0;
 		this._goToRecord();
-	}
+	};
 	this.movelast = () => {
 		this._index = this._fields.size() - 1;
 		this._goToRecord();
-	}
+	};
 	this.movenext = () => {
 		this._index++;
 		this._goToRecord();
-	}
+	};
 	this.moveprevious = () => {
 		this._index--;
 		this._goToRecord();
-	}
+	};
 
 	this.fields = new Proxy(
 		argument => new ProxiedField(
@@ -86,7 +86,7 @@ function ADODBRecordSet() {
 				switch (name) {
 					case "append":
 						return (name, type, definedSize, attrib, fieldValue = "") => {
-							if (type != 204) {
+							if (Number(type) !== 204) {
 								console.log(`Warning: unknown datatype ${type} in ADODBRecordSet`);
 							}
 							this._fields.set(name, Buffer.from(fieldValue));
@@ -99,7 +99,7 @@ function ADODBRecordSet() {
 										if (!(name in target)) {
 											controller.kill(`ADODBRecordSet.Fields.${name} not implemented!`);
 										}
-										return target[name];								
+										return target[name];
 								}
 							}
 						});
@@ -113,7 +113,7 @@ function ADODBRecordSet() {
 			set: function(a, b, c) {
 				b = b.toLowerCase();
 				a[b] = c;
-			}		
+			}
 		}
 	);
 }

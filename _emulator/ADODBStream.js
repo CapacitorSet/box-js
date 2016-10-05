@@ -27,7 +27,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 function ADODBStream() {
 	this.virtual_filename = "(undefined)";
 	this.charset = "";
@@ -36,21 +35,19 @@ function ADODBStream() {
 	this.savetofile = function(filename) {
 		this.virtual_filename = filename;
 		controller.writeFile(filename, this.buffer);
-		controller.logResource(controller.getUUID(), this.virtual_filename, this.buffer, true)
+		controller.logResource(controller.getUUID(), this.virtual_filename, this.buffer, true);
 	};
 	this.close = () => {};
 
 	this.write = this.writetext = function(text) {
-		if (/* this.type == 2 && */ this.charset == 437) {
+		if (this.charset)
 			this.buffer = iconv.encode(text, this.charset);
-		} else {
+		else
 			this.buffer = text;
-		}
 	};
 	this.loadfromfile = function(filename) {
-		if (/* this.type == 2 && */ this.charset == 437) {
+		if (this.charset)
 			this.buffer = iconv.decode(controller.readFile(filename), this.charset);
-		}
 		else
 			this.buffer = controller.readFile(filename);
 	};

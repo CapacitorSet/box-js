@@ -96,7 +96,7 @@ function FileSystemObject() {
 		const defaultValue = true;
 		console.log(`Checking if ${folder} exists, returning ${defaultValue}`);
 		return defaultValue;
-	}
+	};
 	this.getfolder = str => new Proxy({
 		subfolders: []
 	}, {
@@ -107,7 +107,7 @@ function FileSystemObject() {
 					if (!(name in target)) {
 						controller.kill(`FileSystemObject.GetFolder.${name} not implemented!`);
 					}
-					return target[name];				
+					return target[name];
 			}
 		}
 	});
