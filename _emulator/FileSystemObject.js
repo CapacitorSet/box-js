@@ -92,6 +92,25 @@ function FileSystemObject() {
 		}
 	};
 	this.gettempname = () => "(Temporary file)";
+	this.folderexists = folder => {
+		const defaultValue = true;
+		console.log(`Checking if ${folder} exists, returning ${defaultValue}`);
+		return defaultValue;
+	}
+	this.getfolder = str => new Proxy({
+		subfolders: []
+	}, {
+		get: function(target, name) {
+			name = name.toLowerCase();
+			switch (name) {
+				default:
+					if (!(name in target)) {
+						controller.kill(`FileSystemObject.GetFolder.${name} not implemented!`);
+					}
+					return target[name];				
+			}
+		}
+	});
 }
 
 module.exports = function() {

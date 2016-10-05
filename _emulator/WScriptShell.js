@@ -39,6 +39,7 @@ function WScriptShell() {
 		if (process.argv.indexOf("--no-shell-error") === -1)
 			throw new Error("If you can read this, re-run box.js with the --no-shell-error flag.");
 	};
+	this.regwrite = (key, value, type = "(unspecified)") => console.log(`Setting registry key ${key} to ${value} of type ${type}`);
 }
 
 module.exports = function(name) {

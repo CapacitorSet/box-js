@@ -150,6 +150,8 @@ Date.prototype.getYear = function() {
 	return new Date().getFullYear();
 };
 
+Array.prototype.Count = function() { return this.length; }
+
 var sandbox = {
 	Date,
 	rewrite: code => rewrite(controller.logJS(code)),
@@ -270,6 +272,8 @@ function ActiveXObject(name) {
 	switch (name) {
 		case "adodb.stream":
 			return require("./_emulator/ADODBStream")();
+		case "adodb.recordset":
+			return require("./_emulator/ADODBRecordSet")();
 		case "msxml2.xmlhttp":
 			return require("./_emulator/XMLHTTP")();
 		case "scripting.filesystemobject":

@@ -18,6 +18,7 @@ function XMLHTTP() {
 		this.readystate = 4;
 		this.status = 200;
 		this.responsebody = controller.fetchUrl(this.method, this.url, this.headers, data);
+		this.responsetext = this.responsebody.toString("utf8");
 		this.onreadystatechange();
 	};
 }

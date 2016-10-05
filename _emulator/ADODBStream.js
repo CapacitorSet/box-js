@@ -28,6 +28,7 @@ SOFTWARE.
 */
 
 function ADODBStream() {
+	this.virtualfilename = "(undefined)";
 	this.charset = "";
 	this.position = 0;
 	this.open = () => {};
@@ -37,11 +38,12 @@ function ADODBStream() {
 		controller.logResource(controller.getUUID(), this.virtualFilename, this.buffer, true);
 	};
 	this.close = () => {};
-	this.write = this.writetext = function(text) {
-		if (/* this.type == 2 && */ this.charset === 437)
+	this.write = this.writetext = text => {
+		if (this.charset)
 			this.buffer = iconv.encode(text, this.charset);
 		else
 			this.buffer = text;
+		controller.logResource(controller.getUUID(), this.virtualFilename, this.buffer, true);
 	};
 	this.loadfromfile = function(filename) {
 		if (/* this.type == 2 && */ this.charset === 437)
@@ -49,6 +51,7 @@ function ADODBStream() {
 		else
 			this.buffer = controller.readFile(filename);
 	};
+	this.copyto = target => target.write(this.buffer);
 }
 
 module.exports = function() {
