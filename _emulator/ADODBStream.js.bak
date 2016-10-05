@@ -27,30 +27,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 function ADODBStream() {
 	this.virtual_filename = "(undefined)";
 	this.charset = "";
 	this.position = 0;
 	this.open = () => {};
 	this.savetofile = function(filename) {
-		this.virtual_filename = filename;
+		this.virtualFilename = filename;
 		controller.writeFile(filename, this.buffer);
-		controller.logResource(controller.getUUID(), this.virtual_filename, this.buffer, true)
+		controller.logResource(controller.getUUID(), this.virtualFilename, this.buffer, true);
 	};
 	this.close = () => {};
-
-	this.write = this.writetext = function(text) {
-		if (/* this.type == 2 && */ this.charset == 437) {
+	this.write = this.writetext = text => {
+		if (this.charset)
 			this.buffer = iconv.encode(text, this.charset);
-		} else {
+		else
 			this.buffer = text;
-		}
+		controller.logResource(controller.getUUID(), this.virtualFilename, this.buffer, true);
 	};
 	this.loadfromfile = function(filename) {
-		if (/* this.type == 2 && */ this.charset == 437) {
+		if (/* this.type == 2 && */ this.charset === 437)
 			this.buffer = iconv.decode(controller.readFile(filename), this.charset);
-		}
 		else
 			this.buffer = controller.readFile(filename);
 	};
