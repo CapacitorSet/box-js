@@ -28,6 +28,8 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 
 --download: Actually download the payloads
 
+--no-catch-rewrite: Do not rewrite try..catch clauses to make the exception global-scoped
+
 --no-cc_on-rewrite: Do not rewrite `/*@cc_on <...>@*/` to `<...>`
 
 --no-concat-simplify: Do not simplify `'a'+'b'` to `'ab'`
