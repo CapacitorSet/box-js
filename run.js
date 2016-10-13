@@ -31,6 +31,11 @@ if (argv.h || argv.help || argv.length === 0) {
 	process.exit(0);
 }
 
+if (argv.version) {
+	console.log(require("./package.json").version);
+	process.exit(0);
+}
+
 let timeout = argv.timeout || 10;
 if (!argv.timeout)
 	console.log("Using a 10 seconds timeout, pass --timeout to specify another timeout in seconds");

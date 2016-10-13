@@ -1,5 +1,9 @@
 [
     {
+        "flag": "--version",
+        "description": "Show the package version"
+    },
+    {
         "flag": "--debug",
         "description": "Die when an emulation error occurs, even in \"batch mode\""
     },
