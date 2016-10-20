@@ -174,7 +174,12 @@ var sandbox = {
 	},
 	alert: x => {},
 	parse: x => {},
-	JSON: JSON,
+	ScriptEngine: () => {
+		const type = "JScript"; // or "JavaScript", or "VBScript"
+		console.log(`Notice: emulating a ${type} engine (in ScriptEngine)`);
+		return type;
+	},
+	JSON,
 	location: new Proxy({
 		href: "http://www.foobar.com/",
 		protocol: "http:",
