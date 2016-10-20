@@ -2,6 +2,9 @@ const controller = require("../_controller");
 
 function WScriptNetwork() {
 	this.ComputerName = "COMPUTER_NAME";
+	this.EnumPrinterConnections = () => [{
+		foo: "bar"
+	}];
 }
 
 module.exports = function() {
