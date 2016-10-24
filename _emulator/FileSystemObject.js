@@ -72,7 +72,13 @@ function FileSystemObject() {
 	this.buildpath = function() {
 		return Array.prototype.slice.call(arguments, 0).join("\\");
 	};
-	this.fileexists = this.deletefile = () => true;
+	this.fileexists = this.deletefile = () => {
+		const value = process.argv.indexOf("--no-file-exists") === -1;
+		if (value) {
+			console.log("Returning `true` for FileSystemObject.FileExists; use --no-file-exists if nothing happens");
+		}
+		return value;
+	}
 	this.getfile = function(filename) {
 		return new ProxiedFile(filename);
 	};

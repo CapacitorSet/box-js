@@ -12,6 +12,10 @@
         "description": "Actually download the payloads"
     },
     {
+        "flag": "--no-file-exists",
+        "description": "Return `false` for Scripting.FileSystemObject.FileExists(x)"
+    },
+    {
         "flag": "--no-catch-rewrite",
         "description": "Do not rewrite try..catch clauses to make the exception global-scoped"
     },
