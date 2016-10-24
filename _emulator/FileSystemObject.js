@@ -49,13 +49,15 @@ function ProxiedTextStream(filename) {
 }
 
 function File(contents) {
-	this.OpenAsTextStream = () => new ProxiedTextStream(contents);
-	this.ShortPath = "C:\\PROGRA~1\\example-file.exe";
+	this.openastextstream = () => new ProxiedTextStream(contents);
+	this.shortpath = "C:\\PROGRA~1\\example-file.exe";
+	this.size = Infinity;
 }
 
 function ProxiedFile(filename) {
 	return new Proxy(new File(filename), {
 		get: function(target, name) {
+			name = name.toLowerCase();
 			switch (name) {
 				default:
 					if (!(name in target)) {
@@ -104,7 +106,8 @@ function FileSystemObject() {
 		return defaultValue;
 	};
 	this.getfolder = str => new Proxy({
-		subfolders: []
+		subfolders: [],
+		files: []
 	}, {
 		get: function(target, name) {
 			name = name.toLowerCase();

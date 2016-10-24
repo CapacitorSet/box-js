@@ -196,15 +196,16 @@ var sandbox = {
 	}),
 	WScript: new Proxy({}, {
 		get: function(target, name) {
+			if (typeof name === "string") name = name.toLowerCase();
 			switch (name) {
 				case Symbol.toPrimitive:
 					return () => "Windows Script Host";
-				case "toString":
+				case "tostring":
 					return "Windows Script Host";
 
-				case "Path":
+				case "path":
 					return "C:\\TestFolder\\";
-				case "StdIn":
+				case "stdin":
 					return new Proxy({
 						AtEndOfStream: {
 							typeof: "unknown"
@@ -217,7 +218,7 @@ var sandbox = {
 							return target[name];
 						}
 					});
-				case "Arguments":
+				case "arguments":
 					return new Proxy(n => `${n}th argument`, {
 						get: function(target, name) {
 							switch (name) {
@@ -241,16 +242,15 @@ var sandbox = {
 							}
 						}
 					});
-				case "CreateObject":
+				case "createobject":
 					return ActiveXObject;
-				case "Sleep":
+				case "sleep":
 					// return x => console.log(`Sleeping for ${x} ms...`)
 					return x => {};
-				case "Quit":
+				case "quit":
 					return () => {};
-				case "ScriptFullName":
+				case "scriptfullname":
 					return "(ScriptFullName)";
-				case "Echo":
 				case "echo":
 					if (process.argv.indexOf("--no-echo") !== -1)
 						return () => {};
@@ -303,6 +303,8 @@ function ActiveXObject(name) {
 			return require("./_emulator/WScriptNetwork")();
 		case "wscript.shell":
 			return require("./_emulator/WScriptShell")();
+		case "wbemscripting.swbemlocator":
+			return require("./_emulator/WBEMScriptingSWBEMLocator")();
 		default:
 			controller.kill(`Unknown ActiveXObject ${name}`);
 			break;
