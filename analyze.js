@@ -165,6 +165,7 @@ Array.prototype.Count = function() {
 };
 
 var sandbox = {
+	WSH: true,
 	Date,
 	rewrite: code => rewrite(controller.logJS(code)),
 	_typeof: x => x.typeof ? x.typeof : typeof x,
