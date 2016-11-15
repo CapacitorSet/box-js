@@ -107,7 +107,9 @@ function FileSystemObject() {
 	};
 	this.getfolder = str => new Proxy({
 		subfolders: [],
-		files: []
+		files: [],
+		datelastmodified: new Date(new Date() - 15*60*1000), // Last changed: 15 minutes ago
+		name: (str.replace(/\w:/i, "").match(/\\(\w*)(?:\\)?$/i) || [null, ""])[1]
 	}, {
 		get: function(target, name) {
 			name = name.toLowerCase();
