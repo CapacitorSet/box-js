@@ -167,6 +167,11 @@ Array.prototype.Count = function() {
 var sandbox = {
 	WSH: true,
 	Date,
+	Error: function(message, description) {
+		const e = new Error(message);
+		e.description = description;
+		return e;
+	},
 	rewrite: code => rewrite(controller.logJS(code)),
 	_typeof: x => x.typeof ? x.typeof : typeof x,
 	console: {
