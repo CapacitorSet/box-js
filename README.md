@@ -48,6 +48,8 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 
 --output-dir: The location on disk to write the results files and folders to (defaults to the current directory)
 
+--proxy=http://1.2.3.4:1234: Use the specified proxy for downloads. This is not relevant if the --download flag is not present.
+
 --timeout: The script will timeout after this many seconds (default 10)
 
 --windows-xp: Emulate Windows XP (influences the value of environment variables)

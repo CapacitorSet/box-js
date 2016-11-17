@@ -2,6 +2,8 @@ var fs = require("fs"),
 	uuid = require("uuid"),
 	request = require("sync-request");
 
+const argv = require('minimist')(process.argv.slice(2));
+
 const directory = process.argv[3];
 
 var urls = [],
@@ -48,6 +50,9 @@ module.exports = {
 			};
 			if (body)
 				options.body = body;
+			if (argv.proxy)
+				options.proxy = argv.proxy;
+
 			var file = request(method, url, options);
 			Buffer.prototype.charCodeAt = function(index) { return this[index]; }
 			console.log(`Downloaded ${file.body.length} bytes.`);
