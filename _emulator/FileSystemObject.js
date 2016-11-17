@@ -1,4 +1,4 @@
-var controller = require("../_controller");
+const controller = require("../_controller");
 
 function TextStream(filename) {
 	this.buffer = controller.readFile(filename) || "";
@@ -80,7 +80,7 @@ function FileSystemObject() {
 			console.log("Returning `true` for FileSystemObject.FileExists; use --no-file-exists if nothing happens");
 		}
 		return value;
-	}
+	};
 	this.getfile = function(filename) {
 		return new ProxiedFile(filename);
 	};
@@ -108,7 +108,7 @@ function FileSystemObject() {
 	this.getfolder = str => new Proxy({
 		subfolders: [],
 		files: [],
-		datelastmodified: new Date(new Date() - 15*60*1000), // Last changed: 15 minutes ago
+		datelastmodified: new Date(new Date() - 15 * 60 * 1000), // Last changed: 15 minutes ago
 		name: (str.replace(/\w:/i, "").match(/\\(\w*)(?:\\)?$/i) || [null, ""])[1]
 	}, {
 		get: function(target, name) {

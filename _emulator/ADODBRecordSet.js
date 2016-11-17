@@ -6,7 +6,8 @@ function nthOfGenerator(generator, n) {
 
 	if (n < 0) throw new Error("Invalid index");
 
-	for (let value of generator) if (i++ === n) return value;
+	for (const value of generator)
+		if (i++ === n) return value;
 
 	throw new Error(`Generator has fewer than ${n} elements`);
 }
@@ -17,8 +18,8 @@ function nthOfGenerator(generator, n) {
 function RewritableTarget(target) {
 	this.value = target;
 	this.get = prop => this.value[prop];
-	this.set = (prop, val) => this.value[prop] = val;
-	this.rewrite = val => this.target = val;
+	this.set = (prop, val) => (this.value[prop] = val);
+	this.rewrite = val => (this.target = val);
 }
 
 function ProxiedField(field, updateFn) {
@@ -56,7 +57,7 @@ function ADODBRecordSet() {
 	// Also for internal use. Used with movefirst, etc.
 	this._currentRecordName = "";
 	this._index = 0;
-	this._goToRecord = () => this._currentRecordName = nthOfGenerator(this._fields.keys(), this._index);
+	this._goToRecord = () => (this._currentRecordName = nthOfGenerator(this._fields.keys(), this._index));
 
 	this.movefirst = () => {
 		this._index = 0;

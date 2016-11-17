@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-var argv = require('minimist')(process.argv.slice(2));
-var columnify = require("columnify");
-var cp = require("child_process");
-var fs = require("fs");
-var path = require("path");
-var walk = require("walk");
+const argv = require('minimist')(process.argv.slice(2));
+const columnify = require("columnify");
+const cp = require("child_process");
+const fs = require("fs");
+const path = require("path");
+const walk = require("walk");
 
-var help = `box-js is a utility to analyze malicious JavaScript files.
+const help = `box-js is a utility to analyze malicious JavaScript files.
 
 Usage:
     box-js <files|directories> [args]
@@ -16,7 +16,7 @@ Arguments:
 `;
 
 // Read and format JSON flag documentation
-var flags = JSON.parse(fs.readFileSync(path.join(__dirname, 'flags.json'), 'utf8'));
+let flags = JSON.parse(fs.readFileSync(path.join(__dirname, 'flags.json'), 'utf8'));
 flags = columnify(flags, {
 	showHeaders: false,
 	config: {
@@ -36,11 +36,11 @@ if (argv.version) {
 	process.exit(0);
 }
 
-let timeout = argv.timeout || 10;
+const timeout = argv.timeout || 10;
 if (!argv.timeout)
 	console.log("Using a 10 seconds timeout, pass --timeout to specify another timeout in seconds");
 
-let outputDir = argv["output-dir"] || "./";
+const outputDir = argv["output-dir"] || "./";
 
 const isFile = filepath => {
 	try {
@@ -60,7 +60,7 @@ const tasks = process.argv
 	.filter(isFile)
 	.map(filepath => fs.statSync(filepath).isDirectory() ?
 		cb => {
-			let files = [];
+			const files = [];
 			walk.walkSync(filepath, {
 				listeners: {
 					file: (root, stat, next) => {
@@ -103,8 +103,12 @@ function analyze(filepath, filename, outputDir) {
 	}
 	fs.mkdirSync(directory);
 	directory += "/"; // For ease of use
-	let worker = cp.fork(path.join(__dirname, 'analyze'), [filepath, directory, ...options]);
-	let killTimeout;
+	const worker = cp.fork(path.join(__dirname, 'analyze'), [filepath, directory, ...options]);
+
+	const killTimeout = setTimeout(function killOnTimeOut() {
+		console.log(`Analysis for ${filename} timed out.`);
+		worker.kill();
+	}, timeout * 1000);
 
 	worker.on('message', function(data) {
 		clearTimeout(killTimeout);
@@ -129,11 +133,6 @@ function analyze(filepath, filename, outputDir) {
 		clearTimeout(killTimeout);
 		worker.kill();
 	});
-
-	killTimeout = setTimeout(function killOnTimeOut() {
-		console.log(`Analysis for ${filename} timed out.`);
-		worker.kill();
-	}, timeout * 1000);
 
 	process.on('exit', () => worker.kill());
 	process.on('SIGINT', () => worker.kill());
