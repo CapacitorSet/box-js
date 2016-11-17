@@ -213,12 +213,18 @@ const sandbox = {
 					return "C:\\TestFolder\\";
 				case "stdin":
 					return new Proxy({
-						AtEndOfStream: {
+						atendofstream: {
 							typeof: "unknown"
 						},
-						Line: 1
+						line: 1,
+						writeline: text => {
+							if (process.argv.indexOf("--no-echo") !== -1) return;
+							console.log("Script wrote:", text);
+							console.log("Add flag --no-echo to disable this.");
+						}
 					}, {
 						get: function(target, name) {
+							name = name.toLowerCase();
 							if (!(name in target))
 								controller.kill(`WScript.StdIn.${name} not implemented!`);
 							return target[name];
