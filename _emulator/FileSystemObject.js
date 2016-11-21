@@ -122,6 +122,7 @@ function FileSystemObject() {
 			}
 		}
 	});
+	this.getfileversion = () => "";
 }
 
 module.exports = function() {
