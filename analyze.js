@@ -165,7 +165,7 @@ Array.prototype.Count = function() {
 };
 
 const sandbox = {
-	WSH: true,
+	WSH: "Windows Script Host",
 	Date,
 	Error: function(message, description) {
 		const e = new Error(message);
