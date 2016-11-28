@@ -1,3 +1,0 @@
-[submodule "node"]
-	path = node
-	url = http://github.com/nodejs/node
