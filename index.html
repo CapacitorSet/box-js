@@ -1,0 +1,20 @@
+<!DOCTYPE html><head><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous"><title>Box-js: a tool for studying JavaScript malware</title></head><body class="container"><div class="text-xs-center"><h1>Box-js</h1><h4>A tool for studying JavaScript malware</h4></div><h3>Main features</h3><ul><li>Emulation of <b>ActiveX components</b>: <tt>MSXML2.XMLHTTP</tt>, <tt>WScript.Shell</tt>, <tt>ADODB.Stream</tt>, <tt>Scripting.FileSystemObject</tt></li><li>Suitable for <b>integration and automation</b>: creates a JSON file with active URLs for easy scripting</li><li><b>Secure</b>: runs code in a <a href="https://nodejs.org/api/vm.html">V8 sandbox</a> which doesn't expose system APIs</li></ul><h3>Usage</h3><h4>Installing</h4><pre><b>$ curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+$ sudo apt-get install nodejs npm
+$ npm install --global box-js</b></pre><h4>Analysing</h4><pre><b>$ box-js sample.js --download --no-kill --timeout=60</b>
+Analyzing sample.js
+New ActiveXObject: Scripting.FileSystemObject
+New ActiveXObject: Scripting.FileSystemObject
+New ActiveXObject: WScript.Shell
+New ActiveXObject: MSXML2.XMLHTTP
+New ActiveXObject: ADODB.Stream
+Header set for http://foo.bar/admin.php?f=1.dat: User-Agent Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko
+Emulating a get request to http://foo.bar/admin.php?f=1.dat
+Downloaded 198353 bytes.
+Saved sample.js.results/fa9870f9-c3f9-4c06-bcf7-2472d9ebae4f (198353 bytes)
+sample.js.results/fa9870f9-c3f9-4c06-bcf7-2472d9ebae4f has been detected as PE32 executable (GUI) Intel 80386, for MS Windows.
+Active URL detected: http://foo.bar/admin.php?f=1.dat
+Executing sample.js.results/9539b473-c62d-4b99-a659-5aa28842aacc in the WScript shell
+
+<b>$ cat sample.js.results/9539b473-c62d-4b99-a659-5aa28842aacc</b>
+cmd.exe /c (Temporary folder)(Temporary file) 0
+</pre><a href="https://github.com/CapacitorSet/box-js"><img style="position: absolute; top: 0; right: 0; border: 0" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a></body>
