@@ -48,17 +48,18 @@ function ProxiedTextStream(filename) {
 	});
 }
 
-function Folder(name) {
-	this.subfolders =  [new ProxiedFolder("RandomFolder")];
-	this.files = [];
-	this.datelastmodified: new Date(new Date() - 15 * 60 * 1000); // Last changed: 15 minutes ago
-	this.name = (name.replace(/\w:/i, "").match(/\\(\w*)(?:\\)?$/i) || [null, ""])[1],
+function Folder(path, autospawned) {
 	this.attributes = 16;
+	this.datelastmodified = new Date(new Date() - 15 * 60 * 1000); // Last changed: 15 minutes ago
+	this.files = [];
+	this.name = (path.replace(/\w:/i, "").match(/\\(\w*)(?:\\)?$/i) || [null, ""])[1],
+	this.path = path;
+	this.subfolders = autospawned ? [] : [new ProxiedFolder(path + "\\RandomFolder", true)];
 	this.type = "folder";
 }
 
-function ProxiedFolder(name) {
-	return new Proxy(new Folder(name), {
+function ProxiedFolder(path, name, autospawned = false) {
+	return new Proxy(new Folder(path, name, autospawned), {
 		get: function(target, name) {
 			name = name.toLowerCase();
 			switch (name) {
