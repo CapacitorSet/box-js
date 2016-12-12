@@ -48,18 +48,23 @@ function ProxiedTextStream(filename) {
 	});
 }
 
-function Folder() {
+function Folder(name) {
+	this.subfolders =  [new ProxiedFolder("RandomFolder")];
+	this.files = [];
+	this.datelastmodified: new Date(new Date() - 15 * 60 * 1000); // Last changed: 15 minutes ago
+	this.name = (name.replace(/\w:/i, "").match(/\\(\w*)(?:\\)?$/i) || [null, ""])[1],
+	this.attributes = 16;
 	this.type = "folder";
 }
 
-function ProxiedFolder() {
-	return new Proxy(new Folder(), {
+function ProxiedFolder(name) {
+	return new Proxy(new Folder(name), {
 		get: function(target, name) {
 			name = name.toLowerCase();
 			switch (name) {
 				default:
 					if (!(name in target)) {
-						controller.kill(`Folder.${name} not implemented!`);
+						controller.kill(`FileSystemObject.Folder.${name} not implemented!`);
 					}
 					return target[name];
 			}
@@ -100,9 +105,7 @@ function FileSystemObject() {
 		}
 		return value;
 	};
-	this.getfile = function(filename) {
-		return new ProxiedFile(filename);
-	};
+	this.getfile = filename => new ProxiedFile(filename);
 	this.getspecialfolder = function(id) {
 		switch (id) {
 			case 0:
@@ -125,24 +128,7 @@ function FileSystemObject() {
 		console.log(`Checking if ${folder} exists, returning ${defaultValue}`);
 		return defaultValue;
 	};
-	this.getfolder = str => new Proxy({
-		subfolders: [new ProxiedFolder()],
-		files: [],
-		datelastmodified: new Date(new Date() - 15 * 60 * 1000), // Last changed: 15 minutes ago
-		name: (str.replace(/\w:/i, "").match(/\\(\w*)(?:\\)?$/i) || [null, ""])[1],
-		attributes: 16
-	}, {
-		get: function(target, name) {
-			name = name.toLowerCase();
-			switch (name) {
-				default:
-					if (!(name in target)) {
-						controller.kill(`FileSystemObject.GetFolder.${name} not implemented!`);
-					}
-					return target[name];
-			}
-		}
-	});
+	this.getfolder = str => new ProxiedFolder(str);
 	this.getfileversion = () => "";
 }
 
