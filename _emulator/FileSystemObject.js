@@ -48,6 +48,25 @@ function ProxiedTextStream(filename) {
 	});
 }
 
+function Folder() {
+	this.type = "folder";
+}
+
+function ProxiedFolder() {
+	return new Proxy(new Folder(), {
+		get: function(target, name) {
+			name = name.toLowerCase();
+			switch (name) {
+				default:
+					if (!(name in target)) {
+						controller.kill(`Folder.${name} not implemented!`);
+					}
+					return target[name];
+			}
+		}
+	})
+}
+
 function File(contents) {
 	this.openastextstream = () => new ProxiedTextStream(contents);
 	this.shortpath = "C:\\PROGRA~1\\example-file.exe";
@@ -100,16 +119,18 @@ function FileSystemObject() {
 		}
 	};
 	this.gettempname = () => "(Temporary file)";
+	this.createfolder = folder => "(Temporary new folder)";
 	this.folderexists = folder => {
 		const defaultValue = true;
 		console.log(`Checking if ${folder} exists, returning ${defaultValue}`);
 		return defaultValue;
 	};
 	this.getfolder = str => new Proxy({
-		subfolders: [],
+		subfolders: [new ProxiedFolder()],
 		files: [],
 		datelastmodified: new Date(new Date() - 15 * 60 * 1000), // Last changed: 15 minutes ago
-		name: (str.replace(/\w:/i, "").match(/\\(\w*)(?:\\)?$/i) || [null, ""])[1]
+		name: (str.replace(/\w:/i, "").match(/\\(\w*)(?:\\)?$/i) || [null, ""])[1],
+		attributes: 16
 	}, {
 		get: function(target, name) {
 			name = name.toLowerCase();

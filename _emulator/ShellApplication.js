@@ -4,6 +4,7 @@ function VirtualShellApplication(name) {
 	this.shellexecute = function() {
 		console.log("Executing: " + Object.keys(arguments).map(key => arguments[key]).join(" "));
 	};
+	this.namespace = folder => "(Temporary folder)";
 	return this;
 }
 

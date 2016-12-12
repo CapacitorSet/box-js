@@ -165,6 +165,7 @@ Array.prototype.Count = function() {
 };
 
 const sandbox = {
+	Enumerator,
 	WSH: "Windows Script Host",
 	Date,
 	Error: function(message, description) {
@@ -283,6 +284,10 @@ vm.runInNewContext(code, sandbox, {
 	lineOffset: -7,
 	filename: "sample.js"
 });
+
+function Enumerator(collection) {
+	return require("./_emulator/Enumerator")(collection);
+}
 
 function ActiveXObject(name) {
 	console.log(`New ActiveXObject: ${name}`);
