@@ -86,7 +86,26 @@ function ProxiedFile(filename) {
 			switch (name) {
 				default:
 					if (!(name in target)) {
-						controller.kill(`File.${name} not implemented!`);
+						controller.kill(`FileSystemObject.File.${name} not implemented!`);
+					}
+					return target[name];
+			}
+		}
+	});
+}
+
+function Drive(name) {
+	this.volumename = name;
+}
+
+function ProxiedDrive(name) {
+	return new Proxy(new Drive(name), {
+		get: function(target, name) {
+			name = name.toLowerCase();
+			switch (name) {
+				default:
+					if (!(name in target)) {
+						controller.kill(`FileSystemObject.Drive.${name} not implemented!`);
 					}
 					return target[name];
 			}
@@ -131,6 +150,7 @@ function FileSystemObject() {
 	};
 	this.getfolder = str => new ProxiedFolder(str);
 	this.getfileversion = () => "";
+	this.drives = [new ProxiedDrive("C:")];
 }
 
 module.exports = function() {
