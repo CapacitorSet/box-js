@@ -97,6 +97,8 @@ function ProxiedFile(filename) {
 
 function Drive(name) {
 	this.volumename = name;
+	this.availablespace = 80*1024*1024*1024;
+	this.drivetype = 2;
 }
 
 function ProxiedDrive(name) {
