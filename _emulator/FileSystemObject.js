@@ -77,6 +77,7 @@ function File(contents) {
 	this.openastextstream = () => new ProxiedTextStream(contents);
 	this.shortpath = "C:\\PROGRA~1\\example-file.exe";
 	this.size = Infinity;
+	this.attributes = 32;
 }
 
 function ProxiedFile(filename) {
@@ -151,6 +152,7 @@ function FileSystemObject() {
 	this.getfolder = str => new ProxiedFolder(str);
 	this.getfileversion = () => "";
 	this.drives = [new ProxiedDrive("C:")];
+	this.getdrive = drive => new ProxiedDrive(drive);
 }
 
 module.exports = function() {
