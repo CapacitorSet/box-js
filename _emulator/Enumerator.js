@@ -1,4 +1,4 @@
-const controller = require("../_controller");
+const controller = require('../_controller');
 
 function Enumerator(array) {
 	this.item = function(index) {
@@ -17,6 +17,6 @@ module.exports = function(array) {
 					}
 					return target[name];
 			}
-		}
+		},
 	});
 };

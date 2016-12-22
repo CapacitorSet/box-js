@@ -14,6 +14,7 @@
     "columnify": "*"
   },
   "devDependencies": {
+    "babel-eslint": "*",
     "eslint": "*",
     "eslint-config-google": "*",
     "mocha": "*"

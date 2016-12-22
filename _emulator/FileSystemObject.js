@@ -1,16 +1,16 @@
-const controller = require("../_controller");
+const controller = require('../_controller');
 
 function TextStream(filename) {
-	this.buffer = controller.readFile(filename) || "";
+	this.buffer = controller.readFile(filename) || '';
 	this.uuid = controller.getUUID();
 	this.filename = filename;
-	this.write = line => {
+	this.write = (line) => {
 		this.buffer = this.buffer + line;
 		controller.writeFile(filename, this.buffer);
 		controller.logResource(this.uuid, this.filename, this.buffer);
 	};
-	this.writeline = line => {
-		this.buffer = this.buffer + line + "\n";
+	this.writeline = (line) => {
+		this.buffer = this.buffer + line + '\n';
 		controller.writeFile(filename, this.buffer);
 		controller.logResource(this.uuid, this.filename, this.buffer);
 	};
@@ -21,10 +21,10 @@ function TextStream(filename) {
 	this.bufferarray = [];
 	this.readline = function() {
 		if (this.bufferarray.length === 0)
-			this.bufferarray = this.buffer.split("\n");
+			this.bufferarray = this.buffer.split('\n');
 		return this.bufferarray.shift();
 	};
-	this.shortpath = path => path;
+	this.shortpath = (path) => path;
 }
 
 function ProxiedTextStream(filename) {
@@ -44,7 +44,7 @@ function ProxiedTextStream(filename) {
 			if (c.length < 1024)
 				console.log(`FSObject[${b}] = ${c};`);
 			a[b] = c;
-		}
+		},
 	});
 }
 
@@ -52,10 +52,10 @@ function Folder(path, autospawned) {
 	this.attributes = 16;
 	this.datelastmodified = new Date(new Date() - 15 * 60 * 1000); // Last changed: 15 minutes ago
 	this.files = [];
-	this.name = (path.replace(/\w:/i, "").match(/\\(\w*)(?:\\)?$/i) || [null, ""])[1],
+	this.name = (path.replace(/\w:/i, '').match(/\\(\w*)(?:\\)?$/i) || [null, ''])[1],
 	this.path = path;
-	this.subfolders = autospawned ? [] : [new ProxiedFolder(path + "\\RandomFolder", true)];
-	this.type = "folder";
+	this.subfolders = autospawned ? [] : [new ProxiedFolder(path + '\\RandomFolder', true)];
+	this.type = 'folder';
 }
 
 function ProxiedFolder(path, name, autospawned = false) {
@@ -69,13 +69,13 @@ function ProxiedFolder(path, name, autospawned = false) {
 					}
 					return target[name];
 			}
-		}
-	})
+		},
+	});
 }
 
 function File(contents) {
 	this.openastextstream = () => new ProxiedTextStream(contents);
-	this.shortpath = "C:\\PROGRA~1\\example-file.exe";
+	this.shortpath = 'C:\\PROGRA~1\\example-file.exe';
 	this.size = Infinity;
 	this.attributes = 32;
 }
@@ -91,7 +91,7 @@ function ProxiedFile(filename) {
 					}
 					return target[name];
 			}
-		}
+		},
 	});
 }
 
@@ -112,49 +112,47 @@ function ProxiedDrive(name) {
 					}
 					return target[name];
 			}
-		}
+		},
 	});
 }
 
 function FileSystemObject() {
-	this.createtextfile = this.opentextfile = filename => new ProxiedTextStream(filename);
-	this.buildpath = function() {
-		return Array.prototype.slice.call(arguments, 0).join("\\");
-	};
+	this.createtextfile = this.opentextfile = (filename) => new ProxiedTextStream(filename);
+	this.buildpath = (...args) => args.join('\\');
 	this.fileexists = this.deletefile = () => {
-		const value = process.argv.indexOf("--no-file-exists") === -1;
+		const value = process.argv.indexOf('--no-file-exists') === -1;
 		if (value) {
-			console.log("Returning `true` for FileSystemObject.FileExists; use --no-file-exists if nothing happens");
+			console.log('Returning `true` for FileSystemObject.FileExists; use --no-file-exists if nothing happens');
 		}
 		return value;
 	};
-	this.getfile = filename => new ProxiedFile(filename);
+	this.getfile = (filename) => new ProxiedFile(filename);
 	this.getspecialfolder = function(id) {
 		switch (id) {
 			case 0:
-			case "0":
-				return "C:\\WINDOWS\\";
+			case '0':
+				return 'C:\\WINDOWS\\';
 			case 1:
-			case "1":
-				return "(System folder)";
+			case '1':
+				return '(System folder)';
 			case 2:
-			case "2":
-				return "(Temporary folder)";
+			case '2':
+				return '(Temporary folder)';
 			default:
-				return "(Special folder " + id + ")";
+				return '(Special folder ' + id + ')';
 		}
 	};
-	this.gettempname = () => "(Temporary file)";
-	this.createfolder = folder => "(Temporary new folder)";
-	this.folderexists = folder => {
+	this.gettempname = () => '(Temporary file)';
+	this.createfolder = (folder) => '(Temporary new folder)';
+	this.folderexists = (folder) => {
 		const defaultValue = true;
 		console.log(`Checking if ${folder} exists, returning ${defaultValue}`);
 		return defaultValue;
 	};
-	this.getfolder = str => new ProxiedFolder(str);
-	this.getfileversion = () => "";
-	this.drives = [new ProxiedDrive("C:")];
-	this.getdrive = drive => new ProxiedDrive(drive);
+	this.getfolder = (str) => new ProxiedFolder(str);
+	this.getfileversion = () => '';
+	this.drives = [new ProxiedDrive('C:')];
+	this.getdrive = (drive) => new ProxiedDrive(drive);
 }
 
 module.exports = function() {
@@ -168,6 +166,6 @@ module.exports = function() {
 					}
 					return target[name];
 			}
-		}
+		},
 	});
 };

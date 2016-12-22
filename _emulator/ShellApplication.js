@@ -1,10 +1,10 @@
-const controller = require("../_controller");
+const controller = require('../_controller');
 
 function VirtualShellApplication(name) {
-	this.shellexecute = function() {
-		console.log("Executing: " + Object.keys(arguments).map(key => arguments[key]).join(" "));
+	this.shellexecute = function(...args) {
+		console.log('Executing: ' + args.join(' '));
 	};
-	this.namespace = folder => "(Temporary folder)";
+	this.namespace = (folder) => '(Temporary folder)';
 	return this;
 }
 
@@ -19,6 +19,6 @@ module.exports = function(name) {
 					}
 					return target[name];
 			}
-		}
+		},
 	});
 };

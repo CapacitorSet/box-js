@@ -1,8 +1,8 @@
-const controller = require("../_controller");
+const controller = require('../_controller');
 
 function VirtualSWBEMServices() {
-	this.get = function() {
-		console.log(arguments);
+	this.get = function(...args) {
+		console.log(args);
 	};
 }
 
@@ -19,7 +19,7 @@ function VirtualWBEMLocator() {
 						}
 						return target[name];
 				}
-			}
+			},
 		});
 	};
 	return this;
@@ -36,6 +36,6 @@ module.exports = function(name) {
 					}
 					return target[name];
 			}
-		}
+		},
 	});
 };

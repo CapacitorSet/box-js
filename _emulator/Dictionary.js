@@ -1,11 +1,11 @@
-const controller = require("../_controller");
+const controller = require('../_controller');
 
 function Dictionary() {
 	this.dictionary = {};
 	/* eslint no-return-assign: 0 */
 	// See https://github.com/eslint/eslint/issues/7285
 	this.add = (key, value) => (this[key] = value);
-	this.item = key => this[key];
+	this.item = (key) => this[key];
 }
 
 module.exports = function() {
@@ -19,6 +19,6 @@ module.exports = function() {
 					}
 					return target[name];
 			}
-		}
+		},
 	});
 };

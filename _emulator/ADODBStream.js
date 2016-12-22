@@ -1,5 +1,5 @@
-const controller = require("../_controller");
-const iconv = require("iconv-lite");
+const controller = require('../_controller');
+const iconv = require('iconv-lite');
 
 /* Includes code (ADODBStream.writetext, .loadfromfile) from
  * https://github.com/HynekPetrak/malware-jail. The license follows.
@@ -28,8 +28,8 @@ SOFTWARE.
 */
 
 function ADODBStream() {
-	this.virtual_filename = "(undefined)";
-	this.charset = "";
+	this.virtual_filename = '(undefined)';
+	this.charset = '';
 	this.position = 0;
 	this.open = () => {};
 	this.savetofile = function(filename) {
@@ -51,7 +51,7 @@ function ADODBStream() {
 		else
 			this.buffer = controller.readFile(filename);
 	};
-	this.copyto = target => target.write(this.buffer);
+	this.copyto = (target) => target.write(this.buffer);
 }
 
 module.exports = function() {
@@ -59,10 +59,10 @@ module.exports = function() {
 		get: function(target, name) {
 			name = name.toLowerCase();
 			switch (name) {
-				case "size":
-				case "length":
+				case 'size':
+				case 'length':
 					return target.buffer.length;
-				case "readtext":
+				case 'readtext':
 					return target.buffer;
 				default:
 					if (!(name in target)) {
@@ -77,6 +77,6 @@ module.exports = function() {
 				console.log(`ADODBStream[${b}] = ${c};`);
 */
 			a[b] = c;
-		}
+		},
 	});
 };

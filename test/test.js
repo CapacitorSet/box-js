@@ -31,7 +31,7 @@ describe('run.js', function() {
 	});
 	it('should run on a blank script', function(done) {
 		const path = `${tmpDir}/blank.js`;
-		fs.writeFileSync(`${tmpDir}/blank.js`, "");
+		fs.writeFileSync(`${tmpDir}/blank.js`, '');
 		exec(`${boxCommand} ${path}`, done);
 	});
 	it('should run on all files in a folder');
