@@ -4,7 +4,20 @@ function VirtualShellApplication(name) {
 	this.shellexecute = function(...args) {
 		console.log('Executing: ' + args.join(' '));
 	};
-	this.namespace = (folder) => '(Temporary folder)';
+	this.namespace = (folder) => {
+		let path;
+		switch (folder) {
+			case 7:
+				path = "C:\\Users\\MyUsername\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\StartUp"
+			default:
+				throw new Error("Unknown ShellApplication.Namespace " + folder)
+		}
+		return {
+			Self: {
+				Path: path
+			}
+		}
+	};
 	return this;
 }
 
