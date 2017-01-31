@@ -308,6 +308,7 @@ function ActiveXObject(name) {
 			return require("./_emulator/ADODBStream")();
 		case "adodb.recordset":
 			return require("./_emulator/ADODBRecordSet")();
+		case "msxml2.serverxmlhttp":
 		case "msxml2.xmlhttp":
 			return require("./_emulator/XMLHTTP")();
 		case "scripting.filesystemobject":

@@ -21,6 +21,7 @@ function XMLHTTP() {
 		this.responsetext = this.responsebody.toString('utf8');
 		this.onreadystatechange();
 	};
+	this.setoption = () => {};
 }
 
 module.exports = function() {
