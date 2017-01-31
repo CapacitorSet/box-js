@@ -8,15 +8,15 @@ function VirtualShellApplication(name) {
 		let path;
 		switch (folder) {
 			case 7:
-				path = "C:\\Users\\MyUsername\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\StartUp"
+				path = 'C:\\Users\\MyUsername\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\StartUp';
 			default:
-				throw new Error("Unknown ShellApplication.Namespace " + folder)
+				throw new Error('Unknown ShellApplication.Namespace ' + folder);
 		}
 		return {
 			Self: {
-				Path: path
-			}
-		}
+				Path: path,
+			},
+		};
 	};
 	return this;
 }
