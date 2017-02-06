@@ -9,6 +9,7 @@ function VirtualShellApplication(name) {
 		switch (folder) {
 			case 7:
 				path = 'C:\\Users\\MyUsername\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\StartUp';
+				break;
 			default:
 				throw new Error('Unknown ShellApplication.Namespace ' + folder);
 		}
