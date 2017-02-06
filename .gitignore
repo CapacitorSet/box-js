@@ -4,6 +4,7 @@ snippets.json
 resources.json
 *.results
 decoder
+samples/
 
 npm-debug.log*
 node_modules
