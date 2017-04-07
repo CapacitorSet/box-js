@@ -43,9 +43,11 @@ function WScriptShell() {
 	};
 	this.regwrite = (key, value, type = '(unspecified)') => console.log(`Setting registry key ${key} to ${value} of type ${type}`);
 	this.popup = function(text, a, title = '[Untitled]', b) {
-		if (process.argv.indexOf('--no-echo') !== -1) return;
-		console.log(`Script opened a popup window: title "${title}", text "${text}"`);
-		console.log('Add flag --no-echo to disable this.');
+		if (process.argv.indexOf('--no-echo') === -1) {
+			console.log(`Script opened a popup window: title "${title}", text "${text}"`);
+			console.log('Add flag --no-echo to disable this.');
+		}
+		return true; // Emulates a click
 	};
 }
 
