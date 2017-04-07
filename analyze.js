@@ -281,7 +281,7 @@ const sandbox = {
 
 vm.runInNewContext(code, sandbox, {
 	displayErrors: true,
-	lineOffset: -7,
+	lineOffset: -18,
 	filename: "sample.js"
 });
 
