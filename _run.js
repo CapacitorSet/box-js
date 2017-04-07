@@ -1,5 +1,4 @@
-const argv = require('minimist')(process.argv.slice(2));
-const columnify = require("columnify");
+const commandLineArgs = require('command-line-args');
 const cp = require("child_process");
 const fs = require("fs");
 const path = require("path");
@@ -14,15 +13,15 @@ Arguments:
 `;
 
 // Read and format JSON flag documentation
-let flags = JSON.parse(fs.readFileSync(path.join(__dirname, 'flags.json'), 'utf8'));
-flags = columnify(flags, {
-	showHeaders: false,
-	config: {
-		description: {
-			maxWidth: 50
-		}
+const flags = JSON.parse(fs.readFileSync(path.join(__dirname, 'flags.json'), 'utf8'))
+	.map(flag => {
+		if (flag.type === "String") flag.type = String;
+		if (flag.type === "Number") flag.type = Number;
+		if (flag.type === "Boolean") flag.type = Boolean;
+		return flag;
 	}
-});
+);
+const argv = commandLineArgs(flags);
 
 if (argv.h || argv.help || argv.length === 0) {
 	console.log(help + flags.replace(/^/mg, "    "));

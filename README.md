@@ -22,39 +22,39 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 ## Flags
 
 <!--START_FLAGS-->
---version: Show the package version
+--version (Boolean): Show the package version
 
---debug: Die when an emulation error occurs, even in "batch mode"
+--debug (Boolean): Die when an emulation error occurs, even in "batch mode"
 
---download: Actually download the payloads
+--download (Boolean): Actually download the payloads
 
---no-file-exists: Return `false` for Scripting.FileSystemObject.FileExists(x)
+--no-file-exists (Boolean): Return `false` for Scripting.FileSystemObject.FileExists(x)
 
---no-catch-rewrite: Do not rewrite try..catch clauses to make the exception global-scoped
+--no-catch-rewrite (Boolean): Do not rewrite try..catch clauses to make the exception global-scoped
 
---no-cc_on-rewrite: Do not rewrite `/*@cc_on <...>@*/` to `<...>`
+--no-cc_on-rewrite (Boolean): Do not rewrite `/*@cc_on <...>@*/` to `<...>`
 
---no-concat-simplify: Do not simplify `'a'+'b'` to `'ab'`
+--no-concat-simplify (Boolean): Do not simplify `'a'+'b'` to `'ab'`
 
---no-echo: When the script prints data, do not print it to the console
+--no-echo (Boolean): When the script prints data, do not print it to the console
 
---no-eval-rewrite: Do not rewrite `eval` so that its argument is rewritten
+--no-eval-rewrite (Boolean): Do not rewrite `eval` so that its argument is rewritten
 
---no-rewrite: Do not rewrite the source code at all, other than for `@cc_on` support
+--no-rewrite (Boolean): Do not rewrite the source code at all, other than for `@cc_on` support
 
---no-shell-error: Do not throw a fake error when executing `WScriptShell.Run` (it throws a fake error by default to pretend that the distribution sites are down, so that the script will attempt to poll every site)
+--no-shell-error (Boolean): Do not throw a fake error when executing `WScriptShell.Run` (it throws a fake error by default to pretend that the distribution sites are down, so that the script will attempt to poll every site)
 
---no-typeof-rewrite: Do not rewrite `typeof` (e.g. `typeof ActiveXObject`, which must return 'unknown' in the JScript standard and not 'object')
+--no-typeof-rewrite (Boolean): Do not rewrite `typeof` (e.g. `typeof ActiveXObject`, which must return 'unknown' in the JScript standard and not 'object')
 
---output-dir: The location on disk to write the results files and folders to (defaults to the current directory)
+--output-dir (String): The location on disk to write the results files and folders to (defaults to the current directory)
 
---proxy=http://1.2.3.4:1234: Use the specified proxy for downloads. This is not relevant if the --download flag is not present.
+--proxy (String): Use the specified proxy for downloads. This is not relevant if the --download flag is not present.
 
---timeout: The script will timeout after this many seconds (default 10)
+--timeout (Number): The script will timeout after this many seconds (default 10)
 
---windows-xp: Emulate Windows XP (influences the value of environment variables)
+--windows-xp (Boolean): Emulate Windows XP (influences the value of environment variables)
 
---experimental-neq: [experimental] rewrite `a != b` to `false`
+--experimental-neq (Boolean): [experimental] rewrite `a != b` to `false`
 <!--END_FLAGS-->
 
 ## Analyzing the output

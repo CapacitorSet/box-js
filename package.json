@@ -10,8 +10,7 @@
     "iconv-lite": "*",
     "walk": "*",
     "async": "*",
-    "minimist": "*",
-    "columnify": "*",
+    "command-line-args": "*",
     "vm2": "*"
   },
   "devDependencies": {

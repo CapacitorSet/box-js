@@ -1,70 +1,87 @@
 [
     {
-        "flag": "--version",
+        "name": "version",
+        "type": "Boolean",
         "description": "Show the package version"
     },
     {
-        "flag": "--debug",
+        "name": "debug",
+        "type": "Boolean",
         "description": "Die when an emulation error occurs, even in \"batch mode\""
     },
     {
-        "flag": "--download",
+        "name": "download",
+        "type": "Boolean",
         "description": "Actually download the payloads"
     },
     {
-        "flag": "--no-file-exists",
+        "name": "no-file-exists",
+        "type": "Boolean",
         "description": "Return `false` for Scripting.FileSystemObject.FileExists(x)"
     },
     {
-        "flag": "--no-catch-rewrite",
+        "name": "no-catch-rewrite",
+        "type": "Boolean",
         "description": "Do not rewrite try..catch clauses to make the exception global-scoped"
     },
     {
-        "flag": "--no-cc_on-rewrite",
+        "name": "no-cc_on-rewrite",
+        "type": "Boolean",
         "description": "Do not rewrite `/*@cc_on <...>@*/` to `<...>`"
     },
     {
-        "flag": "--no-concat-simplify",
+        "name": "no-concat-simplify",
+        "type": "Boolean",
         "description": "Do not simplify `'a'+'b'` to `'ab'`"
     },
     {
-        "flag": "--no-echo",
+        "name": "no-echo",
+        "type": "Boolean",
         "description": "When the script prints data, do not print it to the console"
     },
     {
-        "flag": "--no-eval-rewrite",
+        "name": "no-eval-rewrite",
+        "type": "Boolean",
         "description": "Do not rewrite `eval` so that its argument is rewritten"
     },
     {
-        "flag": "--no-rewrite",
+        "name": "no-rewrite",
+        "type": "Boolean",
         "description": "Do not rewrite the source code at all, other than for `@cc_on` support"
     },
     {
-        "flag": "--no-shell-error",
+        "name": "no-shell-error",
+        "type": "Boolean",
         "description": "Do not throw a fake error when executing `WScriptShell.Run` (it throws a fake error by default to pretend that the distribution sites are down, so that the script will attempt to poll every site)"
     },
     {
-        "flag": "--no-typeof-rewrite",
+        "name": "no-typeof-rewrite",
+        "type": "Boolean",
         "description": "Do not rewrite `typeof` (e.g. `typeof ActiveXObject`, which must return 'unknown' in the JScript standard and not 'object')"
     },
     {
-        "flag": "--output-dir",
+        "name": "output-dir",
+        "type": "String",
         "description": "The location on disk to write the results files and folders to (defaults to the current directory)"
     },
     {
-        "flag": "--proxy=http://1.2.3.4:1234",
+        "name": "proxy",
+        "type": "String",
         "description": "Use the specified proxy for downloads. This is not relevant if the --download flag is not present."
     },
     {
-        "flag": "--timeout",
+        "name": "timeout",
+        "type": "Number",
         "description": "The script will timeout after this many seconds (default 10)"
     },
     {
-        "flag": "--windows-xp",
+        "name": "windows-xp",
+        "type": "Boolean",
         "description": "Emulate Windows XP (influences the value of environment variables)"
     },
     {
-        "flag": "--experimental-neq",
+        "name": "experimental-neq",
+        "type": "Boolean",
         "description": "[experimental] rewrite `a != b` to `false`"
     }
 ]
