@@ -1,4 +1,4 @@
-const commandLineArgs = require('command-line-args');
+const commandLineArgs = require("command-line-args");
 const cp = require("child_process");
 const fs = require("fs");
 const path = require("path");
@@ -13,8 +13,8 @@ Arguments:
 `;
 
 // Read and format JSON flag documentation
-const flags = JSON.parse(fs.readFileSync(path.join(__dirname, 'flags.json'), 'utf8'))
-	.map(flag => {
+const flags = JSON.parse(fs.readFileSync(path.join(__dirname, "flags.json"), "utf8"))
+	.map((flag) => {
 		if (flag.type === "String") flag.type = String;
 		if (flag.type === "Number") flag.type = Number;
 		if (flag.type === "Boolean") flag.type = Boolean;
@@ -39,7 +39,7 @@ if (!argv.timeout)
 
 const outputDir = argv["output-dir"] || "./";
 
-const isFile = filepath => {
+const isFile = (filepath) => {
 	try {
 		fs.statSync(filepath);
 		return true;
@@ -50,23 +50,23 @@ const isFile = filepath => {
 
 const options = process.argv
 	.slice(2)
-	.filter(filepath => !isFile(filepath));
+	.filter((filepath) => !isFile(filepath));
 
 options.push(`--timeout=${timeout}`);
 
 const tasks = process.argv
 	.slice(2)
 	.filter(isFile)
-	.map(filepath => fs.statSync(filepath).isDirectory() ?
-		cb => {
+	.map((filepath) => fs.statSync(filepath).isDirectory() ?
+		(cb) => {
 			const files = [];
 			walk.walkSync(filepath, {
 				listeners: {
 					file: (root, stat, next) => {
 						files.push({root, name: stat.name});
 						next();
-					}
-				}
+					},
+				},
 			});
 			return files.map(
 				({root, name}) => analyze(path.join(root, name), name, outputDir)
@@ -83,7 +83,7 @@ if (tasks.length === 0) {
 // Prevent "possible memory leak" warning
 process.setMaxListeners(Infinity);
 
-tasks.forEach(task => task());
+tasks.forEach((task) => task());
 
 function isDir(filepath) {
 	try {
@@ -102,19 +102,19 @@ function analyze(filepath, filename, outputDir) {
 	}
 	fs.mkdirSync(directory);
 	directory += "/"; // For ease of use
-	const worker = cp.fork(path.join(__dirname, 'analyze'), [filepath, directory, ...options]);
+	const worker = cp.fork(path.join(__dirname, "analyze"), [filepath, directory, ...options]);
 
 	const killTimeout = setTimeout(function killOnTimeOut() {
 		console.log(`Analysis for ${filename} timed out.`);
 		worker.kill();
 	}, timeout * 1000);
 
-	worker.on('message', function(data) {
+	worker.on("message", function(data) {
 		clearTimeout(killTimeout);
 		worker.kill();
 	});
 
-	worker.on('exit', function(code, signal) {
+	worker.on("exit", function(code, signal) {
 		if (code === 1) {
 			console.log(`
  * If you see garbled text, try emulating Windows XP with --windows-xp.
@@ -126,13 +126,13 @@ function analyze(filepath, filename, outputDir) {
 		if (argv.debug) process.exit(-1);
 	});
 
-	worker.on('error', function(err) {
+	worker.on("error", function(err) {
 		console.log(err);
 		clearTimeout(killTimeout);
 		worker.kill();
 	});
 
-	process.on('exit', () => worker.kill());
-	process.on('SIGINT', () => worker.kill());
+	process.on("exit", () => worker.kill());
+	process.on("SIGINT", () => worker.kill());
 	// process.on('uncaughtException', () => worker.kill());
 }

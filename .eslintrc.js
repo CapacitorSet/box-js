@@ -1,6 +1,9 @@
 module.exports = {
     "parser": "babel-eslint",
     "extends": "google",
+    "env": {
+        "node": true
+    },
     "rules": {
         "camelcase": [1, {
             properties: "never"
@@ -13,11 +16,14 @@ module.exports = {
         "new-cap": 1,
         "no-else-return": 1,
         "no-extend-native": 0,
+        "no-invalid-this": 1,
+        "no-global-assign": 1,
         "no-loop-func": 0,
         "no-return-assign": [1, "except-parens"],
         "no-unused-vars": 1,
         "no-var": 1,
         "prefer-const": 1,
+        "quotes": ["error", "double"],
         "require-jsdoc": 0
     }
 };

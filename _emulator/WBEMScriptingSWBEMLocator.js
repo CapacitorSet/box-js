@@ -1,4 +1,4 @@
-const controller = require('../_controller');
+const controller = require("../_controller");
 
 function VirtualSWBEMServices() {
 	this.get = function(...args) {

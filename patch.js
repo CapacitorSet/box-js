@@ -5,7 +5,9 @@ window = new Proxy(
 	{},
 	{
 		get: function(target, name) {
-			return (function(){return this})()[name]
-		}
+			return (function() {
+				return this;
+			})()[name];
+		},
 	}
 );

@@ -1,10 +1,10 @@
-const controller = require('../_controller');
+const controller = require("../_controller");
 
 // http://stackoverflow.com/a/30410454
 function nthOfGenerator(generator, n) {
 	let i = 0;
 
-	if (n < 0) throw new Error('Invalid index');
+	if (n < 0) throw new Error("Invalid index");
 
 	for (const value of generator)
 		if (i++ === n) return value;
@@ -29,7 +29,7 @@ function ProxiedField(field, updateFn) {
 			get: function(target, name) {
 				name = name.toLowerCase();
 				switch (name) {
-					case 'appendchunk':
+					case "appendchunk":
 						return (chunk) => {
 							target.value = Buffer.concat([
 								target.value,
@@ -37,8 +37,8 @@ function ProxiedField(field, updateFn) {
 							]);
 							updateFn(target.value);
 						};
-					case 'getchunk':
-						return (length) => target.value.toString('utf8', 0, length);
+					case "getchunk":
+						return (length) => target.value.toString("utf8", 0, length);
 					default:
 						if (name in target.value) return target.value[name];
 						if (name in target) return target[name];
@@ -55,7 +55,7 @@ function ADODBRecordSet() {
 	// Contains the data contained in the fields. That's for internal use.
 	this._fields = new Map();
 	// Also for internal use. Used with movefirst, etc.
-	this._currentRecordName = '';
+	this._currentRecordName = "";
 	this._index = 0;
 	this._goToRecord = () => (this._currentRecordName = nthOfGenerator(this._fields.keys(), this._index));
 
@@ -85,14 +85,14 @@ function ADODBRecordSet() {
 			get: (target, name) => {
 				name = name.toLowerCase();
 				switch (name) {
-					case 'append':
-						return (name, type, definedSize, attrib, fieldValue = '') => {
+					case "append":
+						return (name, type, definedSize, attrib, fieldValue = "") => {
 							if (Number(type) !== 204) {
 								console.log(`Warning: unknown datatype ${type} in ADODBRecordSet`);
 							}
 							this._fields.set(name, Buffer.from(fieldValue));
 						};
-					case 'fields':
+					case "fields":
 						return (key) => new Proxy(target[key], {
 							get: function(target, name) {
 								switch (name) {
