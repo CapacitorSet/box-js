@@ -11,7 +11,8 @@
     "walk": "*",
     "async": "*",
     "minimist": "*",
-    "columnify": "*"
+    "columnify": "*",
+    "vm2": "*"
   },
   "devDependencies": {
     "babel-eslint": "*",

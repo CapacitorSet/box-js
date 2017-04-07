@@ -34,7 +34,7 @@ if (argv.version) {
 	process.exit(0);
 }
 
-const timeout = argv.timeout || 10;
+const timeout = Number(argv.timeout) || 10;
 if (!argv.timeout)
 	console.log("Using a 10 seconds timeout, pass --timeout to specify another timeout in seconds");
 
@@ -52,6 +52,8 @@ const isFile = filepath => {
 const options = process.argv
 	.slice(2)
 	.filter(filepath => !isFile(filepath));
+
+options.push(`--timeout=${timeout}`);
 
 const tasks = process.argv
 	.slice(2)
@@ -126,7 +128,6 @@ function analyze(filepath, filename, outputDir) {
 	});
 
 	worker.on('error', function(err) {
-		console.log("weee");
 		console.log(err);
 		clearTimeout(killTimeout);
 		worker.kill();
