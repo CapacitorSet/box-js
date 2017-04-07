@@ -100,6 +100,7 @@ function Drive(name) {
 	this.availablespace = 80*1024*1024*1024;
 	this.drivetype = 2;
 	this.filesystem = "NTFS";
+	this.serialnumber = 1234;
 }
 
 function ProxiedDrive(name) {
