@@ -6,7 +6,7 @@ function Enumerator(array) {
 		return array[index];
 	};
 	this.movenext = () => this._InternalIndex++;
-	this.atend = () => (array.length - this._InternalIndex) == 1
+	this.atend = () => (array.length - this._InternalIndex) == 1;
 }
 
 module.exports = function(array) {

@@ -17,14 +17,14 @@ function XMLHTTP() {
 			console.log(`Data sent to ${this.url}:`, data);
 		this.readystate = 4;
 		this.status = 200;
-		let response = controller.fetchUrl(this.method, this.url, this.headers, data);
+		const response = controller.fetchUrl(this.method, this.url, this.headers, data);
 		this.responsebody = response.body;
 		this.responsetext = this.responsebody.toString("utf8");
 		this.responseheaders = response.headers;
 		this.onreadystatechange();
 	};
 	this.setoption = () => {};
-	this.getresponseheader = key => this.responseheaders[key]
+	this.getresponseheader = (key) => this.responseheaders[key];
 }
 
 module.exports = function() {
