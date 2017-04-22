@@ -45,6 +45,7 @@ function ProxiedTextStream(filename) {
 			if (c.length < 1024)
 				console.log(`FSObject[${b}] = ${c};`);
 			a[b] = c;
+			return true;
 		},
 	});
 }

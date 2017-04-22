@@ -114,6 +114,7 @@ function ADODBRecordSet() {
 			set: function(a, b, c) {
 				b = b.toLowerCase();
 				a[b] = c;
+				return true;
 			},
 		}
 	);
@@ -134,6 +135,7 @@ module.exports = function() {
 		set: function(a, b, c) {
 			b = b.toLowerCase();
 			a[b] = c;
+			return true;
 		},
 	});
 };

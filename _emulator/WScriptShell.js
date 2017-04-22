@@ -79,6 +79,7 @@ module.exports = function(name) {
 			if (c.length < 1024)
 				console.log(`WScriptShell[${b}] = ${c};`);
 			a[b] = c;
+			return true;
 		},
 	});
 };

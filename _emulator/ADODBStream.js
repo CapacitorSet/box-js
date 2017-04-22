@@ -77,6 +77,7 @@ module.exports = function() {
 				console.log(`ADODBStream[${b}] = ${c};`);
 */
 			a[b] = c;
+			return true;
 		},
 	});
 };
