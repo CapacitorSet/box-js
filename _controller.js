@@ -43,6 +43,8 @@ module.exports = {
 		}
 	},
 	fetchUrl: function(method, url, headers = {}, body) {
+		// Ignore HTTPS errors
+		process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 		try {
 			latestUrl = url;
 			if (process.argv.indexOf("--download") == -1) {
@@ -68,10 +70,10 @@ module.exports = {
 				return this[index];
 			};
 			console.log(`Downloaded ${file.body.length} bytes.`);
-			return file.body;
+			return file;
 		} catch (e) {
 			console.log(`An error occurred while emulating a ${method} request to ${url}.`);
-			// console.log(e);
+			console.log(e);
 			// throw e;
 			return `(Content of ${url})`;
 		}

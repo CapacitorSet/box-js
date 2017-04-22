@@ -24,6 +24,7 @@ function TextStream(filename) {
 			this.bufferarray = this.buffer.split("\n");
 		return this.bufferarray.shift();
 	};
+	this.atendofstream = () => this.bufferarray.length == 0;
 	this.shortpath = (path) => path;
 }
 

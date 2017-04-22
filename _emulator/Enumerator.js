@@ -1,9 +1,12 @@
 const controller = require("../_controller");
 
 function Enumerator(array) {
-	this.item = function(index) {
+	this._InternalIndex = 0;
+	this.item = function(index = this._InternalIndex) {
 		return array[index];
 	};
+	this.movenext = () => this._InternalIndex++;
+	this.atend = () => (array.length - this._InternalIndex) == 1
 }
 
 module.exports = function(array) {

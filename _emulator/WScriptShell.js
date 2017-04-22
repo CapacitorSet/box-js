@@ -41,9 +41,19 @@ function WScriptShell() {
 		if (process.argv.indexOf("--no-shell-error") === -1)
 			throw new Error("If you can read this, re-run box.js with the --no-shell-error flag.");
 	};
-	this.regwrite = (key, value, type = "(unspecified)") => console.log(`Setting registry key ${key} to ${value} of type ${type}`);
-	this.popup = function(text, a, title = "[Untitled]", b) {
-		if (process.argv.indexOf("--no-echo") === -1) {
+	this.regread = key => {
+		console.log(`Reading registry key ${key}`);
+		switch (key) {
+			case "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\CurrentVersion":
+				return "5.1";
+			default:
+				console.log("Unknown registry key!");
+				return;
+		}
+	}
+	this.regwrite = (key, value, type = '(unspecified)') => console.log(`Setting registry key ${key} to ${value} of type ${type}`);
+	this.popup = function(text, a, title = '[Untitled]', b) {
+		if (process.argv.indexOf('--no-echo') === -1) {
 			console.log(`Script opened a popup window: title "${title}", text "${text}"`);
 			console.log("Add flag --no-echo to disable this.");
 		}
