@@ -52,7 +52,7 @@ module.exports = {
 				console.log("Use the flag --download to actually download the file (eg. for encoded payloads).");
 				return {
 					headers: {},
-					body: `(Content of ${url})`
+					body: `(Content of ${url})`,
 				};
 			}
 
@@ -80,7 +80,7 @@ module.exports = {
 			// throw e;
 			return {
 				headers: {},
-				body: `(Content of ${url})`
+				body: `(Content of ${url})`,
 			};
 		}
 	},

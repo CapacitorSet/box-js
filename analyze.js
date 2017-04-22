@@ -167,35 +167,17 @@ cc decoder.c -o decoder
 code = rewrite(code);
 controller.logJS(code);
 
-Date.prototype.getYear = function() {
-	return new Date().getFullYear();
-};
-
 Array.prototype.Count = function() {
 	return this.length;
 };
 
 const sandbox = {
-	Enumerator,
-	WSH: "Windows Script Host",
-	Date,
-	Error: function(message, description) {
-		const e = new Error(message);
-		e.description = description;
-		return e;
-	},
-	rewrite: (code) => rewrite(controller.logJS(code)),
-	_typeof: (x) => x.typeof ? x.typeof : typeof x,
+	ActiveXObject,
+	alert: (x) => {},
 	console: {
 		log: (x) => console.log(JSON.stringify(x)),
 	},
-	alert: (x) => {},
-	parse: (x) => {},
-	ScriptEngine: () => {
-		const type = "JScript"; // or "JavaScript", or "VBScript"
-		console.log(`Notice: emulating a ${type} engine (in ScriptEngine)`);
-		return type;
-	},
+	Enumerator,
 	JSON,
 	location: new Proxy({
 		href: "http://www.foobar.com/",
@@ -212,6 +194,14 @@ const sandbox = {
 			}
 		},
 	}),
+	parse: (x) => {},
+	rewrite: (code) => rewrite(controller.logJS(code)),
+	ScriptEngine: () => {
+		const type = "JScript"; // or "JavaScript", or "VBScript"
+		console.log(`Notice: emulating a ${type} engine (in ScriptEngine)`);
+		return type;
+	},
+	_typeof: (x) => x.typeof ? x.typeof : typeof x,
 	WScript: new Proxy({}, {
 		get: function(target, name) {
 			if (typeof name === "string") name = name.toLowerCase();
@@ -221,27 +211,6 @@ const sandbox = {
 				case "tostring":
 					return "Windows Script Host";
 
-				case "path":
-					return "C:\\TestFolder\\";
-				case "stdin":
-					return new Proxy({
-						atendofstream: {
-							typeof: "unknown",
-						},
-						line: 1,
-						writeline: (text) => {
-							if (argv["no-echo"]) return;
-							console.log("Script wrote:", text);
-							console.log("Add flag --no-echo to disable this.");
-						},
-					}, {
-						get: function(target, name) {
-							name = name.toLowerCase();
-							if (!(name in target))
-								controller.kill(`WScript.StdIn.${name} not implemented!`);
-							return target[name];
-						},
-					});
 				case "arguments":
 					return new Proxy((n) => `${n}th argument`, {
 						get: function(target, name) {
@@ -268,13 +237,6 @@ const sandbox = {
 					});
 				case "createobject":
 					return ActiveXObject;
-				case "sleep":
-					// return x => console.log(`Sleeping for ${x} ms...`)
-					return (x) => {};
-				case "quit":
-					return () => {};
-				case "scriptfullname":
-					return "(ScriptFullName)";
 				case "echo":
 					if (argv["no-echo"])
 						return () => {};
@@ -282,12 +244,40 @@ const sandbox = {
 						console.log("Script wrote:", x);
 						console.log("Add flag --no-echo to disable this.");
 					};
+				case "path":
+					return "C:\\TestFolder\\";
+				case "sleep":
+					// return x => console.log(`Sleeping for ${x} ms...`)
+					return (x) => {};
+				case "stdin":
+					return new Proxy({
+						atendofstream: {
+							typeof: "unknown",
+						},
+						line: 1,
+						writeline: (text) => {
+							if (argv["no-echo"]) return;
+							console.log("Script wrote:", text);
+							console.log("Add flag --no-echo to disable this.");
+						},
+					}, {
+						get: function(target, name) {
+							name = name.toLowerCase();
+							if (!(name in target))
+								controller.kill(`WScript.StdIn.${name} not implemented!`);
+							return target[name];
+						},
+					});
+				case "quit":
+					return () => {};
+				case "scriptfullname":
+					return "(ScriptFullName)";
 				default:
 					controller.kill(`WScript.${name} not implemented!`);
 			}
 		},
 	}),
-	ActiveXObject,
+	WSH: "Windows Script Host",
 };
 
 const vm = new VM({
@@ -295,11 +285,7 @@ const vm = new VM({
 	sandbox,
 });
 
-try {
-	vm.run(code);
-} catch (e) {
-	console.error(e);
-}
+vm.run(code);
 
 function Enumerator(collection) {
 	return require("./_emulator/Enumerator")(collection);
