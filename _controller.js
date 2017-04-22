@@ -50,7 +50,10 @@ module.exports = {
 			if (process.argv.indexOf("--download") == -1) {
 				console.log(`Faking a ${method} request to ${url}`);
 				console.log("Use the flag --download to actually download the file (eg. for encoded payloads).");
-				return `(Content of ${url})`;
+				return {
+					headers: {},
+					body: `(Content of ${url})`
+				};
 			}
 
 			console.log(`Emulating a ${method} request to ${url}`);
@@ -75,7 +78,10 @@ module.exports = {
 			console.log(`An error occurred while emulating a ${method} request to ${url}.`);
 			console.log(e);
 			// throw e;
-			return `(Content of ${url})`;
+			return {
+				headers: {},
+				body: `(Content of ${url})`
+			};
 		}
 	},
 	writeFile: function(filename, contents) {
