@@ -177,7 +177,28 @@ const sandbox = {
 	console: {
 		log: (x) => console.log(JSON.stringify(x)),
 	},
-	Enumerator,
+	Enumerator: require("./_emulator/Enumerator"),
+	GetObject: str => {
+		str = str.toLowerCase();
+		switch (str) {
+			case "winmgmts:{impersonationlevel=impersonate}":
+				return {
+					InstancesOf: table => {
+						table = table.toLowerCase();
+						switch (table) {
+							case "win32_computersystemproduct":
+								return [{
+									Name: "Foobar"
+								}];
+							default:
+								controller.kill(`WMI.InstancesOf(${table}) not implemented!`);
+						}
+					}
+				}
+			default:
+				controller.kill(`GetObject(${str}) not implemented!`);
+		}
+	},
 	JSON,
 	location: new Proxy({
 		href: "http://www.foobar.com/",
@@ -272,6 +293,8 @@ const sandbox = {
 					return () => {};
 				case "scriptfullname":
 					return "(ScriptFullName)";
+				case "scriptname":
+					return "sample.js";
 				default:
 					controller.kill(`WScript.${name} not implemented!`);
 			}
@@ -286,10 +309,6 @@ const vm = new VM({
 });
 
 vm.run(code);
-
-function Enumerator(collection) {
-	return require("./_emulator/Enumerator")(collection);
-}
 
 function ActiveXObject(name) {
 	console.log(`New ActiveXObject: ${name}`);
@@ -313,6 +332,8 @@ function ActiveXObject(name) {
 		case "msxml2.serverxmlhttp":
 		case "msxml2.xmlhttp":
 			return require("./_emulator/XMLHTTP")();
+		case "scriptcontrol":
+			return require("./_emulator/ScriptControl")();
 		case "scripting.filesystemobject":
 			return require("./_emulator/FileSystemObject")();
 		case "scripting.dictionary":

@@ -4,6 +4,19 @@ function TextStream(filename) {
 	this.buffer = controller.readFile(filename) || "";
 	this.uuid = controller.getUUID();
 	this.filename = filename;
+	this.bufferarray = [];
+
+	this.atendofstream = () => this.bufferarray.length === 0;
+	this.close = () => {};
+	this.readall = () => {
+		return this.buffer;
+	};
+	this.readline = function() {
+		if (this.bufferarray.length === 0)
+			this.bufferarray = this.buffer.split("\n");
+		return this.bufferarray.shift();
+	};
+	this.shortpath = (path) => path;
 	this.write = (line) => {
 		this.buffer = this.buffer + line;
 		controller.writeFile(filename, this.buffer);
@@ -14,18 +27,6 @@ function TextStream(filename) {
 		controller.writeFile(filename, this.buffer);
 		controller.logResource(this.uuid, this.filename, this.buffer);
 	};
-	this.readall = () => {
-		return this.buffer;
-	};
-	this.close = () => {};
-	this.bufferarray = [];
-	this.readline = function() {
-		if (this.bufferarray.length === 0)
-			this.bufferarray = this.buffer.split("\n");
-		return this.bufferarray.shift();
-	};
-	this.atendofstream = () => this.bufferarray.length === 0;
-	this.shortpath = (path) => path;
 }
 
 function ProxiedTextStream(filename) {
@@ -76,10 +77,10 @@ function ProxiedFolder(path, name, autospawned = false) {
 }
 
 function File(contents) {
+	this.attributes = 32;
 	this.openastextstream = () => new ProxiedTextStream(contents);
 	this.shortpath = "C:\\PROGRA~1\\example-file.exe";
 	this.size = Infinity;
-	this.attributes = 32;
 }
 
 function ProxiedFile(filename) {
@@ -98,11 +99,11 @@ function ProxiedFile(filename) {
 }
 
 function Drive(name) {
-	this.volumename = name;
 	this.availablespace = 80*1024*1024*1024;
 	this.drivetype = 2;
 	this.filesystem = "NTFS";
 	this.serialnumber = 1234;
+	this.volumename = name;
 }
 
 function ProxiedDrive(name) {
@@ -121,8 +122,14 @@ function ProxiedDrive(name) {
 }
 
 function FileSystemObject() {
-	this.createtextfile = this.opentextfile = (filename) => new ProxiedTextStream(filename);
 	this.buildpath = (...args) => args.join("\\");
+	this.createfolder = (folder) => "(Temporary new folder)";
+	this.createtextfile = this.opentextfile = (filename) => new ProxiedTextStream(filename);
+	this.copyfile = (src, dest, overwrite) => {
+		console.log(`Copying ${src} to ${dest}`);
+		controller.writeFile(dest, `(Contents of ${dest})`);
+	};
+	this.drives = [new ProxiedDrive("C:")];
 	this.fileexists = this.deletefile = () => {
 		const value = process.argv.indexOf("--no-file-exists") === -1;
 		if (value) {
@@ -130,7 +137,21 @@ function FileSystemObject() {
 		}
 		return value;
 	};
+	this.folderexists = (folder) => {
+		const defaultValue = true;
+		console.log(`Checking if ${folder} exists, returning ${defaultValue}`);
+		return defaultValue;
+	};
+	this.getdrive = (drive) => new ProxiedDrive(drive);
+	this.getdrivename = (path) => {
+		const matches = path.match(/^\w:/);
+		if (matches == null)
+			return "";
+		return matches[0];
+	};
 	this.getfile = (filename) => new ProxiedFile(filename);
+	this.getfileversion = () => "";
+	this.getfolder = (str) => new ProxiedFolder(str);
 	this.getspecialfolder = function(id) {
 		switch (id) {
 			case 0:
@@ -147,22 +168,6 @@ function FileSystemObject() {
 		}
 	};
 	this.gettempname = () => "(Temporary file)";
-	this.createfolder = (folder) => "(Temporary new folder)";
-	this.folderexists = (folder) => {
-		const defaultValue = true;
-		console.log(`Checking if ${folder} exists, returning ${defaultValue}`);
-		return defaultValue;
-	};
-	this.getfolder = (str) => new ProxiedFolder(str);
-	this.getfileversion = () => "";
-	this.drives = [new ProxiedDrive("C:")];
-	this.getdrive = (drive) => new ProxiedDrive(drive);
-	this.getdrivename = (path) => {
-		const matches = path.match(/^\w:/);
-		if (matches == null)
-			return "";
-		return matches[0];
-	};
 }
 
 module.exports = function() {

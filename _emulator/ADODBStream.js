@@ -38,6 +38,7 @@ function ADODBStream() {
 		controller.logResource(controller.getUUID(), this.virtual_filename, this.buffer, true);
 	};
 	this.close = () => {};
+	this.read = () => this.buffer;
 
 	this.write = this.writetext = function(text) {
 		if (this.charset)
