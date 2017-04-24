@@ -21,8 +21,13 @@ const argv = commandLineArgs(flags);
 
 console.log(`Analyzing ${filename}`);
 const sample_buffer = fs.readFileSync(filename);
-const encoding = require("jschardet").detect(sample_buffer).encoding;
-console.log(`The file seems to be encoded with ${encoding}.`);
+let encoding;
+if (argv.encoding) {
+	encoding = argv.encoding;
+} else {
+	encoding = require("jschardet").detect(sample_buffer).encoding;
+	console.log(`The file seems to be encoded with ${encoding}.`);
+}
 const sample_source = iconv.decode(sample_buffer, encoding);
 let code = fs.readFileSync(path.join(__dirname, "patch.js"), "utf8") + sample_source;
 

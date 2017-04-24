@@ -28,6 +28,8 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 
 --download (Boolean): Actually download the payloads
 
+--encoding (String): Encoding of the input sample (will be automatically detected by default)
+
 --no-file-exists (Boolean): Return `false` for Scripting.FileSystemObject.FileExists(x)
 
 --no-catch-rewrite (Boolean): Do not rewrite try..catch clauses to make the exception global-scoped
