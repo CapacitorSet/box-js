@@ -3,7 +3,6 @@
   "version": "1.6.0",
   "description": "A tool for studying JavaScript malware.",
   "dependencies": {
-    "async": "*",
     "command-line-args": "*",
     "escodegen": "*",
     "esprima": "*",
