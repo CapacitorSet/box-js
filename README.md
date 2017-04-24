@@ -1,6 +1,8 @@
 box.js
 ======
 
+[![Build Status](https://travis-ci.org/CapacitorSet/box-js.svg?branch=master)](https://travis-ci.org/CapacitorSet/box-js) [![npm](https://img.shields.io/npm/v/box-js.svg)]()
+
 A utility to analyze malicious JavaScript (**requires at least Node 6.0.0**).
 
 To execute it, simply install its dependencies (`npm install`) and run
