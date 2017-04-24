@@ -3,21 +3,25 @@
   "version": "1.5.0",
   "description": "A tool for studying JavaScript malware.",
   "dependencies": {
-    "uuid": "*",
-    "esprima": "*",
-    "escodegen": "*",
-    "sync-request": "*",
-    "iconv-lite": "*",
-    "walk": "*",
     "async": "*",
     "command-line-args": "*",
-    "vm2": "*"
+    "escodegen": "*",
+    "esprima": "*",
+    "iconv-lite": "*",
+    "jschardet": "*",
+    "sync-request": "*",
+    "uuid": "*",
+    "vm2": "*",
+    "walk": "*"
   },
   "devDependencies": {
     "babel-eslint": "*",
     "eslint": "*",
     "eslint-config-google": "*",
     "mocha": "*"
+  },
+  "engines": {
+    "node": ">=6.0.0"
   },
   "repository": {
     "type": "git",

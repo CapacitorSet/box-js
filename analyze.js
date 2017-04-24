@@ -2,6 +2,7 @@ const controller = require("./_controller");
 const escodegen = require("escodegen");
 const esprima = require("esprima");
 const fs = require("fs");
+const iconv = require("iconv-lite");
 const path = require("path");
 const {VM} = require("vm2");
 
@@ -19,7 +20,11 @@ const flags = JSON.parse(fs.readFileSync(path.join(__dirname, "flags.json"), "ut
 const argv = commandLineArgs(flags);
 
 console.log(`Analyzing ${filename}`);
-let code = fs.readFileSync(path.join(__dirname, "patch.js"), "utf8") + fs.readFileSync(filename, "utf8");
+const sample_buffer = fs.readFileSync(filename);
+const encoding = require("jschardet").detect(sample_buffer).encoding;
+console.log(`The file seems to be encoded with ${encoding}.`);
+const sample_source = iconv.decode(sample_buffer, encoding);
+let code = fs.readFileSync(path.join(__dirname, "patch.js"), "utf8") + sample_source;
 
 if (code.match("<job") || code.match("<script")) { // The sample may actually be a .wsf, which is <job><script>..</script><script>..</script></job>.
 	code = code.replace(/<\??\/?\w+( .*)*\??>/g, ""); // XML tags
