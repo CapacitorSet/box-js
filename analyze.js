@@ -188,27 +188,7 @@ const sandbox = {
 		log: (x) => console.log(JSON.stringify(x)),
 	},
 	Enumerator: require("./_emulator/Enumerator"),
-	GetObject: (str) => {
-		str = str.toLowerCase();
-		switch (str) {
-			case "winmgmts:{impersonationlevel=impersonate}":
-				return {
-					InstancesOf: (table) => {
-						table = table.toLowerCase();
-						switch (table) {
-							case "win32_computersystemproduct":
-								return [{
-									Name: "Foobar",
-								}];
-							default:
-								controller.kill(`WMI.InstancesOf(${table}) not implemented!`);
-						}
-					},
-				};
-			default:
-				controller.kill(`GetObject(${str}) not implemented!`);
-		}
-	},
+	GetObject: require("./_emulator/WMI").GetObject,
 	JSON,
 	location: new Proxy({
 		href: "http://www.foobar.com/",
@@ -325,6 +305,8 @@ function ActiveXObject(name) {
 	name = name.toLowerCase();
 	if (name.match("winhttprequest"))
 		return require("./_emulator/XMLHTTP")();
+	if (name.match("xmlhttp"))
+		return require("./_emulator/XMLHTTP")();
 	if (name.match("dom")) {
 		return {
 			createElement: require("./_emulator/DOM"),
@@ -339,9 +321,6 @@ function ActiveXObject(name) {
 			return require("./_emulator/ADODBStream")();
 		case "adodb.recordset":
 			return require("./_emulator/ADODBRecordSet")();
-		case "msxml2.serverxmlhttp":
-		case "msxml2.xmlhttp":
-			return require("./_emulator/XMLHTTP")();
 		case "scriptcontrol":
 			return require("./_emulator/ScriptControl")();
 		case "scripting.filesystemobject":
