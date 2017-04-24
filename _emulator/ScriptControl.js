@@ -2,8 +2,8 @@ const controller = require("../_controller");
 
 function ScriptControl() {
 	this.addobject = () => {},
-	this.addcode = code => controller.logSnippet(controller.getUUID(), {
-		as: "Code snippet in ScriptControl"
+	this.addcode = (code) => controller.logSnippet(controller.getUUID(), {
+		as: "Code snippet in ScriptControl",
 	}, code);
 }
 

@@ -145,7 +145,7 @@ function FileSystemObject() {
 	this.getdrive = (drive) => new ProxiedDrive(drive);
 	this.getdrivename = (path) => {
 		const matches = path.match(/^\w:/);
-		if (matches == null)
+		if (matches === null)
 			return "";
 		return matches[0];
 	};

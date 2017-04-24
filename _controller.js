@@ -34,7 +34,7 @@ module.exports = {
 	directory,
 	getUUID: uuid.v4,
 	kill: function(message) {
-		if (process.argv.indexOf("--no-kill") == -1) {
+		if (process.argv.indexOf("--no-kill") === -1) {
 			console.trace(message);
 			console.log("Exiting (use --no-kill to just simulate a runtime error).");
 			process.exit(0);
@@ -47,7 +47,7 @@ module.exports = {
 		process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 		try {
 			latestUrl = url;
-			if (process.argv.indexOf("--download") == -1) {
+			if (process.argv.indexOf("--download") === -1) {
 				console.log(`Faking a ${method} request to ${url}`);
 				console.log("Use the flag --download to actually download the file (eg. for encoded payloads).");
 				return {
@@ -91,7 +91,7 @@ module.exports = {
 		return files[filename];
 	},
 	logUrl: function(method, url) {
-		if (urls.indexOf(url) == -1) urls.push(url);
+		if (urls.indexOf(url) === -1) urls.push(url);
 		fs.writeFileSync(directory + "urls.json", JSON.stringify(urls, null, "\t"));
 	},
 	logResource: function(resourceName, logContent, content, print = false) {
@@ -106,7 +106,7 @@ module.exports = {
 		if (/executable/.test(filetype)) {
 			console.log("Active URL detected: " + latestUrl);
 			// Log active url
-			if (activeUrls.indexOf(latestUrl) == -1)
+			if (activeUrls.indexOf(latestUrl) === -1)
 				activeUrls.push(latestUrl);
 			fs.writeFileSync(directory + "active_urls.json", JSON.stringify(activeUrls, null, "\t"));
 		}

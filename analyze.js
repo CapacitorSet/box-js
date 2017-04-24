@@ -178,23 +178,23 @@ const sandbox = {
 		log: (x) => console.log(JSON.stringify(x)),
 	},
 	Enumerator: require("./_emulator/Enumerator"),
-	GetObject: str => {
+	GetObject: (str) => {
 		str = str.toLowerCase();
 		switch (str) {
 			case "winmgmts:{impersonationlevel=impersonate}":
 				return {
-					InstancesOf: table => {
+					InstancesOf: (table) => {
 						table = table.toLowerCase();
 						switch (table) {
 							case "win32_computersystemproduct":
 								return [{
-									Name: "Foobar"
+									Name: "Foobar",
 								}];
 							default:
 								controller.kill(`WMI.InstancesOf(${table}) not implemented!`);
 						}
-					}
-				}
+					},
+				};
 			default:
 				controller.kill(`GetObject(${str}) not implemented!`);
 		}
