@@ -40,6 +40,7 @@ module.exports.GetObject = function(name) {
 					caption: "Microsoft Windows 10 Pro",
 				})],
 				"win32_logicaldisk": [VirtualWMIObject({ // dirty patch by @ALange
+					deviceid: "C:",
 					volumeserialnumber: "B55B4A40",
 				})],
 			});
