@@ -1,6 +1,6 @@
 {
   "name": "box-js",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "A tool for studying JavaScript malware.",
   "dependencies": {
     "command-line-args": "*",
