@@ -104,6 +104,8 @@ function Drive(name) {
 	this.filesystem = "NTFS";
 	this.serialnumber = 1234;
 	this.volumename = name;
+	this.path = name + "\\";
+	this.isready = true;
 }
 
 function ProxiedDrive(name) {
