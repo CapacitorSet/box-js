@@ -196,3 +196,7 @@ and iterate until the code emulates without errors.
  * command-line help
  * `--output-directory`
  * bugfixes
+
+@ALange:
+
+ * support for non-UTF8 encodings
