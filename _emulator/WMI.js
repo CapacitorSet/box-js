@@ -34,13 +34,13 @@ module.exports.GetObject = function(name) {
 		case "winmgmts:":
 			return VirtualWMIObject({
 				"win32_computersystemproduct": [{
-					Name: "Foobar",
+					name: "Foobar",
 				}],
 				"win32_operatingsystem": [{
-					Caption: "Microsoft Windows 10 Pro",
+					caption: "Microsoft Windows 10 Pro",
 				}],
 				"win32_logicaldisk": [{ // dirty patch by @ALange
-					VolumeSerialNumber: "B55B4A40",
+					volumeserialnumber: "B55B4A40",
 				}],
 			});
 		case "winmgmts:\\\\localhost\\root\\securitycenter":
