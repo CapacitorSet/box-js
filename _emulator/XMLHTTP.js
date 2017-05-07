@@ -9,6 +9,7 @@ function XMLHTTP() {
 		controller.logUrl(method, url);
 	};
 	this.setrequestheader = function(key, val) {
+		key = key.replace(/:$/, ""); // Replace a trailing ":" if present
 		this.headers[key] = val;
 		console.log(`Header set for ${this.url}:`, key, val);
 	};
