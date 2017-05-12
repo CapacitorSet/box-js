@@ -1,4 +1,4 @@
-const controller = require("../_controller");
+const controller = require("../controller");
 
 function VirtualWMIObject(object) {
 	return new Proxy(object, {

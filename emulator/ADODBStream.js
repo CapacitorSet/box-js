@@ -1,4 +1,4 @@
-const controller = require("../_controller");
+const controller = require("../controller");
 const iconv = require("iconv-lite");
 
 /* Includes code (ADODBStream.writetext, .loadfromfile) from

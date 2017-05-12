@@ -1,4 +1,4 @@
-const controller = require("./_controller");
+const controller = require("./controller");
 const escodegen = require("escodegen");
 const esprima = require("esprima");
 const fs = require("fs");
@@ -187,8 +187,8 @@ const sandbox = {
 	console: {
 		log: (x) => console.log(JSON.stringify(x)),
 	},
-	Enumerator: require("./_emulator/Enumerator"),
-	GetObject: require("./_emulator/WMI").GetObject,
+	Enumerator: require("./emulator/Enumerator"),
+	GetObject: require("./emulator/WMI").GetObject,
 	JSON,
 	location: new Proxy({
 		href: "http://www.foobar.com/",
@@ -304,12 +304,12 @@ function ActiveXObject(name) {
 	console.log(`New ActiveXObject: ${name}`);
 	name = name.toLowerCase();
 	if (name.match("winhttprequest"))
-		return require("./_emulator/XMLHTTP")();
+		return require("./emulator/XMLHTTP")();
 	if (name.match("xmlhttp"))
-		return require("./_emulator/XMLHTTP")();
+		return require("./emulator/XMLHTTP")();
 	if (name.match("dom")) {
 		return {
-			createElement: require("./_emulator/DOM"),
+			createElement: require("./emulator/DOM"),
 			load: (filename) => {
 				// console.log(`Loading ${filename} in a virtual DOM environment...`);
 			},
@@ -318,23 +318,23 @@ function ActiveXObject(name) {
 
 	switch (name) {
 		case "adodb.stream":
-			return require("./_emulator/ADODBStream")();
+			return require("./emulator/ADODBStream")();
 		case "adodb.recordset":
-			return require("./_emulator/ADODBRecordSet")();
+			return require("./emulator/ADODBRecordSet")();
 		case "scriptcontrol":
-			return require("./_emulator/ScriptControl")();
+			return require("./emulator/ScriptControl")();
 		case "scripting.filesystemobject":
-			return require("./_emulator/FileSystemObject")();
+			return require("./emulator/FileSystemObject")();
 		case "scripting.dictionary":
-			return require("./_emulator/Dictionary")();
+			return require("./emulator/Dictionary")();
 		case "shell.application":
-			return require("./_emulator/ShellApplication")();
+			return require("./emulator/ShellApplication")();
 		case "wscript.network":
-			return require("./_emulator/WScriptNetwork")();
+			return require("./emulator/WScriptNetwork")();
 		case "wscript.shell":
-			return require("./_emulator/WScriptShell")();
+			return require("./emulator/WScriptShell")();
 		case "wbemscripting.swbemlocator":
-			return require("./_emulator/WBEMScriptingSWBEMLocator")();
+			return require("./emulator/WBEMScriptingSWBEMLocator")();
 		default:
 			controller.kill(`Unknown ActiveXObject ${name}`);
 			break;

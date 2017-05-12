@@ -1,4 +1,4 @@
-const controller = require("../_controller");
+const controller = require("../controller");
 
 // http://stackoverflow.com/a/30410454
 function nthOfGenerator(generator, n) {
