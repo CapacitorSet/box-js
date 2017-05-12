@@ -20,7 +20,7 @@ const urls = [];
 const activeUrls = [];
 const snippets = {};
 const resources = {};
-const files = [];
+const files = {};
 
 let latestUrl = "";
 
