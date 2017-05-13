@@ -23,9 +23,12 @@ console.log(`Analyzing ${filename}`);
 const sample_buffer = fs.readFileSync(filename);
 let encoding;
 if (argv.encoding) {
+	console.log("Using argv encoding");
 	encoding = argv.encoding;
 } else {
+	console.log("Using detected encoding");
 	encoding = require("jschardet").detect(sample_buffer).encoding;
+	if (encoding === null) encoding = "utf8";
 	console.log(`The file seems to be encoded with ${encoding}.`);
 }
 const sample_source = iconv.decode(sample_buffer, encoding);
