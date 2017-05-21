@@ -15,6 +15,11 @@
         "description": "Actually download the payloads"
     },
     {
+        "name": "encoding",
+        "type": "String",
+        "description": "Encoding of the input sample (will be automatically detected by default)"
+    },
+    {
         "name": "no-file-exists",
         "type": "Boolean",
         "description": "Return `false` for Scripting.FileSystemObject.FileExists(x)"

@@ -1,4 +1,4 @@
-const controller = require("../_controller");
+const controller = require("../controller");
 const iconv = require("iconv-lite");
 
 /* Includes code (ADODBStream.writetext, .loadfromfile) from
@@ -38,6 +38,7 @@ function ADODBStream() {
 		controller.logResource(controller.getUUID(), this.virtual_filename, this.buffer, true);
 	};
 	this.close = () => {};
+	this.read = () => this.buffer;
 
 	this.write = this.writetext = function(text) {
 		if (this.charset)

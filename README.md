@@ -1,6 +1,8 @@
 box.js
 ======
 
+[![Build Status](https://travis-ci.org/CapacitorSet/box-js.svg?branch=master)](https://travis-ci.org/CapacitorSet/box-js) [![npm](https://img.shields.io/npm/v/box-js.svg)]()
+
 A utility to analyze malicious JavaScript (**requires at least Node 6.0.0**).
 
 To execute it, simply install its dependencies (`npm install`) and run
@@ -27,6 +29,8 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 --debug (Boolean): Die when an emulation error occurs, even in "batch mode"
 
 --download (Boolean): Actually download the payloads
+
+--encoding (String): Encoding of the input sample (will be automatically detected by default)
 
 --no-file-exists (Boolean): Return `false` for Scripting.FileSystemObject.FileExists(x)
 
@@ -192,3 +196,7 @@ and iterate until the code emulates without errors.
  * command-line help
  * `--output-directory`
  * bugfixes
+
+@ALange:
+
+ * support for non-UTF8 encodings

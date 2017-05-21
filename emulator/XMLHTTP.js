@@ -1,4 +1,4 @@
-const controller = require("../_controller");
+const controller = require("../controller");
 
 function XMLHTTP() {
 	this.headers = {};
@@ -6,9 +6,9 @@ function XMLHTTP() {
 	this.open = function(method, url) {
 		this.url = url;
 		this.method = method;
-		controller.logUrl(method, url);
 	};
 	this.setrequestheader = function(key, val) {
+		key = key.replace(/:$/, ""); // Replace a trailing ":" if present
 		this.headers[key] = val;
 		console.log(`Header set for ${this.url}:`, key, val);
 	};
@@ -16,8 +16,19 @@ function XMLHTTP() {
 		if (data)
 			console.log(`Data sent to ${this.url}:`, data);
 		this.readystate = 4;
-		this.status = 200;
-		const response = controller.fetchUrl(this.method, this.url, this.headers, data);
+		controller.logUrl(this.method, this.url);
+		let response;
+		if (controller.argv.download) {
+			this.status = 200;
+			response = controller.fetchUrl(this.method, this.url, this.headers, data);
+		} else {
+			console.log("Returning HTTP 404 (Not found); use --download to try to download the payload");
+			this.status = 404;
+			response = {
+				body: new Buffer(""),
+				headers: {},
+			};
+		}
 		this.responsebody = response.body;
 		this.responsetext = this.responsebody.toString("utf8");
 		this.responseheaders = response.headers;

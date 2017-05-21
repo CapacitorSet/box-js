@@ -1,23 +1,26 @@
 {
   "name": "box-js",
-  "version": "1.5.0",
+  "version": "1.6.1",
   "description": "A tool for studying JavaScript malware.",
   "dependencies": {
-    "uuid": "*",
-    "esprima": "*",
-    "escodegen": "*",
-    "sync-request": "*",
-    "iconv-lite": "*",
-    "walk": "*",
-    "async": "*",
     "command-line-args": "*",
-    "vm2": "*"
+    "escodegen": "*",
+    "esprima": "*",
+    "iconv-lite": "*",
+    "jschardet": "*",
+    "sync-request": "*",
+    "uuid": "*",
+    "vm2": "*",
+    "walk": "*"
   },
   "devDependencies": {
     "babel-eslint": "*",
     "eslint": "*",
     "eslint-config-google": "*",
     "mocha": "*"
+  },
+  "engines": {
+    "node": ">=6.0.0"
   },
   "repository": {
     "type": "git",
@@ -34,7 +37,7 @@
   },
   "scripts": {
     "clean": "rm -r ./*.results",
-    "lint": "eslint run.js analyze.js test/ _emulator/",
+    "lint": "eslint run.js analyze.js test/ emulator/",
     "test": "mocha test/"
   }
 }

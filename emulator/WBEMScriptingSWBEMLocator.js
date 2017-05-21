@@ -1,4 +1,4 @@
-const controller = require("../_controller");
+const controller = require("../controller");
 
 function VirtualSWBEMServices() {
 	this.get = function(...args) {
@@ -8,7 +8,7 @@ function VirtualSWBEMServices() {
 
 function VirtualWBEMLocator() {
 	this.connectserver = function(server, namespace) {
-		console.log(`WBEMLocator: emulating a connectiont to server ${server} with namespace ${namespace}`);
+		console.log(`WBEMLocator: emulating a connection to server ${server} with namespace ${namespace}`);
 		return new Proxy(new VirtualSWBEMServices(), {
 			get: function(target, name) {
 				name = name.toLowerCase();
