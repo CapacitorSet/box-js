@@ -64,10 +64,10 @@ function WScriptShell() {
 	this.regread = (key) => {
         key = this._normalize_reg_key(key);
 		console.log(`Reading registry key ${key}`);
-        if (!(key in this._reg_entries)
+        if (!(key in this._reg_entries))
             return this._reg_entries[key];
-        else
-            console.log("Unknown registry key!");
+        console.log("Unknown registry key!");
+        return "";
 	};
 	this.regwrite = (key, value, type = "(unspecified)") => {
         key = this._normalize_reg_key(key);
