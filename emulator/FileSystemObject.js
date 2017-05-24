@@ -1,4 +1,5 @@
 const controller = require("../controller");
+const argv = require("../argv.js");
 
 function TextStream(filename) {
 	this.buffer = controller.readFile(filename) || "";
@@ -133,7 +134,7 @@ function FileSystemObject() {
 	};
 	this.drives = [new ProxiedDrive("C:")];
 	this.fileexists = this.deletefile = () => {
-		const value = process.argv.indexOf("--no-file-exists") === -1;
+		const value = !argv["no-file-exists"];
 		if (value) {
 			console.log("Returning `true` for FileSystemObject.FileExists; use --no-file-exists if nothing happens");
 		}

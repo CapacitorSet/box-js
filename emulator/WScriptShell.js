@@ -1,4 +1,5 @@
 const controller = require("../controller");
+const argv = require("../argv.js");
 
 function WScriptShell() {
 	this.environment = (x) => {
@@ -32,7 +33,7 @@ function WScriptShell() {
 
 		// %APPDATA% equals C:\Documents and Settings\{username}\Application Data on Windows XP,
 		// but C:\Users\{username}\AppData\Roaming on Win Vista and above
-		if (process.argv.indexOf("--windows-xp") === -1)
+		if (argv["windows-xp"])
 			path = path.replace(/%APPDATA%/gi, "C:\\Documents and Settings\\User\\Application Data");
 		else
 			path = path.replace(/%APPDATA%/gi, "C:\\Users\\User\\AppData\\Roaming");
@@ -48,7 +49,7 @@ function WScriptShell() {
 		const filename = controller.getUUID();
 		console.log(`Executing ${controller.directory + filename} in the WScript shell`);
 		controller.logSnippet(filename, {as: "WScript code"}, command);
-		if (process.argv.indexOf("--no-shell-error") === -1)
+		if (!argv["no-shell-error"])
 			throw new Error("If you can read this, re-run box.js with the --no-shell-error flag.");
 	};
 	this.regread = (key) => {
@@ -66,7 +67,7 @@ function WScriptShell() {
 	};
 	this.regwrite = (key, value, type = "(unspecified)") => console.log(`Setting registry key ${key} to ${value} of type ${type}`);
 	this.popup = function(text, a, title = "[Untitled]", b) {
-		if (process.argv.indexOf("--no-echo") === -1) {
+		if (!argv["no-echo"]) {
 			console.log(`Script opened a popup window: title "${title}", text "${text}"`);
 			console.log("Add flag --no-echo to disable this.");
 		}

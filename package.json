@@ -3,6 +3,7 @@
   "version": "1.7.0",
   "description": "A tool for studying JavaScript malware.",
   "dependencies": {
+    "columnify": "*",
     "command-line-args": "*",
     "escodegen": "*",
     "esprima": "*",

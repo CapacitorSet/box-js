@@ -1,8 +1,20 @@
 [
     {
-        "name": "version",
+        "name": "help",
+        "alias": "h",
         "type": "Boolean",
-        "description": "Show the package version"
+        "description": "Show the help text and quit"
+    },
+    {
+        "name": "version",
+        "alias": "v",
+        "type": "Boolean",
+        "description": "Show the package version and quit"
+    },
+    {
+        "name": "license",
+        "type": "Boolean",
+        "description": "Show the license and quit"
     },
     {
         "name": "debug",
@@ -45,6 +57,11 @@
         "description": "When the script prints data, do not print it to the console"
     },
     {
+        "name": "no-kill",
+        "type": "Boolean",
+        "description": "Do not kill the application when runtime errors occur"
+    },
+    {
         "name": "no-eval-rewrite",
         "type": "Boolean",
         "description": "Do not rewrite `eval` so that its argument is rewritten"
@@ -72,7 +89,7 @@
     {
         "name": "proxy",
         "type": "String",
-        "description": "Use the specified proxy for downloads. This is not relevant if the --download flag is not present."
+        "description": "[experimental] Use the specified proxy for downloads. This is not relevant if the --download flag is not present."
     },
     {
         "name": "timeout",

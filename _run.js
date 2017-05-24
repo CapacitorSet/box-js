@@ -3,33 +3,41 @@ const cp = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const walk = require("walk");
+const argv = require("./argv.js");
 
-const help = `box-js is a utility to analyze malicious JavaScript files.
+// Read and format JSON flag documentation
+if (argv.help || process.argv.length === 2) {
+	const columnify = require("columnify");
+	console.log(`box-js is a utility to analyze malicious JavaScript files.
 
 Usage:
     box-js <files|directories> [args]
 
 Arguments:
-`;
-
-// Read and format JSON flag documentation
-const flags = JSON.parse(fs.readFileSync(path.join(__dirname, "flags.json"), "utf8"))
-	.map((flag) => {
-		if (flag.type === "String") flag.type = String;
-		if (flag.type === "Number") flag.type = Number;
-		if (flag.type === "Boolean") flag.type = Boolean;
-		return flag;
-	}
-);
-const argv = commandLineArgs(flags);
-
-if (argv.h || argv.help || argv.length === 0) {
-	console.log(help + flags.replace(/^/mg, "    "));
+	`);
+	console.log(columnify(
+		argv.flags.map((flag) => ({
+			name: (flag.alias ? `-${flag.alias}, ` : "") + `--${flag.name}`,
+			description: flag.description,
+		})),
+		{
+			config: {
+				description: {
+					maxWidth: 80,
+				},
+			},
+		}
+	));
 	process.exit(0);
 }
 
 if (argv.version) {
 	console.log(require("./package.json").version);
+	process.exit(0);
+}
+
+if (argv.license) {
+	console.log(fs.readFileSync(__dirname + "/LICENSE", "utf8"));
 	process.exit(0);
 }
 

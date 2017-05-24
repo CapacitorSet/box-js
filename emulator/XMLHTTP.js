@@ -1,4 +1,5 @@
 const controller = require("../controller");
+const argv = require("../argv.js");
 
 function XMLHTTP() {
 	this.headers = {};
@@ -18,7 +19,7 @@ function XMLHTTP() {
 		this.readystate = 4;
 		controller.logUrl(this.method, this.url);
 		let response;
-		if (controller.argv.download) {
+		if (argv.download) {
 			this.status = 200;
 			response = controller.fetchUrl(this.method, this.url, this.headers, data);
 		} else {

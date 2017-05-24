@@ -5,19 +5,9 @@ const fs = require("fs");
 const iconv = require("iconv-lite");
 const path = require("path");
 const {VM} = require("vm2");
+const argv = require("./argv.js");
 
 const filename = process.argv[2];
-
-const commandLineArgs = require("command-line-args");
-const flags = JSON.parse(fs.readFileSync(path.join(__dirname, "flags.json"), "utf8"))
-	.map((flag) => {
-		if (flag.type === "String") flag.type = String;
-		if (flag.type === "Number") flag.type = Number;
-		if (flag.type === "Boolean") flag.type = Boolean;
-		return flag;
-	}
-);
-const argv = commandLineArgs(flags);
 
 console.log(`Analyzing ${filename}`);
 const sample_buffer = fs.readFileSync(filename);

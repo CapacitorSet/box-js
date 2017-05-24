@@ -24,7 +24,11 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 ## Flags
 
 <!--START_FLAGS-->
---version (Boolean): Show the package version
+--help (Boolean): Show the help text and quit
+
+--version (Boolean): Show the package version and quit
+
+--license (Boolean): Show the license and quit
 
 --debug (Boolean): Die when an emulation error occurs, even in "batch mode"
 
@@ -42,6 +46,8 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 
 --no-echo (Boolean): When the script prints data, do not print it to the console
 
+--no-kill (Boolean): Do not kill the application when runtime errors occur
+
 --no-eval-rewrite (Boolean): Do not rewrite `eval` so that its argument is rewritten
 
 --no-rewrite (Boolean): Do not rewrite the source code at all, other than for `@cc_on` support
@@ -52,7 +58,7 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 
 --output-dir (String): The location on disk to write the results files and folders to (defaults to the current directory)
 
---proxy (String): Use the specified proxy for downloads. This is not relevant if the --download flag is not present.
+--proxy (String): [experimental] Use the specified proxy for downloads. This is not relevant if the --download flag is not present.
 
 --timeout (Number): The script will timeout after this many seconds (default 10)
 
