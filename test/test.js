@@ -23,9 +23,10 @@ describe("run.js", function() {
 			fs.accessSync(`${boxDir}/run.js`, fs.F_OK);
 		});
 	});
-	it("should throw an error when no files are passed", function(done) {
-		exec(boxCommand, function(err) {
-			assert.notStrictEqual(err, null);
+	it("should display a help text when no files are passed", function(done) {
+		exec(boxCommand, function(err, stdout) {
+			assert.strictEqual(err, null);
+			assert(stdout.includes("Usage:"));
 			done();
 		});
 	});
