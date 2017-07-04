@@ -388,7 +388,7 @@ int ScriptDecoder (unsigned char *inname, unsigned char *outname, unsigned int c
 				{
 					len = decodeBase64 (lenbuf);
 					if (verbose)
-						printf ("Msg: Found encoded block containing %d characters.\n", len);
+						printf ("Msg: Found encoded block containing %lu characters.\n", len);
 					m = 0;
 					ml = 2;
 					state = STATE_SKIP_ML;
