@@ -36,7 +36,15 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 
 --encoding (String): Encoding of the input sample (will be automatically detected by default)
 
---no-file-exists (Boolean): Return `false` for Scripting.FileSystemObject.FileExists(x)
+--timeout (Number): The script will timeout after this many seconds (default 10)
+
+--output-dir (String): The location on disk to write the results files and folders to (defaults to the current directory)
+
+--no-kill (Boolean): Do not kill the application when runtime errors occur
+
+--no-echo (Boolean): When the script prints data, do not print it to the console
+
+--no-rewrite (Boolean): Do not rewrite the source code at all, other than for `@cc_on` support
 
 --no-catch-rewrite (Boolean): Do not rewrite try..catch clauses to make the exception global-scoped
 
@@ -44,23 +52,17 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 
 --no-concat-simplify (Boolean): Do not simplify `'a'+'b'` to `'ab'`
 
---no-echo (Boolean): When the script prints data, do not print it to the console
-
---no-kill (Boolean): Do not kill the application when runtime errors occur
-
 --no-eval-rewrite (Boolean): Do not rewrite `eval` so that its argument is rewritten
 
---no-rewrite (Boolean): Do not rewrite the source code at all, other than for `@cc_on` support
+--no-file-exists (Boolean): Return `false` for Scripting.FileSystemObject.FileExists(x)
+
+--no-rewrite-prototype (Boolean): Do not rewrite expressions like `function A.prototype.B()` as `A.prototype.B = function()`
 
 --no-shell-error (Boolean): Do not throw a fake error when executing `WScriptShell.Run` (it throws a fake error by default to pretend that the distribution sites are down, so that the script will attempt to poll every site)
 
 --no-typeof-rewrite (Boolean): Do not rewrite `typeof` (e.g. `typeof ActiveXObject`, which must return 'unknown' in the JScript standard and not 'object')
 
---output-dir (String): The location on disk to write the results files and folders to (defaults to the current directory)
-
 --proxy (String): [experimental] Use the specified proxy for downloads. This is not relevant if the --download flag is not present.
-
---timeout (Number): The script will timeout after this many seconds (default 10)
 
 --windows-xp (Boolean): Emulate Windows XP (influences the value of environment variables)
 

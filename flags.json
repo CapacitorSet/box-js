@@ -32,9 +32,29 @@
         "description": "Encoding of the input sample (will be automatically detected by default)"
     },
     {
-        "name": "no-file-exists",
+        "name": "timeout",
+        "type": "Number",
+        "description": "The script will timeout after this many seconds (default 10)"
+    },
+    {
+        "name": "output-dir",
+        "type": "String",
+        "description": "The location on disk to write the results files and folders to (defaults to the current directory)"
+    },
+    {
+        "name": "no-kill",
         "type": "Boolean",
-        "description": "Return `false` for Scripting.FileSystemObject.FileExists(x)"
+        "description": "Do not kill the application when runtime errors occur"
+    },
+    {
+        "name": "no-echo",
+        "type": "Boolean",
+        "description": "When the script prints data, do not print it to the console"
+    },
+    {
+        "name": "no-rewrite",
+        "type": "Boolean",
+        "description": "Do not rewrite the source code at all, other than for `@cc_on` support"
     },
     {
         "name": "no-catch-rewrite",
@@ -52,24 +72,19 @@
         "description": "Do not simplify `'a'+'b'` to `'ab'`"
     },
     {
-        "name": "no-echo",
-        "type": "Boolean",
-        "description": "When the script prints data, do not print it to the console"
-    },
-    {
-        "name": "no-kill",
-        "type": "Boolean",
-        "description": "Do not kill the application when runtime errors occur"
-    },
-    {
         "name": "no-eval-rewrite",
         "type": "Boolean",
         "description": "Do not rewrite `eval` so that its argument is rewritten"
     },
     {
-        "name": "no-rewrite",
+        "name": "no-file-exists",
         "type": "Boolean",
-        "description": "Do not rewrite the source code at all, other than for `@cc_on` support"
+        "description": "Return `false` for Scripting.FileSystemObject.FileExists(x)"
+    },
+    {
+        "name": "no-rewrite-prototype",
+        "type": "Boolean",
+        "description": "Do not rewrite expressions like `function A.prototype.B()` as `A.prototype.B = function()`"
     },
     {
         "name": "no-shell-error",
@@ -82,19 +97,9 @@
         "description": "Do not rewrite `typeof` (e.g. `typeof ActiveXObject`, which must return 'unknown' in the JScript standard and not 'object')"
     },
     {
-        "name": "output-dir",
-        "type": "String",
-        "description": "The location on disk to write the results files and folders to (defaults to the current directory)"
-    },
-    {
         "name": "proxy",
         "type": "String",
         "description": "[experimental] Use the specified proxy for downloads. This is not relevant if the --download flag is not present."
-    },
-    {
-        "name": "timeout",
-        "type": "Number",
-        "description": "The script will timeout after this many seconds (default 10)"
     },
     {
         "name": "windows-xp",

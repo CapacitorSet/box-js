@@ -54,6 +54,12 @@ If you run into unexpected results, try uncommenting lines that look like
 			code = code.replace(/'[ \r\n]*\+[ \r\n]*'/gm, "");
 			code = code.replace(/"[ \r\n]*\+[ \r\n]*"/gm, "");
 		}
+
+		if (!argv["no-rewrite-prototype"]) {
+			// Replace `function X.prototype.y()` with `X.prototype.y = function()`
+			code = code.replace(/function (\w+)\.prototype\.(\w+)/gm, "$1.prototype.$2 = function");
+		}
+
 		let tree;
 		try {
 			tree = esprima.parse(code);
