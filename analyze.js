@@ -37,7 +37,7 @@ function rewrite(code) {
 			code = code.replace(/@\*\//g, "");
 		} else {
 			console.log(
-`The code appears to contain conditional compilation statements.
+				`The code appears to contain conditional compilation statements.
 If you run into unexpected results, try uncommenting lines that look like
 
     /*@cc_on
@@ -62,7 +62,7 @@ If you run into unexpected results, try uncommenting lines that look like
 			console.log("");
 			if (filename.match(/jse$/)) {
 				console.log(
-`This appears to be a JSE (JScript.Encode) file.
+					`This appears to be a JSE (JScript.Encode) file.
 Please compile the decoder and decode it first:
 
 cc decoder.c -o decoder
@@ -72,7 +72,7 @@ cc decoder.c -o decoder
 				);
 			} else {
 				console.log(
-`This doesn't seem to be a JavaScript/WScript file.
+					`This doesn't seem to be a JavaScript/WScript file.
 If this is a JSE file (JScript.Encode), compile
 decoder.c and run it on the file, like this:
 
@@ -287,7 +287,7 @@ const sandbox = {
 };
 
 const vm = new VM({
-	timeout: 10000,
+	timeout: (argv.timeout || 10) * 1000,
 	sandbox,
 });
 

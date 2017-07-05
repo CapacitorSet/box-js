@@ -9,7 +9,7 @@ const flags = JSON.parse(fs.readFileSync(path.join(__dirname, "flags.json"), "ut
 		if (flag.type === "Boolean") flag.type = Boolean;
 		return flag;
 	}
-);
+	);
 
 module.exports = commandLineArgs(flags);
 module.exports.flags = flags;
