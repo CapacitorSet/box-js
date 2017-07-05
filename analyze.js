@@ -25,7 +25,7 @@ const sample_source = iconv.decode(sample_buffer, encoding);
 let code = fs.readFileSync(path.join(__dirname, "patch.js"), "utf8") + sample_source;
 
 if (code.match("<job") || code.match("<script")) { // The sample may actually be a .wsf, which is <job><script>..</script><script>..</script></job>.
-	code = code.replace(/<\??\/?\w+( .*)*\??>/g, ""); // XML tags
+	code = code.replace(/<\??\/?\w+( [\w=\"\']*)*\??>/g, ""); // XML tags
 	code = code.replace(/<!\[CDATA\[/g, "");
 	code = code.replace(/\]\]>/g, "");
 }
