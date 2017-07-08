@@ -65,8 +65,6 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 --proxy (String): [experimental] Use the specified proxy for downloads. This is not relevant if the --download flag is not present.
 
 --windows-xp (Boolean): Emulate Windows XP (influences the value of environment variables)
-
---experimental-neq (Boolean): [experimental] rewrite `a != b` to `false`
 <!--END_FLAGS-->
 
 ## Analyzing the output

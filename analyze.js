@@ -161,20 +161,6 @@ cc decoder.c -o decoder
 			});
 		}
 
-		// Replace (a !== b) with (false)
-		if (argv["experimental-neq"]) {
-			console.log("Rewriting `a !== b` (remove --experimental-neq to skip)...");
-			traverse(tree, function(key, val) {
-				if (!val) return;
-				if (val.type !== "BinaryExpression") return;
-				if (val.operator !== "!=" && val.operator !== "!==") return;
-				return {
-					type: "Literal",
-					value: false,
-					raw: "false",
-				};
-			});
-		}
 		// console.log(JSON.stringify(tree, null, "\t"));
 		code = escodegen.generate(tree);
 
