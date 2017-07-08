@@ -187,7 +187,7 @@ cc decoder.c -o decoder
 
 		console.log("Rewritten successfully.")
 	}
-	console.log(code);
+
 	return code;
 }
 code = rewrite(code);
