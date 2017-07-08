@@ -62,7 +62,6 @@ If you run into unexpected results, try uncommenting lines that look like
 			console.log("Replacing `function A.prototype.B()` (use --no-rewrite-prototype to skip)...")
 			// Replace `function X.prototype.y()` with `X.prototype.y = function()`
 			code = code.replace(/function (\w+)\.prototype\.(\w+)/gm, "$1.prototype.$2 = function");
-			console.log(code);
 		}
 
 		let tree;
