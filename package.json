@@ -10,6 +10,7 @@
     "iconv-lite": "*",
     "jschardet": "*",
     "sync-request": "*",
+    "uglify-js": "^3.0.24",
     "uuid": "*",
     "vm2": "*",
     "walk": "*"

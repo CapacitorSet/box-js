@@ -1,4 +1,3 @@
-const commandLineArgs = require("command-line-args");
 const cp = require("child_process");
 const fs = require("fs");
 const path = require("path");
@@ -114,6 +113,9 @@ function analyze(filepath, filename, outputDir) {
 
 	const killTimeout = setTimeout(function killOnTimeOut() {
 		console.log(`Analysis for ${filename} timed out.`);
+		if (!argv.preprocess) {
+			console.log("Hint: if the script is heavily obfuscated, --preprocess --unsafe-preprocess can speed up the emulation.");
+		}
 		worker.kill();
 	}, timeout * 1000);
 

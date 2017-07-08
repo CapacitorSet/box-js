@@ -8,7 +8,7 @@ Date.prototype.getYear = function() {
 
 // Patches Error
 function Error(message, description) {
-	const e = new Error(message);
+	var e = new Error(message);
 	e.description = description;
 	return e;
 }

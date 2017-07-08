@@ -42,6 +42,16 @@
         "description": "The location on disk to write the results files and folders to (defaults to the current directory)"
     },
     {
+        "name": "preprocess",
+        "type": "Boolean",
+        "description": "Preprocess the original source code (makes reverse engineering easier, but takes a few seconds)"
+    },
+    {
+        "name": "unsafe-preprocess",
+        "type": "Boolean",
+        "description": "Preprocess the original source code (makes reverse engineering easier, but takes a few seconds)"
+    },
+    {
         "name": "no-kill",
         "type": "Boolean",
         "description": "Do not kill the application when runtime errors occur"
@@ -65,11 +75,6 @@
         "name": "no-cc_on-rewrite",
         "type": "Boolean",
         "description": "Do not rewrite `/*@cc_on <...>@*/` to `<...>`"
-    },
-    {
-        "name": "no-concat-simplify",
-        "type": "Boolean",
-        "description": "Do not simplify `'a'+'b'` to `'ab'`"
     },
     {
         "name": "no-eval-rewrite",

@@ -1,7 +1,6 @@
 const fs = require("fs");
 const uuid = require("uuid");
 const request = require("sync-request");
-const path = require("path");
 const argv = require("./argv.js");
 
 const directory = process.argv[3];

@@ -44,7 +44,8 @@ function ProxiedTextStream(filename) {
 		},
 		set: function(a, b, c) {
 			b = b.toLowerCase();
-			if (c.length < 1024)
+			b = b.replace("bufferarray", "<internal buffer>");
+			if (c.length < 1024 && !(c.length === 1 && c[0] === ""))
 				console.log(`FSObject[${b}] = ${c};`);
 			a[b] = c;
 			return true;

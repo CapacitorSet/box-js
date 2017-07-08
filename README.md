@@ -40,6 +40,10 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 
 --output-dir (String): The location on disk to write the results files and folders to (defaults to the current directory)
 
+--preprocess (Boolean): Preprocess the original source code (makes reverse engineering easier, but takes a few seconds)
+
+--unsafe-preprocess (Boolean): Preprocess the original source code (makes reverse engineering easier, but takes a few seconds)
+
 --no-kill (Boolean): Do not kill the application when runtime errors occur
 
 --no-echo (Boolean): When the script prints data, do not print it to the console
@@ -49,8 +53,6 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 --no-catch-rewrite (Boolean): Do not rewrite try..catch clauses to make the exception global-scoped
 
 --no-cc_on-rewrite (Boolean): Do not rewrite `/*@cc_on <...>@*/` to `<...>`
-
---no-concat-simplify (Boolean): Do not simplify `'a'+'b'` to `'ab'`
 
 --no-eval-rewrite (Boolean): Do not rewrite `eval` so that its argument is rewritten
 

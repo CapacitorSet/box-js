@@ -20,6 +20,7 @@ module.exports = {
         "no-global-assign": 1,
         "no-loop-func": 0,
         "no-return-assign": [1, "except-parens"],
+        "no-tabs": 0,
         "no-unused-vars": 1,
         "no-var": 1,
         "prefer-const": 1,
