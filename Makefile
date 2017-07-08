@@ -1,5 +1,8 @@
+make: decoder README.md
+docs: README.md
+
 decoder: decoder.c
 	cc decoder.c -o decoder
 
-docs: flags.json
+README.md: flags.json
 	node update-docs
