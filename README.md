@@ -42,7 +42,7 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 
 --preprocess (Boolean): Preprocess the original source code (makes reverse engineering easier, but takes a few seconds)
 
---unsafe-preprocess (Boolean): Preprocess the original source code (makes reverse engineering easier, but takes a few seconds)
+--unsafe-preprocess (Boolean): More aggressive preprocessing. Often results in better code, but can break on some edge cases (eg. redefining prototypes)
 
 --no-kill (Boolean): Do not kill the application when runtime errors occur
 
