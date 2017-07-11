@@ -39,12 +39,4 @@ function XMLHTTP() {
 	this.getresponseheader = (key) => this.responseheaders[key];
 }
 
-module.exports = function() {
-	return new Proxy(new XMLHTTP(), {
-		get: function(target, name) {
-			name = name.toLowerCase();
-			if (name in target) return target[name];
-			lib.kill(`XMLHTTP.${name} not implemented!`);
-		},
-	});
-};
+module.exports = lib.proxify(XMLHTTP, "XMLHTTP");

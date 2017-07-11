@@ -308,12 +308,10 @@ const vm = new VM({
 vm.run(code);
 
 function ActiveXObject(name) {
-	// console.log(`New ActiveXObject: ${name}`);
+	console.log(`New ActiveXObject: ${name}`);
 	name = name.toLowerCase();
-	if (name.match("winhttprequest"))
-		return require("./emulator/XMLHTTP")();
-	if (name.match("xmlhttp"))
-		return require("./emulator/XMLHTTP")();
+	if (name.match("xmlhttp") || name.match("winhttprequest"))
+		return require("./emulator/XMLHTTP");
 	if (name.match("dom")) {
 		return {
 			createElement: require("./emulator/DOM"),
@@ -329,19 +327,19 @@ function ActiveXObject(name) {
 		case "adodb.recordset":
 			return require("./emulator/ADODBRecordSet")();
 		case "scriptcontrol":
-			return require("./emulator/ScriptControl")();
+			return require("./emulator/ScriptControl");
 		case "scripting.filesystemobject":
-			return require("./emulator/FileSystemObject")();
+			return require("./emulator/FileSystemObject");
 		case "scripting.dictionary":
-			return require("./emulator/Dictionary")();
+			return require("./emulator/Dictionary");
 		case "shell.application":
-			return require("./emulator/ShellApplication")();
+			return require("./emulator/ShellApplication");
 		case "wscript.network":
-			return require("./emulator/WScriptNetwork")();
+			return require("./emulator/WScriptNetwork");
 		case "wscript.shell":
-			return require("./emulator/WScriptShell")();
+			return require("./emulator/WScriptShell");
 		case "wbemscripting.swbemlocator":
-			return require("./emulator/WBEMScriptingSWBEMLocator")();
+			return require("./emulator/WBEMScriptingSWBEMLocator");
 		default:
 			lib.kill(`Unknown ActiveXObject ${name}`);
 			break;

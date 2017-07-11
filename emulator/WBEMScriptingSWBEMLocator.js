@@ -9,23 +9,8 @@ function VirtualSWBEMServices() {
 function VirtualWBEMLocator() {
 	this.connectserver = function(server, namespace) {
 		console.log(`WBEMLocator: emulating a connection to server ${server} with namespace ${namespace}`);
-		return new Proxy(new VirtualSWBEMServices(), {
-			get: function(target, name) {
-				name = name.toLowerCase();
-				if (name in target) return target[name];
-				lib.kill(`WBEMScripting.SWBEMServices.${name} not implemented!`);
-			},
-		});
+		return lib.proxify(VirtualSWBEMServices, "WBEMScripting.SWBEMServices");
 	};
-	return this;
 }
 
-module.exports = function(name) {
-	return new Proxy(new VirtualWBEMLocator(name), {
-		get: function(target, name) {
-			name = name.toLowerCase();
-			if (name in target) return target[name];
-			lib.kill(`WBEMScripting.SWBEMLocator.${name} not implemented!`);
-		},
-	});
-};
+module.exports = lib.proxify(VirtualWBEMLocator, "WBEMScripting.SWBEMServices");

@@ -19,16 +19,35 @@ const logSnippet = function(filename, logContent, content) {
 	fs.writeFileSync(directory + "snippets.json", JSON.stringify(snippets, null, "\t"));
 };
 
+function kill(message) {
+	if (argv["no-kill"])
+		throw new Error(message);
+	console.trace(message);
+	console.log("Exiting (use --no-kill to just simulate a runtime error).");
+	process.exit(0);
+}
+
 module.exports = {
 	directory,
 	argv,
+	kill,
 	getUUID: uuid.v4,
-	kill: function(message) {
-		if (argv["no-kill"])
-			throw new Error(message);
-		console.trace(message);
-		console.log("Exiting (use --no-kill to just simulate a runtime error).");
-		process.exit(0);
+	proxify: (actualObject, objectName = "<unnamed>") => {
+		/* Creating a Proxy is a common operation, because they normalize property names
+		 * and help catch unimplemented features. This function implements this behaviour.
+		 */
+		return new Proxy(new actualObject, {
+			get: function(target, prop) {
+				const lProp = prop.toLowerCase();
+				if (lProp in target) return target[lProp];
+				kill(`${objectName}.${prop} not implemented!`);
+			},
+			set: function(a, b, c) {
+				b = b.toLowerCase();
+				a[b] = c;
+				return true;
+			},
+		});
 	},
 	fetchUrl: function(method, url, headers = {}, body) {
 		// Ignore HTTPS errors

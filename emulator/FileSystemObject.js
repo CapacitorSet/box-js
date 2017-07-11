@@ -76,13 +76,7 @@ function File(contents) {
 }
 
 function ProxiedFile(filename) {
-	return new Proxy(new File(filename), {
-		get: function(target, name) {
-			name = name.toLowerCase();
-			if (name in target) return target[name];
-			lib.kill(`FileSystemObject.File.${name} not implemented!`);
-		},
-	});
+	return lib.proxify(File, "FileSystemObject.File");
 }
 
 function Drive(name) {
@@ -96,13 +90,7 @@ function Drive(name) {
 }
 
 function ProxiedDrive(name) {
-	return new Proxy(new Drive(name), {
-		get: function(target, name) {
-			name = name.toLowerCase();
-			if (name in target) return target[name];
-			lib.kill(`FileSystemObject.Drive.${name} not implemented!`);
-		},
-	});
+	return lib.proxify(Drive, "FileSystemObject.Drive");
 }
 
 function FileSystemObject() {
@@ -149,12 +137,4 @@ function FileSystemObject() {
 	this.gettempname = () => "(Temporary file)";
 }
 
-module.exports = function() {
-	return new Proxy(new FileSystemObject(), {
-		get: function(target, name) {
-			name = name.toLowerCase();
-			if (name in target) return target[name];
-			lib.kill(`FileSystemObject.${name} not implemented!`);
-		},
-	});
-};
+module.exports = lib.proxify(FileSystemObject, "FileSystemObject");

@@ -2,7 +2,6 @@ const lib = require("../lib");
 
 function VirtualDOMTag(name) {
 	this.name = name;
-	return this;
 }
 
 // Catches requests to <tag>.nodeTypedValue in order to emulate them correctly

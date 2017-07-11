@@ -18,15 +18,6 @@ function VirtualShellApplication(name) {
 			},
 		};
 	};
-	return this;
 }
 
-module.exports = function(name) {
-	return new Proxy(new VirtualShellApplication(name), {
-		get: function(target, name) {
-			name = name.toLowerCase();
-			if (name in target) return target[name];
-			lib.kill(`ShellApplication.${name} not implemented!`);
-		},
-	});
-};
+module.exports = lib.proxify(VirtualShellApplication, "ShellApplication");

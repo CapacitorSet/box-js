@@ -8,12 +8,4 @@ function Dictionary() {
 	this.item = (key) => this.dictionary[key];
 }
 
-module.exports = function() {
-	return new Proxy(new Dictionary(), {
-		get: function(target, name) {
-			name = name.toLowerCase();
-			if (name in target) return target[name];
-			lib.kill(`Scripting.Dictionary.${name} not implemented!`);
-		},
-	});
-};
+module.exports = lib.proxify(Dictionary, "Scripting.Dictionary");

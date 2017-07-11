@@ -24,24 +24,24 @@ module.exports.GetObject = function(name) {
 	name = name.replace(/{impersonationlevel=impersonate}/g, "");
 	switch (name) {
 		case "winmgmts:":
-			return VirtualWMIObject({
-				"win32_computersystemproduct": [VirtualWMIObject({
+			return new VirtualWMIObject({
+				"win32_computersystemproduct": [new VirtualWMIObject({
 					name: "Foobar",
 				})],
-				"win32_operatingsystem": [VirtualWMIObject({
+				"win32_operatingsystem": [new VirtualWMIObject({
 					caption: "Microsoft Windows 10 Pro",
 				})],
-				"win32_logicaldisk": [VirtualWMIObject({ // dirty patch by @ALange
+				"win32_logicaldisk": [new VirtualWMIObject({ // dirty patch by @ALange
 					deviceid: "C:",
 					volumeserialnumber: "B55B4A40",
 				})],
 			});
 		case "winmgmts:\\\\localhost\\root\\securitycenter":
-			return VirtualWMIObject({
+			return new VirtualWMIObject({
 				"antivirusproduct": [],
 			});
 		case "winmgmts:\\\\localhost\\root\\securitycenter2":
-			return VirtualWMIObject({
+			return new VirtualWMIObject({
 				"antivirusproduct": [],
 			});
 		default:

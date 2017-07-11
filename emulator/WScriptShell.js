@@ -1,4 +1,4 @@
-const lib = require("../lib");
+const lib = require("../lib.js");
 const argv = require("../argv.js");
 
 function WScriptShell() {
@@ -83,19 +83,4 @@ function WScriptShell() {
 	};
 }
 
-module.exports = function(name) {
-	return new Proxy(new WScriptShell(name), {
-		get: function(target, name) {
-			name = name.toLowerCase();
-			if (name in target) return target[name];
-			lib.kill(`WScriptShell.${name} not implemented!`);
-		},
-		set: function(a, b, c) {
-			b = b.toLowerCase();
-			if (c.length < 1024)
-				console.log(`WScriptShell[${b}] = ${c};`);
-			a[b] = c;
-			return true;
-		},
-	});
-};
+module.exports = lib.proxify(WScriptShell, "WScriptShell");

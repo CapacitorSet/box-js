@@ -8,12 +8,4 @@ function WScriptNetwork() {
 	this.userdomain = "";
 }
 
-module.exports = function() {
-	return new Proxy(new WScriptNetwork(), {
-		get: function(target, name) {
-			name = name.toLowerCase();
-			if (name in target) return target[name];
-			lib.kill(`WScriptNetwork.${name} not implemented!`);
-		},
-	});
-};
+module.exports = lib.proxify(WScriptNetwork, "WScriptNetwork");

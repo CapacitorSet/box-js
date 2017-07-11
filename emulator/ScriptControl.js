@@ -7,12 +7,4 @@ function ScriptControl() {
 	}, code);
 }
 
-module.exports = function() {
-	return new Proxy(new ScriptControl(), {
-		get: function(target, name) {
-			name = name.toLowerCase();
-			if (name in target) return target[name];
-			lib.kill(`ScriptControl.${name} not implemented!`);
-		},
-	});
-};
+module.exports = lib.proxify(ScriptControl, "ScriptControl");

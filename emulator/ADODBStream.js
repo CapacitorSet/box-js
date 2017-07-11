@@ -66,10 +66,8 @@ module.exports = function() {
 				case "readtext":
 					return target.buffer;
 				default:
-					if (!(name in target)) {
-						lib.kill(`ADODBStream.${name} not implemented!`);
-					}
-					return target[name];
+					if (name in target) return target[name];
+					lib.kill(`ADODBStream.${name} not implemented!`);
 			}
 		},
 		set: function(a, b, c) {
