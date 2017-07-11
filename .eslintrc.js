@@ -5,6 +5,7 @@ module.exports = {
         "node": true
     },
     "rules": {
+        "arrow-parens": 0,
         "camelcase": [1, {
             properties: "never"
         }],
