@@ -60,14 +60,46 @@ If you run into unexpected results, try uncommenting lines that look like
 
 		if (argv["preprocess"]) {
 			console.log(`    Preprocessing with uglify-js v${require("uglify-js/package.json").version} (remove --preprocess to skip)...`);
+			const unsafe = !!argv["unsafe-preprocess"];
 			const result = require("uglify-js").minify(code, {
 				compress: {
 					passes: 3,
+
+					booleans: true,
+					cascade: true,
+					collapse_vars: true,
+					comparisons: true,
+					conditionals: true,
+					dead_code: true,
+					drop_console: false,
+					evaluate: true,
+					if_return: true,
+					inline: true,
+					join_vars: false, // readability
+					keep_fargs: unsafe, // code may rely on Function.length
+					keep_fnames: unsafe, // code may rely on Function.prototype.name
+					keep_infinity: true, // readability
+					loops: true,
+					negate_iife: false, // readability
+					properties: true,
+					pure_getters: false, // many variables are proxies, which don't have pure getters
+					/* If unsafe preprocessing is enabled, tell uglify-js that Math.* functions
+					 * have no side effects, and therefore can be removed if the result is
+					 * unused. Related issue: mishoo/UglifyJS2#2227
+					 */
+					pure_funcs: unsafe ?
+						// https://stackoverflow.com/a/10756976
+						Object.getOwnPropertyNames(Math).map(key => `Math.${key}`) :
+						null,
+					reduce_vars: true,
 					/* Using sequences (a; b; c; -> a, b, c) provide any performance benefits,
 					 * but it makes code harder to read. Therefore, this behaviour is disabled.
 					 */
 					sequences: false,
-					unsafe: !!argv["unsafe-preprocess"],
+					toplevel: true,
+					typeofs: false, // typeof foo == "undefined" -> foo === void 0: the former is more readable
+					unsafe,
+					unused: true,
 				},
 				output: {
 					beautify: true,
