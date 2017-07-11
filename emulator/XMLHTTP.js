@@ -1,4 +1,4 @@
-const controller = require("../controller");
+const lib = require("../lib");
 const argv = require("../argv.js");
 
 function XMLHTTP() {
@@ -17,11 +17,11 @@ function XMLHTTP() {
 		if (data)
 			console.log(`Data sent to ${this.url}:`, data);
 		this.readystate = 4;
-		controller.logUrl(this.method, this.url);
+		lib.logUrl(this.method, this.url);
 		let response;
 		if (argv.download) {
 			this.status = 200;
-			response = controller.fetchUrl(this.method, this.url, this.headers, data);
+			response = lib.fetchUrl(this.method, this.url, this.headers, data);
 		} else {
 			console.log("Returning HTTP 404 (Not found); use --download to try to download the payload");
 			this.status = 404;
@@ -43,13 +43,8 @@ module.exports = function() {
 	return new Proxy(new XMLHTTP(), {
 		get: function(target, name) {
 			name = name.toLowerCase();
-			switch (name) {
-				default:
-					if (!(name in target)) {
-						controller.kill(`XMLHTTP.${name} not implemented!`);
-					}
-					return target[name];
-			}
+			if (name in target) return target[name];
+			lib.kill(`XMLHTTP.${name} not implemented!`);
 		},
 	});
 };

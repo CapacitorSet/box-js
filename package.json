@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "babel-eslint": "*",
-    "eslint": "*",
+    "eslint": "^4.2.0",
     "eslint-config-google": "*",
     "mocha": "*"
   },

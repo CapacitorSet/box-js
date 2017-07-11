@@ -1,4 +1,4 @@
-const controller = require("../controller");
+const lib = require("../lib");
 const iconv = require("iconv-lite");
 
 /* Includes code (ADODBStream.writetext, .loadfromfile) from
@@ -34,8 +34,8 @@ function ADODBStream() {
 	this.open = () => {};
 	this.savetofile = function(filename) {
 		this.virtual_filename = filename;
-		controller.writeFile(filename, this.buffer);
-		controller.logResource(controller.getUUID(), this.virtual_filename, this.buffer, true);
+		lib.writeFile(filename, this.buffer);
+		lib.logResource(lib.getUUID(), this.virtual_filename, this.buffer, true);
 	};
 	this.close = () => {};
 	this.read = () => this.buffer;
@@ -48,9 +48,9 @@ function ADODBStream() {
 	};
 	this.loadfromfile = function(filename) {
 		if (this.charset)
-			this.buffer = iconv.decode(controller.readFile(filename), this.charset);
+			this.buffer = iconv.decode(lib.readFile(filename), this.charset);
 		else
-			this.buffer = controller.readFile(filename);
+			this.buffer = lib.readFile(filename);
 	};
 	this.copyto = (target) => target.write(this.buffer);
 }
@@ -67,7 +67,7 @@ module.exports = function() {
 					return target.buffer;
 				default:
 					if (!(name in target)) {
-						controller.kill(`ADODBStream.${name} not implemented!`);
+						lib.kill(`ADODBStream.${name} not implemented!`);
 					}
 					return target[name];
 			}

@@ -1,4 +1,4 @@
-const controller = require("./controller");
+const lib = require("./lib");
 const escodegen = require("escodegen");
 const esprima = require("esprima");
 const fs = require("fs");
@@ -182,7 +182,7 @@ cc decoder.c -o decoder
 	return code;
 }
 code = rewrite(code);
-controller.logJS(code);
+lib.logJS(code);
 
 Array.prototype.Count = function() {
 	return this.length;
@@ -213,7 +213,7 @@ const sandbox = {
 		},
 	}),
 	parse: (x) => {},
-	rewrite: (code) => rewrite(controller.logJS(code)),
+	rewrite: (code) => rewrite(lib.logJS(code)),
 	ScriptEngine: () => {
 		const type = "JScript"; // or "JavaScript", or "VBScript"
 		console.log(`Notice: emulating a ${type} engine (in ScriptEngine)`);
@@ -282,7 +282,7 @@ const sandbox = {
 						get: function(target, name) {
 							name = name.toLowerCase();
 							if (!(name in target))
-								controller.kill(`WScript.StdIn.${name} not implemented!`);
+								lib.kill(`WScript.StdIn.${name} not implemented!`);
 							return target[name];
 						},
 					});
@@ -293,7 +293,7 @@ const sandbox = {
 				case "scriptname":
 					return "sample.js";
 				default:
-					controller.kill(`WScript.${name} not implemented!`);
+					lib.kill(`WScript.${name} not implemented!`);
 			}
 		},
 	}),
@@ -343,7 +343,7 @@ function ActiveXObject(name) {
 		case "wbemscripting.swbemlocator":
 			return require("./emulator/WBEMScriptingSWBEMLocator")();
 		default:
-			controller.kill(`Unknown ActiveXObject ${name}`);
+			lib.kill(`Unknown ActiveXObject ${name}`);
 			break;
 	}
 }

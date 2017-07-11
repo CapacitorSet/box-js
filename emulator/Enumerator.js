@@ -1,4 +1,4 @@
-const controller = require("../controller");
+const lib = require("../lib");
 
 function Enumerator(array) {
 	this._internalindex = 0;
@@ -18,10 +18,8 @@ module.exports = function(array) {
 				case "length":
 					return target._Length();
 				default:
-					if (!(name in target)) {
-						controller.kill(`Enumerator.${name} not implemented!`);
-					}
-					return target[name];
+					if (name in target) return target[name];
+					lib.kill(`Enumerator.${name} not implemented!`);
 			}
 		},
 	});

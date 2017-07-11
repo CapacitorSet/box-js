@@ -1,22 +1,20 @@
-const controller = require("../controller");
+const lib = require("../lib");
 const argv = require("../argv.js");
 
 function WScriptShell() {
 	this.environment = (x) => {
 		if (x.toLowerCase() === "system")
 			return (argument) => {
+				const vars = {
+					comspec: "%SystemRoot%\\system32\\cmd.exe",
+					os: "Windows_NT",
+					// Emulate a 32-bit environment for maximum compatibility
+					processor_architecture: "x86",
+				};
+
 				argument = argument.toLowerCase();
-				switch (argument) {
-					case "comspec":
-						return "%SystemRoot%\\system32\\cmd.exe";
-					case "os":
-						return "Windows_NT";
-					case "processor_architecture":
-						// Emulate a 32-bit environment for maximum compatibility
-						return "x86";
-					default:
-						controller.kill(`Unknown parameter ${argument} for WScriptShell.Environment.System`);
-				}
+				if (argument in vars) return vars[argument];
+				lib.kill(`Unknown parameter ${argument} for WScriptShell.Environment.System`);
 			};
 		return `(Environment variable ${x})`;
 	};
@@ -46,16 +44,16 @@ function WScriptShell() {
 	};
 	this.exec = this.run = function(...args) {
 		const command = args.join(" ");
-		const filename = controller.getUUID();
-		console.log(`Executing ${controller.directory + filename} in the WScript shell`);
-		controller.logSnippet(filename, {as: "WScript code"}, command);
+		const filename = lib.getUUID();
+		console.log(`Executing ${lib.directory + filename} in the WScript shell`);
+		lib.logSnippet(filename, {as: "WScript code"}, command);
 		if (!argv["no-shell-error"])
 			throw new Error("If you can read this, re-run box.js with the --no-shell-error flag.");
 	};
 	this._reg_entries = {
 		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS NT\\CURRENTVERSION\\CURRENTVERSION": "5.1",
 		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS NT\\CURRENTVERSION\\SYSTEMROOT": "C:\\WINDOWS",
-		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS\\CURRENTVERSION\\EXPLORER\\SHELL FOLDERS\\COMMON DOCUMENTS": "C:\\Users\\Public\\Documents"
+		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS\\CURRENTVERSION\\EXPLORER\\SHELL FOLDERS\\COMMON DOCUMENTS": "C:\\Users\\Public\\Documents",
 	};
 	this._normalize_reg_key = (key) => {
 		key = key.toUpperCase().replace("HKEY_LOCAL_MACHINE", "HKLM");
@@ -89,13 +87,8 @@ module.exports = function(name) {
 	return new Proxy(new WScriptShell(name), {
 		get: function(target, name) {
 			name = name.toLowerCase();
-			switch (name) {
-				default:
-					if (!(name in target)) {
-						controller.kill(`WScriptShell.${name} not implemented!`);
-					}
-					return target[name];
-			}
+			if (name in target) return target[name];
+			lib.kill(`WScriptShell.${name} not implemented!`);
 		},
 		set: function(a, b, c) {
 			b = b.toLowerCase();

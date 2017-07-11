@@ -1,9 +1,9 @@
-const controller = require("../controller");
+const lib = require("../lib");
 const argv = require("../argv.js");
 
 function TextStream(filename) {
-	this.buffer = controller.readFile(filename) || "";
-	this.uuid = controller.getUUID();
+	this.buffer = lib.readFile(filename) || "";
+	this.uuid = lib.getUUID();
 	this.filename = filename;
 	this.bufferarray = [];
 
@@ -20,13 +20,13 @@ function TextStream(filename) {
 	this.shortpath = (path) => path;
 	this.write = (line) => {
 		this.buffer = this.buffer + line;
-		controller.writeFile(filename, this.buffer);
-		controller.logResource(this.uuid, this.filename, this.buffer);
+		lib.writeFile(filename, this.buffer);
+		lib.logResource(this.uuid, this.filename, this.buffer);
 	};
 	this.writeline = (line) => {
 		this.buffer = this.buffer + line + "\n";
-		controller.writeFile(filename, this.buffer);
-		controller.logResource(this.uuid, this.filename, this.buffer);
+		lib.writeFile(filename, this.buffer);
+		lib.logResource(this.uuid, this.filename, this.buffer);
 	};
 }
 
@@ -34,13 +34,8 @@ function ProxiedTextStream(filename) {
 	return new Proxy(new TextStream(filename), {
 		get: function(target, name) {
 			name = name.toLowerCase();
-			switch (name) {
-				default:
-					if (!(name in target)) {
-						controller.kill(`TextStream.${name} not implemented!`);
-					}
-					return target[name];
-			}
+			if (name in target) return target[name];
+			lib.kill(`TextStream.${name} not implemented!`);
 		},
 		set: function(a, b, c) {
 			b = b.toLowerCase();
@@ -67,13 +62,8 @@ function ProxiedFolder(path, name, autospawned = false) {
 	return new Proxy(new Folder(path, name, autospawned), {
 		get: function(target, name) {
 			name = name.toLowerCase();
-			switch (name) {
-				default:
-					if (!(name in target)) {
-						controller.kill(`FileSystemObject.Folder.${name} not implemented!`);
-					}
-					return target[name];
-			}
+			if (name in target) return target[name];
+			lib.kill(`FileSystemObject.Folder.${name} not implemented!`);
 		},
 	});
 }
@@ -89,13 +79,8 @@ function ProxiedFile(filename) {
 	return new Proxy(new File(filename), {
 		get: function(target, name) {
 			name = name.toLowerCase();
-			switch (name) {
-				default:
-					if (!(name in target)) {
-						controller.kill(`FileSystemObject.File.${name} not implemented!`);
-					}
-					return target[name];
-			}
+			if (name in target) return target[name];
+			lib.kill(`FileSystemObject.File.${name} not implemented!`);
 		},
 	});
 }
@@ -114,13 +99,8 @@ function ProxiedDrive(name) {
 	return new Proxy(new Drive(name), {
 		get: function(target, name) {
 			name = name.toLowerCase();
-			switch (name) {
-				default:
-					if (!(name in target)) {
-						controller.kill(`FileSystemObject.Drive.${name} not implemented!`);
-					}
-					return target[name];
-			}
+			if (name in target) return target[name];
+			lib.kill(`FileSystemObject.Drive.${name} not implemented!`);
 		},
 	});
 }
@@ -131,7 +111,7 @@ function FileSystemObject() {
 	this.createtextfile = this.opentextfile = (filename) => new ProxiedTextStream(filename);
 	this.copyfile = (src, dest, overwrite) => {
 		console.log(`Copying ${src} to ${dest}`);
-		controller.writeFile(dest, `(Contents of ${dest})`);
+		lib.writeFile(dest, `(Contents of ${dest})`);
 	};
 	this.drives = [new ProxiedDrive("C:")];
 	this.fileexists = this.deletefile = () => {
@@ -144,6 +124,7 @@ function FileSystemObject() {
 	this.folderexists = (folder) => {
 		const defaultValue = true;
 		console.log(`Checking if ${folder} exists, returning ${defaultValue}`);
+		// TODO: add --no-folder-exists
 		return defaultValue;
 	};
 	this.getdrive = (drive) => new ProxiedDrive(drive);
@@ -157,19 +138,13 @@ function FileSystemObject() {
 	this.getfileversion = () => "";
 	this.getfolder = (str) => new ProxiedFolder(str);
 	this.getspecialfolder = function(id) {
-		switch (id) {
-			case 0:
-			case "0":
-				return "C:\\WINDOWS\\";
-			case 1:
-			case "1":
-				return "(System folder)";
-			case 2:
-			case "2":
-				return "(Temporary folder)";
-			default:
-				return "(Special folder " + id + ")";
-		}
+		const folders = {
+			0: "C:\\WINDOWS\\",
+			1: "C:\\WINDOWS\\(System folder)\\",
+			2: "C:\\(Temporary folder)\\",
+		};
+		if (id in folders) return folders[id];
+		return `C:\\(Special folder ${id}\\`;
 	};
 	this.gettempname = () => "(Temporary file)";
 }
@@ -178,13 +153,8 @@ module.exports = function() {
 	return new Proxy(new FileSystemObject(), {
 		get: function(target, name) {
 			name = name.toLowerCase();
-			switch (name) {
-				default:
-					if (!(name in target)) {
-						controller.kill(`FileSystemObject.${name} not implemented!`);
-					}
-					return target[name];
-			}
+			if (name in target) return target[name];
+			lib.kill(`FileSystemObject.${name} not implemented!`);
 		},
 	});
 };

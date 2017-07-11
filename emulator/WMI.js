@@ -1,4 +1,4 @@
-const controller = require("../controller");
+const lib = require("../lib");
 
 function VirtualWMIObject(object) {
 	return new Proxy(object, {
@@ -8,20 +8,12 @@ function VirtualWMIObject(object) {
 				case "instancesof":
 					return function(table) {
 						table = table.toLowerCase();
-						if (target[table]) return target[table];
-						switch (table) {
-							default:
-								if (!(name in target)) {
-									controller.kill(`WMIObject(${JSON.stringify(target)}).InstancesOf(${table}) not implemented!`);
-								}
-								return target[name];
-						}
+						if (table in target) return target[table];
+						lib.kill(`WMIObject(${JSON.stringify(target)}).InstancesOf(${table}) not implemented!`);
 					};
 				default:
-					if (!(name in target)) {
-						controller.kill(`WMIObject(${JSON.stringify(target)}).${name} not implemented!`);
-					}
-					return target[name];
+					if (name in target) return target[name];
+					lib.kill(`WMIObject(${JSON.stringify(target)}).${name} not implemented!`);
 			}
 		},
 	});
@@ -53,6 +45,6 @@ module.exports.GetObject = function(name) {
 				"antivirusproduct": [],
 			});
 		default:
-			controller.kill(`GetObject(${name}) not implemented!`);
+			lib.kill(`GetObject(${name}) not implemented!`);
 	}
 };

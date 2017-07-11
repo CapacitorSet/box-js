@@ -1,4 +1,4 @@
-const controller = require("../controller");
+const lib = require("../lib");
 
 // http://stackoverflow.com/a/30410454
 function nthOfGenerator(generator, n) {
@@ -42,7 +42,7 @@ function ProxiedField(field, updateFn) {
 					default:
 						if (name in target.value) return target.value[name];
 						if (name in target) return target[name];
-						controller.kill(`ProxiedField.${name} not implemented!`);
+						lib.kill(`ProxiedField.${name} not implemented!`);
 				}
 			},
 		}
@@ -95,20 +95,13 @@ function ADODBRecordSet() {
 					case "fields":
 						return (key) => new Proxy(target[key], {
 							get: function(target, name) {
-								switch (name) {
-									default:
-										if (!(name in target)) {
-											controller.kill(`ADODBRecordSet.Fields.${name} not implemented!`);
-										}
-										return target[name];
-								}
+								if (name in target) return target[name];
+								lib.kill(`ADODBRecordSet.Fields.${name} not implemented!`);
 							},
 						});
 					default:
-						if (!(name in target)) {
-							controller.kill(`ADODBRecordSet.Fields.${name} not implemented!`);
-						}
-						return target[name];
+						if (name in target) return target[name];
+						lib.kill(`ADODBRecordSet.Fields.${name} not implemented!`);
 				}
 			},
 			set: function(a, b, c) {
@@ -125,12 +118,9 @@ module.exports = function() {
 	return new Proxy((data) => this._instance.fields(data), {
 		get: (target, name) => {
 			name = name.toLowerCase();
-			switch (name) {
-				default:
-					if (name in target) return target[name];
-					if (name in this._instance) return this._instance[name];
-					controller.kill(`ADODBRecordSet.${name} not implemented!`);
-			}
+			if (name in target) return target[name];
+			if (name in this._instance) return this._instance[name];
+			lib.kill(`ADODBRecordSet.${name} not implemented!`);
 		},
 		set: function(a, b, c) {
 			b = b.toLowerCase();

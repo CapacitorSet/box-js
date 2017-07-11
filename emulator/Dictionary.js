@@ -1,4 +1,4 @@
-const controller = require("../controller");
+const lib = require("../lib");
 
 function Dictionary() {
 	this.dictionary = {};
@@ -12,13 +12,8 @@ module.exports = function() {
 	return new Proxy(new Dictionary(), {
 		get: function(target, name) {
 			name = name.toLowerCase();
-			switch (name) {
-				default:
-					if (!(name in target)) {
-						controller.kill(`Scripting.Dictionary.${name} not implemented!`);
-					}
-					return target[name];
-			}
+			if (name in target) return target[name];
+			lib.kill(`Scripting.Dictionary.${name} not implemented!`);
 		},
 	});
 };
