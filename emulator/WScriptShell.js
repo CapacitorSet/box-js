@@ -55,6 +55,7 @@ function WScriptShell() {
 	this._reg_entries = {
 		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS NT\\CURRENTVERSION\\CURRENTVERSION": "5.1",
 		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS NT\\CURRENTVERSION\\SYSTEMROOT": "C:\\WINDOWS",
+		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS\\CURRENTVERSION\\EXPLORER\\SHELL FOLDERS\\COMMON DOCUMENTS": "C:\\Users\\Public\\Documents"
 	};
 	this._normalize_reg_key = (key) => {
 		key = key.toUpperCase().replace("HKEY_LOCAL_MACHINE", "HKLM");
