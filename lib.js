@@ -24,13 +24,11 @@ module.exports = {
 	argv,
 	getUUID: uuid.v4,
 	kill: function(message) {
-		if (process.argv.indexOf("--no-kill") === -1) {
-			console.trace(message);
-			console.log("Exiting (use --no-kill to just simulate a runtime error).");
-			process.exit(0);
-		} else {
+		if (argv["no-kill"])
 			throw new Error(message);
-		}
+		console.trace(message);
+		console.log("Exiting (use --no-kill to just simulate a runtime error).");
+		process.exit(0);
 	},
 	fetchUrl: function(method, url, headers = {}, body) {
 		// Ignore HTTPS errors
