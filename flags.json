@@ -87,6 +87,11 @@
         "description": "Return `false` for Scripting.FileSystemObject.FileExists(x)"
     },
     {
+        "name": "no-folder-exists",
+        "type": "Boolean",
+        "description": "Return `false` for Scripting.FileSystemObject.FileExists(x)"
+    },
+    {
         "name": "no-rewrite-prototype",
         "type": "Boolean",
         "description": "Do not rewrite expressions like `function A.prototype.B()` as `A.prototype.B = function()`"

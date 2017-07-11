@@ -102,18 +102,20 @@ function FileSystemObject() {
 		lib.writeFile(dest, `(Contents of ${dest})`);
 	};
 	this.drives = [new ProxiedDrive("C:")];
-	this.fileexists = this.deletefile = () => {
+	this.deletefile = () => true;
+	this.fileexists = (path) => {
 		const value = !argv["no-file-exists"];
 		if (value) {
-			console.log("Returning `true` for FileSystemObject.FileExists; use --no-file-exists if nothing happens");
+			console.log(`Returning true for FileSystemObject.FileExists(${path}); use --no-file-exists if nothing happens`);
 		}
 		return value;
 	};
-	this.folderexists = (folder) => {
-		const defaultValue = true;
-		console.log(`Checking if ${folder} exists, returning ${defaultValue}`);
-		// TODO: add --no-folder-exists
-		return defaultValue;
+	this.folderexists = (path) => {
+		const value = !argv["no-folder-exists"];
+		if (value) {
+			console.log(`Returning true for FileSystemObject.FolderExists(${path}); use --no-folder-exists if nothing happens`);
+		}
+		return value;
 	};
 	this.getdrive = (drive) => new ProxiedDrive(drive);
 	this.getdrivename = (path) => {
