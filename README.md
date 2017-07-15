@@ -56,6 +56,8 @@ cat ./*.results/active_urls.json | sort | uniq
 
 --debug (Boolean): Die when an emulation error occurs, even in "batch mode"
 
+--loglevel (String): Logging level (debug, verbose, info, warning, error - default "info"
+
 --download (Boolean): Actually download the payloads
 
 --encoding (String): Encoding of the input sample (will be automatically detected by default)

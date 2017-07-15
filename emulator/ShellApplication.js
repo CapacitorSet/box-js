@@ -2,7 +2,7 @@ const lib = require("../lib");
 
 function VirtualShellApplication(name) {
 	this.shellexecute = function(...args) {
-		console.log("Executing: " + args.join(" "));
+		lib.info("Executing: " + args.join(" "));
 	};
 	this.namespace = (folder) => {
 		const folders = {

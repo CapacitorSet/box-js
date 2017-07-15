@@ -27,11 +27,44 @@ function kill(message) {
 	process.exit(0);
 }
 
+function log(tag, text, toFile = true, toStdout = true) {
+	const levels = {
+		"debug": 0,
+		"verb": 1,
+		"info": 2,
+		"warn": 3,
+		"error": 4,
+	};
+	if (!(tag in levels)) {
+		log("warn", `Application error: unknown logging tag ${tag}`, false);
+		return;
+	}
+	if (!(argv.loglevel in levels)) {
+		const oldLevel = argv.loglevel; // prevents infinite recursion
+		argv.loglevel = "debug";
+		log("warn", `Log level ${oldLevel} is invalid (valid levels: ${Object.keys(levels).join(", ")}), defaulting to "info"`, false);
+	}
+	const level = levels[tag];
+	if (level < levels[argv.loglevel]) return;
+	const message = `[${tag}] ${text}`;
+	if (toStdout || argv.loglevel === "debug") // Debug level always writes to stdout and file.
+		console.log(message);
+	if (toFile || argv.loglevel === "debug")
+		fs.appendFileSync(directory + "/analysis.log", message + "\n");
+}
+
 module.exports = {
 	directory,
 	argv,
 	kill,
 	getUUID: uuid.v4,
+
+	debug: log.bind(null, "debug"),
+	verbose: log.bind(null, "verb"),
+	info: log.bind(null, "info"),
+	warning: log.bind(null, "warn"),
+	error: log.bind(null, "error"),
+
 	proxify: (actualObject, objectName = "<unnamed>") => {
 		/* Creating a Proxy is a common operation, because they normalize property names
 		 * and help catch unimplemented features. This function implements this behaviour.
@@ -53,7 +86,7 @@ module.exports = {
 		// Ignore HTTPS errors
 		process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 		try {
-			console.log("Downloading...");
+			log("info", "Downloading...");
 
 			headers["User-Agent"] = "Mozilla/4.0 (Windows; MSIE 6.0; Windows NT 6.0)";
 			const options = {
@@ -70,11 +103,11 @@ module.exports = {
 			Buffer.prototype.charCodeAt = function(index) {
 				return this[index];
 			};
-			console.log(`Downloaded ${file.body.length} bytes.`);
+			log("info", `Downloaded ${file.body.length} bytes.`);
 			return file;
 		} catch (e) {
-			console.log(`An error occurred while emulating a ${method} request to ${url}.`);
-			console.log(e);
+			log("error", `An error occurred while emulating a ${method} request to ${url}.`);
+			log("error", e);
 			// throw e;
 			return {
 				headers: {},
@@ -89,22 +122,23 @@ module.exports = {
 		return files[filename];
 	},
 	logUrl: function(method, url) {
-		console.log(`${method} ${url}`);
+		log("info", `${method} ${url}`);
 		latestUrl = url;
 		if (urls.indexOf(url) === -1) urls.push(url);
 		fs.writeFileSync(directory + "urls.json", JSON.stringify(urls, null, "\t"));
 	},
-	logResource: function(resourceName, logContent, content, print = false) {
+	logResource: function(resourceName, logContent, content) {
 		resources[resourceName] = logContent;
 		fs.writeFileSync(directory + resourceName, content);
 		fs.writeFileSync(directory + "resources.json", JSON.stringify(resources, null, "\t"));
-		if (!print) return;
+
 		let filetype = require("child_process").execSync("file " + JSON.stringify(directory + resourceName)).toString("utf8");
 		filetype = filetype.replace(`${directory + resourceName}: `, "").replace("\n", "");
-		console.log(`Saved ${directory + resourceName} (${content.length} bytes)`);
-		console.log(`${directory + resourceName} has been detected as ${filetype}.`);
+		log("info", `Saved ${directory + resourceName} (${content.length} bytes)`);
+		log("info", `${directory + resourceName} has been detected as ${filetype}.`);
+
 		if (/executable/.test(filetype)) {
-			console.log("Active URL detected: " + latestUrl);
+			log("info", `Active URL detected: ${latestUrl}`);
 			// Log active url
 			if (activeUrls.indexOf(latestUrl) === -1)
 				activeUrls.push(latestUrl);
@@ -114,7 +148,7 @@ module.exports = {
 	logSnippet,
 	logJS: function(code) {
 		const filename = uuid.v4() + ".js";
-		// console.log("Code saved to", filename)
+		log("verb", `Code saved to ${filename}`);
 		logSnippet(filename, {as: "eval'd JS"}, code);
 		return code; // Helps with tail call optimization
 	},

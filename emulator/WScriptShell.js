@@ -37,7 +37,7 @@ function WScriptShell() {
 			path = path.replace(/%APPDATA%/gi, "C:\\Users\\User\\AppData\\Roaming");
 
 		if (/%\w+%/i.test(path)) {
-			console.log("Possibly failed to expand environment strings in " + path);
+			lib.warn("Possibly failed to expand environment strings in " + path);
 		}
 
 		return path;
@@ -45,7 +45,7 @@ function WScriptShell() {
 	this.exec = this.run = function(...args) {
 		const command = args.join(" ");
 		const filename = lib.getUUID();
-		console.log(`Executing ${lib.directory + filename} in the WScript shell`);
+		lib.info(`Executing ${lib.directory + filename} in the WScript shell`);
 		lib.logSnippet(filename, {as: "WScript code"}, command);
 		if (!argv["no-shell-error"])
 			throw new Error("If you can read this, re-run box.js with the --no-shell-error flag.");
@@ -63,21 +63,21 @@ function WScriptShell() {
 	};
 	this.regread = (key) => {
 		key = this._normalize_reg_key(key);
-		console.log(`Reading registry key ${key}`);
+		lib.verbose(`Reading registry key ${key}`);
 		if (key in this._reg_entries)
 			return this._reg_entries[key];
-		console.log("Unknown registry key!");
+		lib.warn("Unknown registry key ${key}!");
 		return "";
 	};
 	this.regwrite = (key, value, type = "(unspecified)") => {
 		key = this._normalize_reg_key(key);
-		console.log(`Setting registry key ${key} to ${value} of type ${type}`);
+		lib.info(`Setting registry key ${key} to ${value} of type ${type}`);
 		this._reg_entries[key] = value;
 	};
 	this.popup = function(text, a, title = "[Untitled]", b) {
 		if (!argv["no-echo"]) {
-			console.log(`Script opened a popup window: title "${title}", text "${text}"`);
-			console.log("Add flag --no-echo to disable this.");
+			lib.verbose(`Script opened a popup window: title "${title}", text "${text}"`);
+			lib.verbose("Add flag --no-echo to disable this.");
 		}
 		return true; // Emulates a click
 	};

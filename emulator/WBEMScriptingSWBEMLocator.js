@@ -8,7 +8,7 @@ function VirtualSWBEMServices() {
 
 function VirtualWBEMLocator() {
 	this.connectserver = function(server, namespace) {
-		console.log(`WBEMLocator: emulating a connection to server ${server} with namespace ${namespace}`);
+		lib.info(`WBEMLocator: emulating a connection to server ${server} with namespace ${namespace}`);
 		return lib.proxify(VirtualSWBEMServices, "WBEMScripting.SWBEMServices");
 	};
 }

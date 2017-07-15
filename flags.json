@@ -22,6 +22,11 @@
         "description": "Die when an emulation error occurs, even in \"batch mode\""
     },
     {
+        "name": "loglevel",
+        "type": "String",
+        "description": "Logging level (debug, verbose, info, warning, error - default \"info\""
+    },
+    {
         "name": "download",
         "type": "Boolean",
         "description": "Actually download the payloads"
