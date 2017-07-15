@@ -25,6 +25,7 @@ Chances are you will also want to download any payloads; use the flag `--downloa
 
 Box.js will emulate a Windows JScript environment, print a summary of the emulation to the console, and create a folder called `sample.js.results` (if it already exists, it will create `sample.js.1.results` and so on). This folder will contain:
 
+ * `analysis.log`, a log of the analysis as it was printed on screen;
  * a series of files identified by UUIDs;
  * `snippets.json`, a list of pieces of code executed by the sample (JavaScript, shell commands, etc.);
  * `urls.json`, a list of URLs contacted;
