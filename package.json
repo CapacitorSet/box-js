@@ -38,7 +38,6 @@
     "box-js": "run.js"
   },
   "scripts": {
-    "clean": "rm -r ./*.results",
     "lint": "eslint run.js analyze.js test/ emulator/",
     "test": "mocha test/"
   }

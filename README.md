@@ -3,23 +3,47 @@ box.js
 
 [![Build Status](https://travis-ci.org/CapacitorSet/box-js.svg?branch=master)](https://travis-ci.org/CapacitorSet/box-js) [![npm](https://img.shields.io/npm/v/box-js.svg)]()
 
-A utility to analyze malicious JavaScript (**requires at least Node 6.0.0**).
+A utility to analyze malicious JavaScript.
 
-To execute it, simply install its dependencies (`npm install`) and run
+# Installation
+
+Simply install box-js from npm:
 
 ```
-node run.js file1.js file2.js folder ...
+npm install box-js --global
 ```
 
->If you are interested in receiving the payloads, add the flag `--download`. You may also want to add a longer timeout, eg. `--timeout=30`.
+# Usage
 
->Some samples may trigger stack overflow errors. If this happens, add `--stack-size=8192` (`--stack-size` may be restricted to 1024 on Windows).
+Let's say you have a sample called `sample.js`: to analyze it, simply run
 
-It will create a folder called `file1.js.results`; if it already exists, it will create `file1.js.1.results`, and so on. In this folder, `snippets.json` contains the fragments of code that were executed; `urls.json`, the URLs requested; `active_urls.json`, the URLs that seem to drop active malware; `resources.json`, the ADODB streams (i.e. the files that the script wrote to disk).
+```
+box-js sample.js
+```
 
->If you have a batch of samples, you can extract all the URLs from the folders with `cat ./*.results/urls.json | sort | uniq` (`active_urls.json` works too).
+Chances are you will also want to download any payloads; use the flag `--download` to enable downloading. Otherwise, the engine will simulate a 404 error, so that the script will be tricked into thinking the distribution site is down and contacting any fallback sites.
 
->You can use `npm run clean` to remove the folders when you're done.
+Box.js will emulate a Windows JScript environment, print a summary of the emulation to the console, and create a folder called `sample.js.results` (if it already exists, it will create `sample.js.1.results` and so on). This folder will contain:
+
+ * a series of files identified by UUIDs;
+ * `snippets.json`, a list of pieces of code executed by the sample (JavaScript, shell commands, etc.);
+ * `urls.json`, a list of URLs contacted;
+ * `active_urls.json`, a list of URLs that seem to drop active malware;
+ * `resources.json`, the ADODB streams (i.e. the files that the script wrote to disk).
+
+## Batch usage
+
+While box.js is typically used on single files, it can also run batch analyses. You can simply pass a list of files or folders to analyse:
+
+```
+box-js sample1.js sample2.js /var/data/mySamples ...
+```
+
+After the analysis is finished, you can extract the active URLs like this:
+
+```
+cat ./*.results/active_urls.json | sort | uniq
+```
 
 ## Flags
 
@@ -71,9 +95,9 @@ It will create a folder called `file1.js.results`; if it already exists, it will
 --windows-xp (Boolean): Emulate Windows XP (influences the value of environment variables)
 <!--END_FLAGS-->
 
-## Analyzing the output
+# Analyzing the output
 
-### Console output
+## Console output
 
 The first source of information is the console output. On a succesful analysis, it will typically print something like this:
 
@@ -96,19 +120,23 @@ Emulating a GET request to http://somethingelse.com/
 
 In this case, we are seeing a dropper that downloads a file from `http://foo.bar/baz`, setting the HTTP header `User-Agent` to `Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)`. Then, it proceeds to decode it, and write the result to disk (a PE32 executable). Finally, it runs some command in the Windows shell.
 
-### JSON logs
+ * `sample.js.results/a0af1253-597c-4eed-9e8f-5b633ff5f66a` will contain the payload as it was downloaded from http://foo.bar/baz;
+ * `sample.js.results/f8df7228-7e0a-4241-9dae-c4e1664dc5d8` will contain the actual payload (PE executable);
+ * `sample.js.results/d241e130-346f-4c0c-a698-f925dbd68f0c` will contain the command that was run in the Windows shell.
+
+## JSON logs
 
 Every HTTP request is both printed on the terminal and logged in `urls.json`. Duplicate URLs aren't inserted (i.e. requesting the same URL twice will result in only one line in `urls.json`).
 
 `active_urls.json` contains the list of URLs that eventually resulted in an executable payload. This file is the most interesting, if you're looking to take down distribution sites.
 
-`snippets.json` contains every piece of code that `box-js` came across, either executed from `eval` or `WScript.Shell.Run`.
+`snippets.json` contains every piece of code that `box-js` came across, either JavaScript, a cmd.exe command or a PowerShell script.
 
-`resources.json` contains every file that the sample tried to write to disk. For instance, if the application tried to save `Hello world!` to `$PATH/foo.txt`, the content of `resources.json` would be `{ "9a24...": "(path)\\foo.txt" }`, and the content of the file `9a24...` would be `Hello world!`. This file is also important: watch out for any .dll or .exe resource.
+`resources.json` contains every file written to disk by the sample. For instance, if the application tried to save `Hello world!` to `$PATH/foo.txt`, the content of `resources.json` would be `{ "9a24...": "(path)\\foo.txt" }`, and the content of the file `sample.txt/9a24...` would be `Hello world!`. This file is also important: watch out for any resource ending in .dll or .exe.
 
-## Patching
+# Patching
 
-Some scripts in the wild have been observed to use `new Date().getYear()` where `new Date().getFullYear()`. If a sample isn't showing any suspicious behaviour, look out for `Date` checks.
+Some scripts in the wild have been observed to use `new Date().getYear()` where `new Date().getFullYear()`. If a sample isn't showing any suspicious behaviour, watch out for `Date` checks.
 
 --------
 
@@ -124,7 +152,7 @@ node run bar.js
 
 You may occasionally run into unsupported components. In this case, you can file an issue on GitHub, or emulate the component yourself if you know JavaScript.
 
-The error will typically look like this:
+The error will typically look like this (line numbers may be different):
 
 ```
 1 Jan 00:00:00 - Unknown ActiveXObject WinHttp.WinHttpRequest.5.1
@@ -136,13 +164,15 @@ Trace
     at ...
 ```
 
-You can see that the exception was raised in `Proxy.ActiveXObject`, line 75, which looks like this:
+You can see that the exception was raised in `Proxy.ActiveXObject`, which looks like this:
 
 ```
 function ActiveXObject(name) {
+	name = name.toLowerCase();
+	/* ... */
 	switch (name) {
-		case "WScript.Shell":
-			return new ProxiedWScriptShell();
+		case "wscript.shell":
+			return require("./emulator/WScriptShell");
 		/* ... */
 		default:
 			kill(`Unknown ActiveXObject ${name}`);
@@ -151,19 +181,20 @@ function ActiveXObject(name) {
 }
 ```
 
-Add a new `case "WinHttp.WinHttpRequest.5.1"`, and have it return an ES6 `Proxy` object (eg. `ProxiedWinHttpRequest`). This is used to catch unimplemented features as soon as they're requested by the malicious sample:
+Add a new `case "winhttp.winhttprequest.5.1"` (note the lowercase!), and have it return an ES6 `Proxy` object (eg. `ProxiedWinHttpRequest`). This is used to catch unimplemented features as soon as they're requested by the malicious sample:
 
 ```
-function ProxiedWinHttpRequest() {
+/* emulator/WinHttpRequest.exe */
+const lib = require("../lib");
+
+module.exports = function ProxiedWinHttpRequest() {
 	return new Proxy(new WinHttpRequest(), {
 		get: function(target, name, receiver) {
 			switch (name) {
 				/* Add here "special" traps with case statements */
 				default:
-					if (!(name in target)) {
-						kill(`WinHttpRequest.${name} not implemented!`)
-					}
-					return target[name];
+					if (name in target) return target[name];
+					else lib.kill(`WinHttpRequest.${name} not implemented!`)
 			}
 		}
 	})
@@ -196,7 +227,7 @@ function WinHttpRequest() {
 
 and iterate until the code emulates without errors.
 
-## Contributors
+# Contributors
 
 @CapacitorSet: Main developer
 
