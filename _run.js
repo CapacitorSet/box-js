@@ -61,26 +61,44 @@ const options = process.argv
 
 options.push(`--timeout=${timeout}`);
 
-const tasks = process.argv
+// Files and directories
+const targets = process.argv
 	.slice(2)
-	.filter(isFile)
-	.map((filepath) => fs.statSync(filepath).isDirectory() ?
-		(cb) => {
-			const files = [];
-			walk.walkSync(filepath, {
-				listeners: {
-					file: (root, stat, next) => {
-						files.push({root, name: stat.name});
-						next();
-					},
+	.filter(isFile);
+
+// Array of {filepath, filename}
+const tasks = [];
+
+// Files
+targets
+	.filter(filepath => !fs.statSync(filepath).isDirectory())
+	.map(filepath => ({
+		filepath,
+		filename: path.basename(filepath),
+	}))
+	.forEach(task => tasks.push(task));
+
+// Folders
+targets
+	.filter(filepath => fs.statSync(filepath).isDirectory())
+	.map(filepath => {
+		// "Flattens" a folder to an array of {filepath, filename}
+		const tasks = [];
+		walk.walkSync(filepath, {
+			listeners: {
+				file: (root, stat, next) => {
+					tasks.push({
+						filepath: path.join(root, stat.name),
+						filename: stat.name,
+					});
+					next();
 				},
-			});
-			return files.map(
-				({root, name}) => analyze(path.join(root, name), name, outputDir)
-			);
-		} :
-		() => analyze(filepath, path.basename(filepath), outputDir)
-	);
+			},
+		});
+		return tasks;
+	})
+	.reduce((a, b) => a.concat(b), []) // flatten
+	.forEach(task => tasks.push(task));
 
 if (tasks.length === 0) {
 	console.log("Please pass one or more filenames or directories as an argument.");
@@ -90,9 +108,9 @@ if (tasks.length === 0) {
 // Prevent "possible memory leak" warning
 process.setMaxListeners(Infinity);
 
-tasks.forEach((task) => task());
+tasks.forEach(({filepath, filename}) => analyze(filepath, filename));
 
-function isDir(filepath) {
+function isDirectory(filepath) {
 	try {
 		return fs.statSync(filepath).isDirectory();
 	} catch (e) {
@@ -100,18 +118,17 @@ function isDir(filepath) {
 	}
 }
 
-function analyze(filepath, filename, outputDir) {
+function analyze(filepath, filename) {
 	let directory = path.join(outputDir, filename + ".results");
-	let i = 1;
-	while (isDir(directory)) {
-		i++;
+	// Find a suitable directory name
+	for (let i = 1; isDirectory(directory); i++)
 		directory = path.join(outputDir, filename + "." + i + ".results");
-	}
+
 	fs.mkdirSync(directory);
 	directory += "/"; // For ease of use
 	const worker = cp.fork(path.join(__dirname, "analyze"), [filepath, directory, ...options]);
 
-	const killTimeout = setTimeout(function killOnTimeOut() {
+	const killTimeout = setTimeout(() => {
 		console.log(`Analysis for ${filename} timed out.`);
 		if (!argv.preprocess) {
 			console.log("Hint: if the script is heavily obfuscated, --preprocess --unsafe-preprocess can speed up the emulation.");
@@ -119,15 +136,14 @@ function analyze(filepath, filename, outputDir) {
 		worker.kill();
 	}, timeout * 1000);
 
-	worker.on("message", function(data) {
+	worker.on("message", function() {
 		clearTimeout(killTimeout);
 		worker.kill();
 	});
 
-	worker.on("exit", function(code, signal) {
+	worker.on("exit", function(code) {
 		if (code === 1) {
 			console.log(`
- * If you see garbled text, try emulating Windows XP with --windows-xp.
  * If the error is about a weird \"Unknown ActiveXObject\", try --no-kill.
  * If the error is about a legitimate \"Unknown ActiveXObject\", report a bug at https://github.com/CapacitorSet/box-js/issues/ .`);
 		}
