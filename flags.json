@@ -22,6 +22,11 @@
         "description": "Die when an emulation error occurs, even in \"batch mode\""
     },
     {
+        "name": "quiet",
+        "type": "Boolean",
+        "description": "Do not print analysis-related messages. If in batch mode, print completion data (percentage, remaining items)"
+    },
+    {
         "name": "loglevel",
         "type": "String",
         "description": "Logging level (debug, verbose, info, warning, error - default \"info\""

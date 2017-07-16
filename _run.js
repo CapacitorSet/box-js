@@ -121,6 +121,14 @@ if (tasks.length > 1) // If batch mode
 		console.log(`Analyzing ${tasks.length} items with ${q.concurrency} threads (use --threads to change this value)`)
 
 tasks.forEach(({filepath, filename}) => q.push(analyze.bind(null, filepath, filename)));
+
+let completed = 0;
+
+q.on("success", () => {
+	completed++;
+	console.log(`Progress: ${completed}/${tasks.length} (${(100 * completed/tasks.length).toFixed(2)}%)`);
+});
+
 q.start();
 
 function isDirectory(filepath) {

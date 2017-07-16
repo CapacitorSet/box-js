@@ -47,7 +47,7 @@ function log(tag, text, toFile = true, toStdout = true) {
 	const level = levels[tag];
 	if (level < levels[argv.loglevel]) return;
 	const message = `[${tag}] ${text}`;
-	if (toStdout || argv.loglevel === "debug") // Debug level always writes to stdout and file.
+	if (!argv.quiet && (toStdout || argv.loglevel === "debug")) // Debug level always writes to stdout and file, but --quiet overrides writing to the console.
 		console.log(message);
 	if (toFile || argv.loglevel === "debug")
 		fs.appendFileSync(directory + "/analysis.log", message + "\n");

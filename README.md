@@ -42,6 +42,8 @@ box-js sample1.js sample2.js /var/data/mySamples ...
 
 By default box.js will process samples in parallel, running one analysis per core. You can use a different setting by specifying a value for `--threads`: in particular, 0 will remove the limit, making box-js spawn as many analysis threads as possible and resulting in very fast analysis but possibly overloading the system (note that **analyses are usually CPU-bound**, not RAM-bound).
 
+You can use `--quiet` to silence analysis-related messages and only display progress info.
+
 After the analysis is finished, you can extract the active URLs like this:
 
 ```
@@ -58,6 +60,8 @@ cat ./*.results/active_urls.json | sort | uniq
 --license (Boolean): Show the license and quit
 
 --debug (Boolean): Die when an emulation error occurs, even in "batch mode"
+
+--quiet (Boolean): Do not print analysis-related messages. If in batch mode, print completion data (percentage, remaining items)
 
 --loglevel (String): Logging level (debug, verbose, info, warning, error - default "info"
 
