@@ -150,9 +150,11 @@ function analyze(filepath, filename, cb) {
 	const worker = cp.fork(path.join(__dirname, "analyze"), [filepath, directory, ...options]);
 
 	const killTimeout = setTimeout(() => {
-		console.log(`Analysis for ${filename} timed out.`);
-		if (!argv.preprocess) {
-			console.log("Hint: if the script is heavily obfuscated, --preprocess --unsafe-preprocess can speed up the emulation.");
+		if (!argv.quiet) {
+			console.log(`Analysis for ${filename} timed out.`);
+			if (!argv.preprocess) {
+				console.log("Hint: if the script is heavily obfuscated, --preprocess --unsafe-preprocess can speed up the emulation.");
+			}
 		}
 		worker.kill();
 		cb();
@@ -165,7 +167,7 @@ function analyze(filepath, filename, cb) {
 	});
 
 	worker.on("exit", function(code) {
-		if (code === 1) {
+		if (code === 1 && !argv.quiet) {
 			console.log(`
  * If the error is about a weird \"Unknown ActiveXObject\", try --no-kill.
  * If the error is about a legitimate \"Unknown ActiveXObject\", report a bug at https://github.com/CapacitorSet/box-js/issues/ .`);
@@ -177,7 +179,7 @@ function analyze(filepath, filename, cb) {
 	});
 
 	worker.on("error", function(err) {
-		console.log(err);
+		if (!argv.quiet) console.log(err);
 		clearTimeout(killTimeout);
 		worker.kill();
 		cb();

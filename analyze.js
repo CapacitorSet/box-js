@@ -20,7 +20,7 @@ if (argv.encoding) {
 	lib.debug("Using detected encoding");
 	encoding = require("jschardet").detect(sampleBuffer).encoding;
 	if (encoding === null) {
-		lib.warn("jschardet (v" + require("jschardet/package.json").version + ") couldn't detect encoding, using UTF-8");
+		lib.warning("jschardet (v" + require("jschardet/package.json").version + ") couldn't detect encoding, using UTF-8");
 		encoding = "utf8";
 	} else {
 		lib.debug("jschardet (v" + require("jschardet/package.json").version + ") detected encoding " + encoding);

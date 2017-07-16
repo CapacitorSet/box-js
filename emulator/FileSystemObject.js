@@ -41,7 +41,7 @@ function ProxiedTextStream(filename) {
 			b = b.toLowerCase();
 			b = b.replace("bufferarray", "<internal buffer>");
 			if (c.length < 1024 && !(c.length === 1 && c[0] === ""))
-				console.log(`FSObject[${b}] = ${c};`);
+				lib.info(`FSObject[${b}] = ${c};`);
 			a[b] = c;
 			return true;
 		},
@@ -98,7 +98,7 @@ function FileSystemObject() {
 	this.createfolder = (folder) => "(Temporary new folder)";
 	this.createtextfile = this.opentextfile = (filename) => new ProxiedTextStream(filename);
 	this.copyfile = (src, dest, overwrite) => {
-		console.log(`Copying ${src} to ${dest}`);
+		lib.info(`Copying ${src} to ${dest}`);
 		lib.writeFile(dest, `(Contents of ${dest})`);
 	};
 	this.drives = [new ProxiedDrive("C:")];
@@ -106,14 +106,14 @@ function FileSystemObject() {
 	this.fileexists = (path) => {
 		const value = !argv["no-file-exists"];
 		if (value) {
-			console.log(`Returning true for FileSystemObject.FileExists(${path}); use --no-file-exists if nothing happens`);
+			lib.info(`Returning true for FileSystemObject.FileExists(${path}); use --no-file-exists if nothing happens`);
 		}
 		return value;
 	};
 	this.folderexists = (path) => {
 		const value = !argv["no-folder-exists"];
 		if (value) {
-			console.log(`Returning true for FileSystemObject.FolderExists(${path}); use --no-folder-exists if nothing happens`);
+			lib.info(`Returning true for FileSystemObject.FolderExists(${path}); use --no-folder-exists if nothing happens`);
 		}
 		return value;
 	};

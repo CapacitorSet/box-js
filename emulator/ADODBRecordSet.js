@@ -88,7 +88,7 @@ function ADODBRecordSet() {
 					case "append":
 						return (name, type, definedSize, attrib, fieldValue = "") => {
 							if (Number(type) !== 204) {
-								console.log(`Warning: unknown datatype ${type} in ADODBRecordSet`);
+								lib.warn(`Warning: unknown datatype ${type} in ADODBRecordSet`);
 							}
 							this._fields.set(name, Buffer.from(fieldValue));
 						};
