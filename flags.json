@@ -27,6 +27,11 @@
         "description": "Logging level (debug, verbose, info, warning, error - default \"info\""
     },
     {
+        "name": "threads",
+        "type": "Number",
+        "description": "When running in batch mode, how many analyses to run at the same time (0 = unlimited, default: as many as the number of CPU cores)"
+    },
+    {
         "name": "download",
         "type": "Boolean",
         "description": "Actually download the payloads"

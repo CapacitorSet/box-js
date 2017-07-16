@@ -9,6 +9,7 @@
     "esprima": "*",
     "iconv-lite": "*",
     "jschardet": "*",
+    "queue": "^4.2.1",
     "sync-request": "*",
     "uglify-js": "^3.0.24",
     "uuid": "*",

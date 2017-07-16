@@ -40,6 +40,8 @@ While box.js is typically used on single files, it can also run batch analyses. 
 box-js sample1.js sample2.js /var/data/mySamples ...
 ```
 
+By default box.js will process samples in parallel, running one analysis per core. You can use a different setting by specifying a value for `--threads`: in particular, 0 will remove the limit, making box-js spawn as many analysis threads as possible and resulting in very fast analysis but possibly overloading the system (note that **analyses are usually CPU-bound**, not RAM-bound).
+
 After the analysis is finished, you can extract the active URLs like this:
 
 ```
@@ -58,6 +60,8 @@ cat ./*.results/active_urls.json | sort | uniq
 --debug (Boolean): Die when an emulation error occurs, even in "batch mode"
 
 --loglevel (String): Logging level (debug, verbose, info, warning, error - default "info"
+
+--threads (Number): When running in batch mode, how many analyses to run at the same time (0 = unlimited, default: as many as the number of CPU cores)
 
 --download (Boolean): Actually download the payloads
 

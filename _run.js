@@ -40,9 +40,9 @@ if (argv.license) {
 	process.exit(0);
 }
 
-const timeout = Number(argv.timeout) || 10;
 if (!argv.timeout)
 	console.log("Using a 10 seconds timeout, pass --timeout to specify another timeout in seconds");
+const timeout = Number(argv.timeout) || 10;
 
 const outputDir = argv["output-dir"] || "./";
 
@@ -108,7 +108,20 @@ if (tasks.length === 0) {
 // Prevent "possible memory leak" warning
 process.setMaxListeners(Infinity);
 
-tasks.forEach(({filepath, filename}) => analyze(filepath, filename));
+const q = require("queue")();
+// Screw you, buggy option parser
+if (argv.threads === 0) q.concurrency = Infinity;
+else if (argv.threads)  q.concurrency = argv.threads;
+else                    q.concurrency = require("os").cpus().length;
+
+if (tasks.length > 1) // If batch mode
+	if (argv.threads)
+		console.log(`Analyzing ${tasks.length} items with ${q.concurrency} threads`)
+	else
+		console.log(`Analyzing ${tasks.length} items with ${q.concurrency} threads (use --threads to change this value)`)
+
+tasks.forEach(({filepath, filename}) => q.push(analyze.bind(null, filepath, filename)));
+q.start();
 
 function isDirectory(filepath) {
 	try {
@@ -118,7 +131,7 @@ function isDirectory(filepath) {
 	}
 }
 
-function analyze(filepath, filename) {
+function analyze(filepath, filename, cb) {
 	let directory = path.join(outputDir, filename + ".results");
 	// Find a suitable directory name
 	for (let i = 1; isDirectory(directory); i++)
@@ -134,11 +147,13 @@ function analyze(filepath, filename) {
 			console.log("Hint: if the script is heavily obfuscated, --preprocess --unsafe-preprocess can speed up the emulation.");
 		}
 		worker.kill();
+		cb();
 	}, timeout * 1000);
 
 	worker.on("message", function() {
 		clearTimeout(killTimeout);
 		worker.kill();
+		cb();
 	});
 
 	worker.on("exit", function(code) {
@@ -150,15 +165,23 @@ function analyze(filepath, filename) {
 		clearTimeout(killTimeout);
 		worker.kill();
 		if (argv.debug) process.exit(-1);
+		cb();
 	});
 
 	worker.on("error", function(err) {
 		console.log(err);
 		clearTimeout(killTimeout);
 		worker.kill();
+		cb();
 	});
 
-	process.on("exit", () => worker.kill());
-	process.on("SIGINT", () => worker.kill());
+	process.on("exit", () => {
+		worker.kill();
+		cb();
+	});
+	process.on("SIGINT", () => {
+		worker.kill();
+		cb();
+	});
 	// process.on('uncaughtException', () => worker.kill());
 }
