@@ -3,5 +3,4 @@ node_js:
   - '6'      # First supported version (implements the ES6 features we need)
   - 'node' # Latest stable release
 script:
-  - npm run lint
   - npm run test
