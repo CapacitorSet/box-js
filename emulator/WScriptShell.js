@@ -37,7 +37,7 @@ function WScriptShell() {
 			path = path.replace(/%APPDATA%/gi, "C:\\Users\\User\\AppData\\Roaming");
 
 		if (/%\w+%/i.test(path)) {
-			lib.warn("Possibly failed to expand environment strings in " + path);
+			lib.warning("Possibly failed to expand environment strings in " + path);
 		}
 
 		return path;
