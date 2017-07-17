@@ -126,7 +126,8 @@ let completed = 0;
 
 q.on("success", () => {
 	completed++;
-	console.log(`Progress: ${completed}/${tasks.length} (${(100 * completed/tasks.length).toFixed(2)}%)`);
+	if (tasks.length !== 1)
+		console.log(`Progress: ${completed}/${tasks.length} (${(100 * completed/tasks.length).toFixed(2)}%)`);
 });
 
 q.start();
