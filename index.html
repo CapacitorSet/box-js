@@ -1,6 +1,38 @@
-<!DOCTYPE html><head><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous"><title>Box-js: a tool for studying JavaScript malware</title></head><body class="container"><div class="text-xs-center"><h1>Box-js</h1><h4>A tool for studying JavaScript malware</h4></div><h3>Main features</h3><ul><li>Emulation of <b>ActiveX components</b>: <tt>MSXML2.XMLHTTP</tt>, <tt>WScript.Shell</tt>, <tt>ADODB.Stream</tt>, <tt>Scripting.FileSystemObject</tt></li><li>Suitable for <b>integration and automation</b>: creates a JSON file with active URLs for easy scripting</li><li><b>Secure</b>: runs code in a <a href="https://nodejs.org/api/vm.html">V8 sandbox</a> which doesn't expose system APIs</li></ul><h3>Usage</h3><h4>Installing</h4><pre><b>$ curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
-$ sudo apt-get install nodejs npm
-$ npm install --global box-js</b></pre><h4>Analysing</h4><pre><b>$ box-js sample.js --download --no-kill --timeout=60</b>
+<!DOCTYPE html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes"><meta name="author" content="CapacitorSet"><title>Box.js: a tool for studying JavaScript malware</title><style>/* Source: https://bestmotherfucking.website (with changes) */
+body {
+	margin: 0 auto;
+	max-width: 60em;
+	padding: 1rem .62em;
+	font-size: 1.2em;
+	line-height: 1.62;
+	font-family: "Open Sans", sans-serif;
+}
+h1, h2, h3 {
+	line-height: 1.2;
+}
+blockquote {
+	background-color: #eee;
+	border-left: 6px solid silver;
+	padding: 0.1em 1em 0.1em 1em;
+	margin: 0;
+}
+pre {
+	padding: 0.5rem 1rem;
+	background-color: #f8f8f8;
+	border: 1px solid #eee;
+	border-radius: 0.15rem;
+	margin-bottom: 1rem;
+	overflow: auto;
+}
+a, a:visited {
+	color: #07a;
+}
+
+@media print {
+	body {
+		max-width: none
+	}
+}</style></head><body><div style="text-align: center;"><h1>Box.js</h1><h4>A tool for studying JavaScript malware</h4></div><hr><h3>Main features</h3><ul><li>Emulation of <a href="https://github.com/CapacitorSet/box-js/tree/master/emulator"><b>ActiveX components</b></a>: <tt>MSXML2.XMLHTTP</tt>, <tt>WScript.Shell</tt>, <tt>ADODB.Stream</tt>, <tt>Scripting.FileSystemObject</tt> and many more</li><li>Suitable for <b>integration and automation</b>: creates a JSON file with active URLs for easy scripting and supports batch analysis</li><li><b>Secure</b>: runs code in a <a href="https://nodejs.org/api/vm.html">V8 sandbox</a> which doesn't expose system APIs</li></ul><h3>Usage</h3><h4>Installing</h4><p>Requires Node 6.x or greater.</p><pre><b>$ npm install --global box-js</b></pre><h4>Analysing</h4><pre><b>$ box-js sample.js --download --no-kill --timeout=60</b>
 Analyzing sample.js
 New ActiveXObject: Scripting.FileSystemObject
 New ActiveXObject: Scripting.FileSystemObject
@@ -17,4 +49,19 @@ Executing sample.js.results/9539b473-c62d-4b99-a659-5aa28842aacc in the WScript 
 
 <b>$ cat sample.js.results/9539b473-c62d-4b99-a659-5aa28842aacc</b>
 cmd.exe /c (Temporary folder)(Temporary file) 0
-</pre><a href="https://github.com/CapacitorSet/box-js"><img style="position: absolute; top: 0; right: 0; border: 0" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a></body>
+</pre><a href="https://github.com/CapacitorSet/box-js"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a><script type="text/javascript">// Self-hosted Piwik tracking
+
+var _paq = _paq || [];
+/* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+_paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
+_paq.push(["setCookieDomain", "*.capacitorset.github.io"]);
+_paq.push(["setDomains", ["*.capacitorset.github.io","*.capacitorset.github.io"]]);
+_paq.push(['trackPageView']);
+_paq.push(['enableLinkTracking']);
+(function() {
+	var u="//piwik.vps.denv.it/";
+	_paq.push(['setTrackerUrl', u+'piwik.php']);
+	_paq.push(['setSiteId', '4']);
+	var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+	g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+})();</script><noscript><p><img src="//piwik.vps.denv.it/piwik.php?idsite=4&amp;rec=1" style="border:0;" alt=""></p></noscript></body>
