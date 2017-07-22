@@ -99,7 +99,8 @@ If you run into unexpected results, try uncommenting lines that look like
 						Object.getOwnPropertyNames(Math).map(key => `Math.${key}`) :
 						null,
 					reduce_vars: true,
-					/* Using sequences (a; b; c; -> a, b, c) provide any performance benefits,
+					/* Using sequences (a; b; c; -> a, b, c) provides some performance benefits
+					 * (https://github.com/CapacitorSet/box-js/commit/5031ba7114b60f1046e53b542c0e4810aad68a76#commitcomment-23243778),
 					 * but it makes code harder to read. Therefore, this behaviour is disabled.
 					 */
 					sequences: false,
