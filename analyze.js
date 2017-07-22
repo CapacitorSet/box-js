@@ -256,7 +256,11 @@ const sandbox = {
 		},
 	}),
 	parse: (x) => {},
-	rewrite: (code) => rewrite(lib.logJS(code)),
+	rewrite: (code) => {
+		const ret = rewrite(code);
+		lib.logJS(ret);
+		return ret;
+	},
 	ScriptEngine: () => {
 		const type = "JScript"; // or "JavaScript", or "VBScript"
 		lib.warn(`Emulating a ${type} engine (in ScriptEngine)`);
