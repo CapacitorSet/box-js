@@ -27,8 +27,7 @@ if (argv.encoding) {
 	}
 }
 
-const sampleSource = iconv.decode(sampleBuffer, encoding);
-let code = fs.readFileSync(path.join(__dirname, "patch.js"), "utf8") + sampleSource;
+let code = iconv.decode(sampleBuffer, encoding);
 
 if (code.match("<job") || code.match("<script")) { // The sample may actually be a .wsf, which is <job><script>..</script><script>..</script></job>.
 	lib.debug("Sample seems to be WSF");
@@ -221,8 +220,10 @@ cc decoder.c -o decoder
 
 	return code;
 }
+
 code = rewrite(code);
 lib.logJS(code);
+code = fs.readFileSync(path.join(__dirname, "patch.js"), "utf8") + code;
 
 Array.prototype.Count = function() {
 	return this.length;
