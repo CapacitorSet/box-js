@@ -95,6 +95,8 @@ cat ./*.results/active_urls.json | sort | uniq
 
 --no-folder-exists (Boolean): Return `false` for Scripting.FileSystemObject.FileExists(x)
 
+--function-rewrite (Boolean): Rewrite function calls in order to catch eval calls
+
 --no-rewrite-prototype (Boolean): Do not rewrite expressions like `function A.prototype.B()` as `A.prototype.B = function()`
 
 --no-shell-error (Boolean): Do not throw a fake error when executing `WScriptShell.Run` (it throws a fake error by default to pretend that the distribution sites are down, so that the script will attempt to poll every site)

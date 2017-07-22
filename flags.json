@@ -107,6 +107,11 @@
         "description": "Return `false` for Scripting.FileSystemObject.FileExists(x)"
     },
     {
+        "name": "function-rewrite",
+        "type": "Boolean",
+        "description": "Rewrite function calls in order to catch eval calls"
+    },
+    {
         "name": "no-rewrite-prototype",
         "type": "Boolean",
         "description": "Do not rewrite expressions like `function A.prototype.B()` as `A.prototype.B = function()`"
