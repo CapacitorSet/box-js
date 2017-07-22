@@ -230,6 +230,8 @@ Array.prototype.Count = function() {
 };
 
 const sandbox = {
+	logJS: lib.logJS,
+
 	ActiveXObject,
 	alert: (x) => {},
 	console: {
