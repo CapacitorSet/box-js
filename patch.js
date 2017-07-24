@@ -16,10 +16,9 @@
 	}
 
 	_OriginalFunction = Function;
-	Function = (...args) => {
-		const source = args.pop();
-		source = rewrite(source);
+	Function = function(...args) {
+		const source = rewrite(args.pop());
 		logJS(source);
-		_OriginalFunction(...args, source);
+		return new _OriginalFunction(...args, source);
 	}
 /* End patches */
