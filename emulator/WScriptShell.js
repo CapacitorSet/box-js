@@ -2,16 +2,26 @@ const lib = require("../lib.js");
 const argv = require("../argv.js");
 
 function WScriptShell() {
+	const vars = {
+		/* %APPDATA% equals C:\Documents and Settings\{username}\Application Data on Windows XP,
+		 * but C:\Users\{username}\AppData\Roaming on Win Vista and above.
+		 */
+		appdata: argv["windows-xp"]
+			? "C:\\Documents and Settings\\User\\Application Data"
+			: "C:\\Users\\User\\AppData\\Roaming",
+		computername: "USER-PC",
+		processor_revision: "0209",
+		processor_architecture: "x86",
+		programdata: "C:\\ProgramData",
+		tmp: "C:\\DOCUME~1\\User\\LOCALS~1\\Temp",
+		temp: "C:\\DOCUME~1\\User\\LOCALS~1\\Temp",
+		username: "User",
+		userprofile: "C:\\Users\\User",
+		windir: "C:\\WINDOWS"
+	};
 	this.environment = (x) => {
 		if (x.toLowerCase() === "system")
 			return (argument) => {
-				const vars = {
-					comspec: "%SystemRoot%\\system32\\cmd.exe",
-					os: "Windows_NT",
-					// Emulate a 32-bit environment for maximum compatibility
-					processor_architecture: "x86",
-				};
-
 				argument = argument.toLowerCase();
 				if (argument in vars) return vars[argument];
 				lib.kill(`Unknown parameter ${argument} for WScriptShell.Environment.System`);
@@ -21,25 +31,13 @@ function WScriptShell() {
 	this.specialfolders = (x) => `(Special folder ${x})`;
 	this.createshortcut = () => ({});
 	this.expandenvironmentstrings = (path) => {
-		path = path.replace(/%COMPUTERNAME%/gi, "USER-PC");
-		path = path.replace(/%PROCESSOR_REVISION%/gi, "0209");
-		path = path.replace(/%PROGRAMDATA%/gi, "C:\\ProgramData");
-		path = path.replace(/%TE?MP%/gi, "C:\\DOCUME~1\\User\\LOCALS~1\\Temp");
-		path = path.replace(/%USERNAME%/gi, "User");
-		path = path.replace(/%USERPROFILE%/gi, "C:\\Users\\User");
-		path = path.replace(/%WINDIR%/gi, "C:\\WINDOWS");
-
-		// %APPDATA% equals C:\Documents and Settings\{username}\Application Data on Windows XP,
-		// but C:\Users\{username}\AppData\Roaming on Win Vista and above
-		if (argv["windows-xp"])
-			path = path.replace(/%APPDATA%/gi, "C:\\Documents and Settings\\User\\Application Data");
-		else
-			path = path.replace(/%APPDATA%/gi, "C:\\Users\\User\\AppData\\Roaming");
+		Object.keys(vars).forEach(key => {
+			path = path.replace(RegExp("%" + key + "%", "gi"), vars[key]);
+		});
 
 		if (/%\w+%/i.test(path)) {
 			lib.warning("Possibly failed to expand environment strings in " + path);
 		}
-
 		return path;
 	};
 	this.exec = this.run = function(...args) {
