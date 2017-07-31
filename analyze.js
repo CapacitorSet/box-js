@@ -340,6 +340,8 @@ const sandbox = {
 					return "(ScriptFullName)";
 				case "scriptname":
 					return "sample.js";
+				case "version":
+					return "5.8";
 				default:
 					lib.kill(`WScript.${name} not implemented!`);
 			}
