@@ -15,7 +15,10 @@ function VirtualWMIObject(object) {
 					return query => {
 						query = query.toLowerCase();
 						// TODO: implement actual SQL
-						if (query === "select * from win32_process") return [{name: "wscript.exe"}];
+						if (query === "select * from win32_process") {
+							lib.info("Script tried to read the list of processes");
+							return [{name: "wscript.exe"}];
+						}
 						if (query === "select version from win32_operatingsystem") return [{version: "10"}];
 						throw new Error(`Not implemented: query "${query}"`);
 					}
