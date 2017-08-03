@@ -351,6 +351,11 @@ const sandbox = {
 	WSH: "Windows Script Host",
 };
 
+// See https://github.com/nodejs/node/issues/8071#issuecomment-240259088
+// It will prevent console.log from calling the "inspect" property,
+// which can be kinda messy with Proxies
+require("util").inspect.defaultOptions.customInspect = false;
+
 const vm = new VM({
 	timeout: (argv.timeout || 10) * 1000,
 	sandbox,
