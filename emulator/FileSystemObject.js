@@ -1,5 +1,6 @@
 const lib = require("../lib");
 const argv = require("../argv.js");
+const winpath = require("path").win32;
 
 function TextStream(filename) {
 	this.buffer = lib.readFile(filename) || "";
@@ -116,6 +117,12 @@ function FileSystemObject() {
 			lib.info(`Returning true for FileSystemObject.FolderExists(${path}); use --no-folder-exists if nothing happens`);
 		}
 		return value;
+	};
+	this.getabsolutepathname = (path) => {
+		if (!winpath.isAbsolute(path)) path = "C:\\Users\\User\\Desktop\\" + path;
+		const ret = winpath.resolve(path);
+		console.log(path, ret);
+		return ret;
 	};
 	this.getdrive = (drive) => new ProxiedDrive(drive);
 	this.getdrivename = (path) => {
