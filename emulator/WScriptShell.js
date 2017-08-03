@@ -64,7 +64,7 @@ function WScriptShell() {
 		lib.verbose(`Reading registry key ${key}`);
 		if (key in this._reg_entries)
 			return this._reg_entries[key];
-		lib.warn("Unknown registry key ${key}!");
+		lib.warning("Unknown registry key ${key}!");
 		return "";
 	};
 	this.regwrite = (key, value, type = "(unspecified)") => {
