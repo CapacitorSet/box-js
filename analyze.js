@@ -66,9 +66,10 @@ If you run into unexpected results, try uncommenting lines that look like
 		}
 
 		if (argv["preprocess"]) {
-			lib.info(`    Preprocessing with uglify-js v${require("uglify-js/package.json").version} (remove --preprocess to skip)...`, false);
+			lib.info(`    Preprocessing with uglify-es v${require("uglify-es/package.json").version} (remove --preprocess to skip)...`, false);
 			const unsafe = !!argv["unsafe-preprocess"];
-			const result = require("uglify-js").minify(code, {
+			lib.debug("Unsafe preprocess: " + unsafe);
+			const result = require("uglify-es").minify(code, {
 				compress: {
 					passes: 3,
 
@@ -90,7 +91,7 @@ If you run into unexpected results, try uncommenting lines that look like
 					negate_iife: false, // readability
 					properties: true,
 					pure_getters: false, // many variables are proxies, which don't have pure getters
-					/* If unsafe preprocessing is enabled, tell uglify-js that Math.* functions
+					/* If unsafe preprocessing is enabled, tell uglify-es that Math.* functions
 					 * have no side effects, and therefore can be removed if the result is
 					 * unused. Related issue: mishoo/UglifyJS2#2227
 					 */
@@ -115,7 +116,7 @@ If you run into unexpected results, try uncommenting lines that look like
 				},
 			});
 			if (result.error) {
-				lib.error("Couldn't preprocess with uglify-js: " + JSON.stringify(result.error));
+				lib.error("Couldn't preprocess with uglify-es: " + JSON.stringify(result.error));
 			} else {
 				code = result.code;
 			}

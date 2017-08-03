@@ -8,19 +8,19 @@
     "escodegen": "*",
     "esprima": "*",
     "iconv-lite": "*",
-    "jschardet": "*",
+    "jschardet": "^1.5.0",
     "queue": "^4.2.1",
     "sync-request": "*",
-    "uglify-js": "^3.0.24",
+    "uglify-es": "^3.0.27",
     "uuid": "*",
     "vm2": "*",
     "walk": "*"
   },
   "devDependencies": {
     "babel-eslint": "*",
-    "eslint": "^4.2.0",
+    "eslint": "^4.3.0",
     "eslint-config-google": "*",
-    "mocha": "*"
+    "mocha": "^3.5.0"
   },
   "engines": {
     "node": ">=6.0.0"
