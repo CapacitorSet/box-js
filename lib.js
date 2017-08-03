@@ -92,7 +92,7 @@ module.exports = {
 			const options = {
 				headers,
 				maxRedirects: 20,
-				timeout: 5000,
+				timeout: 4000,
 			};
 			if (body)
 				options.body = body;
@@ -106,13 +106,10 @@ module.exports = {
 			log("info", `Downloaded ${file.body.length} bytes.`);
 			return file;
 		} catch (e) {
+			// Log and rethrow
 			log("error", `An error occurred while emulating a ${method} request to ${url}.`);
 			log("error", e);
-			// throw e;
-			return {
-				headers: {},
-				body: `(Content of ${url})`,
-			};
+			throw e;
 		}
 	},
 	writeFile: function(filename, contents) {
