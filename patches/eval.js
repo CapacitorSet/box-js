@@ -11,7 +11,14 @@ module.exports = (args) => ({
 				type: "Identifier",
 				name: "rewrite",
 			},
-			arguments: args,
+			arguments: [
+				...args,
+				{
+					"type": "Literal",
+					"value": true,
+					"raw": "true"
+				}
+			],
 		},
 	],
 });

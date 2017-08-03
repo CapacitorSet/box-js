@@ -258,9 +258,9 @@ const sandbox = {
 		},
 	}),
 	parse: (x) => {},
-	rewrite: (code) => {
+	rewrite: (code, log = false) => {
 		const ret = rewrite(code);
-		lib.logJS(ret);
+		if (log) lib.logJS(ret);
 		return ret;
 	},
 	ScriptEngine: () => {
