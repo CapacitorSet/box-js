@@ -106,6 +106,8 @@ cat ./*.results/active_urls.json | sort | uniq
 --proxy (String): [experimental] Use the specified proxy for downloads. This is not relevant if the --download flag is not present.
 
 --windows-xp (Boolean): Emulate Windows XP (influences the value of environment variables)
+
+--dangerous-vm (Boolean): Use the `vm` module, rather than `vm2`. This sandbox can be broken, so **don't use this** unless you're 100% sure of what you're doing. Helps with debugging by giving correct stack traces.
 <!--END_FLAGS-->
 
 # Analyzing the output

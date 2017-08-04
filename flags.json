@@ -135,5 +135,10 @@
         "name": "windows-xp",
         "type": "Boolean",
         "description": "Emulate Windows XP (influences the value of environment variables)"
+    },
+    {
+        "name": "dangerous-vm",
+        "type": "Boolean",
+        "description": "Use the `vm` module, rather than `vm2`. This sandbox can be broken, so **don't use this** unless you're 100% sure of what you're doing. Helps with debugging by giving correct stack traces."
     }
 ]

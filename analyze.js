@@ -362,12 +362,23 @@ const sandbox = {
 // which can be kinda messy with Proxies
 require("util").inspect.defaultOptions.customInspect = false;
 
-const vm = new VM({
-	timeout: (argv.timeout || 10) * 1000,
-	sandbox,
-});
+if (argv["dangerous-vm"]) {
+	lib.verbose("Analyzing with native vm module (dangerous!)");
+	const vm = require("vm");
+	vm.runInNewContext(code, sandbox, {
+		displayErrors: true,
+		lineOffset: -fs.readFileSync(path.join(__dirname, "patch.js"), "utf8").split("\n").length,
+		filename: "sample.js"
+	});
+} else {
+	lib.debug("Analyzing with vm2 v" + require("vm2/package.json").version);
+	const vm = new VM({
+		timeout: (argv.timeout || 10) * 1000,
+		sandbox,
+	});
 
-vm.run(code);
+	vm.run(code);
+}
 
 function ActiveXObject(name) {
 	lib.verbose(`New ActiveXObject: ${name}`);
