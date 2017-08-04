@@ -3,6 +3,7 @@
   "version": "1.8.1",
   "description": "A tool for studying JavaScript malware.",
   "dependencies": {
+    "acorn": "^5.1.1",
     "columnify": "*",
     "command-line-args": "*",
     "escodegen": "*",

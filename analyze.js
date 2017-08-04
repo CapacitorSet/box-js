@@ -1,6 +1,6 @@
 const lib = require("./lib");
 const escodegen = require("escodegen");
-const esprima = require("esprima");
+const acorn = require("acorn");
 const fs = require("fs");
 const iconv = require("iconv-lite");
 const path = require("path");
@@ -130,8 +130,11 @@ If you run into unexpected results, try uncommenting lines that look like
 
 		let tree;
 		try {
-			tree = esprima.parse(code);
+			tree = acorn.parse(code, {
+				allowReturnOutsideFunction: true, // used when rewriting function bodies
+			});
 		} catch (e) {
+			lib.error("Couldn't parse with Acorn:")
 			lib.error(e);
 			lib.error("");
 			if (filename.match(/jse$/)) {
