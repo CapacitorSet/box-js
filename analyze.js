@@ -65,11 +65,14 @@ If you run into unexpected results, try uncommenting lines that look like
 			code = code.replace(/"[ \r\n]*\+[ \r\n]*"/gm, "");
 		}
 
-		if (argv["preprocess"]) {
+		if (argv.preprocess) {
 			lib.info(`    Preprocessing with uglify-es v${require("uglify-es/package.json").version} (remove --preprocess to skip)...`, false);
 			const unsafe = !!argv["unsafe-preprocess"];
 			lib.debug("Unsafe preprocess: " + unsafe);
 			const result = require("uglify-es").minify(code, {
+				parse: {
+					bare_returns: true, // used when rewriting function bodies
+				},
 				compress: {
 					passes: 3,
 

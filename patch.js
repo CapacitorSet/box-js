@@ -18,11 +18,7 @@
 	_OriginalFunction = Function;
 	Function = function(...args) {
 		const originalSource = args.pop();
-		/* Wrap the original source in an IIFE so that uglify-js doesn't
-		 * complain about return statements outside of a function
-		 */
-		const IIFE = `(() => {${originalSource}})()`;
-		const source = "/* IIFE added by box-js, see patch.js */ return " + rewrite(IIFE);
+		const source = `/* Function arguments: ${JSON.stringify(args)} */\n` + rewrite(originalSource);
 		logJS(source);
 		return new _OriginalFunction(...args, source);
 	}
