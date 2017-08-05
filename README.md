@@ -256,3 +256,8 @@ and iterate until the code emulates without errors.
 @ALange:
 
  * support for non-UTF8 encodings
+
+@alexlamsl, @kzc
+
+ * advice on integrating UglifyJS in box-js
+ * improving the features of UglifyJS used in deobfuscation
