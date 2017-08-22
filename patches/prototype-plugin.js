@@ -8,13 +8,17 @@
 module.exports = function(acorn) {
     acorn.plugins.JScriptMemberFunctionStatement = function(parser) {
         parser.extend("parseFunction", function(base) {
-            return function(node, isStatement) {
+            return function(node, isStatement, allowExpressionBody, isAsync) {
                 /**
                  * If it's function statement and identifier is expected:
                  * 	set flag for next parseIdent call
                  **/
                 if(isStatement && this.type == acorn.tokTypes.name)
+                {
                     this.isFuncStatementId = true;
+                    // A bit dirty, but parsing statement is assiociated with additional checkLVal
+                    return base.call(this, node, false, allowExpressionBody, isAsync);
+                }
                 return base.apply(this, arguments);
             }
         });
