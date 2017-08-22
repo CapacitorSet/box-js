@@ -17,7 +17,10 @@ module.exports = function(acorn) {
                 {
                     this.isFuncStatementId = true;
                     // A bit dirty, but parsing statement is associated with additional checkLVal
-                    return base.call(this, node, false, allowExpressionBody, isAsync);
+                    let r = base.call(this, node, false, allowExpressionBody, isAsync);
+                    // Recovering original node type
+                    r.type = "FunctionDeclaration"
+                    return r
                 }
                 return base.apply(this, arguments);
             }

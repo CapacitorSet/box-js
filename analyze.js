@@ -171,7 +171,7 @@ cc decoder.c -o decoder
 			lib.verbose("    Replacing `function A.prototype.B()` (use --no-rewrite-prototype to skip)...", false);
 			traverse(tree, function(key, val) {
 				if (!val) return;
-				if (val.type !== "FunctionExpression") return;
+				if (val.type !== "FunctionDeclaration") return;
 				if (!val.id) return;
 				if (val.id.type !== "MemberExpression") return;
 				return require("./patches/prototype.js")(val);
@@ -378,7 +378,7 @@ const sandbox = {
 // See https://github.com/nodejs/node/issues/8071#issuecomment-240259088
 // It will prevent console.log from calling the "inspect" property,
 // which can be kinda messy with Proxies
-require("util").inspect.defaultOptions.customInspect = false;
+//require("util").inspect.defaultOptions.customInspect = false;
 
 if (argv["dangerous-vm"]) {
 	lib.verbose("Analyzing with native vm module (dangerous!)");
