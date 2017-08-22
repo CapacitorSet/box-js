@@ -16,7 +16,7 @@ module.exports = function(acorn) {
                 if(isStatement && this.type == acorn.tokTypes.name)
                 {
                     this.isFuncStatementId = true;
-                    // A bit dirty, but parsing statement is assiociated with additional checkLVal
+                    // A bit dirty, but parsing statement is associated with additional checkLVal
                     return base.call(this, node, false, allowExpressionBody, isAsync);
                 }
                 return base.apply(this, arguments);
