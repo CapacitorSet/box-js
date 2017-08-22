@@ -15,13 +15,13 @@ module.exports = function(acorn) {
                  **/
                 if(isStatement && this.type == acorn.tokTypes.name)
                     this.isFuncStatementId = true;
-                return base.call(this, arguments);
+                return base.apply(this, arguments);
             }
         });
 
         parser.extend("parseIdent", function(base) {
             return function() {
-                let r = base.call(this, arguments);
+                let r = base.apply(this, arguments);
                 if(this.isFuncStatementId)
                 {
                     // Unset flag (allow recursion)
