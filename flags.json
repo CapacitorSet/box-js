@@ -117,6 +117,11 @@
         "description": "Do not rewrite expressions like `function A.prototype.B()` as `A.prototype.B = function()`"
     },
     {
+        "name": "no-hoist-prototype",
+        "type": "Boolean",
+        "description": "Do not hoist expressions like `function A.prototype.B()` (implied by no-rewrite-prototype)"
+    },
+    {
         "name": "no-shell-error",
         "type": "Boolean",
         "description": "Do not throw a fake error when executing `WScriptShell.Run` (it throws a fake error by default to pretend that the distribution sites are down, so that the script will attempt to poll every site)"
