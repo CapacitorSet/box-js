@@ -8,6 +8,7 @@ Needs prototype-plugin enabled.
 module.exports = (fexpr) => ({
     type: "ExpressionStatement",
     hoist: true,
+    hoistExpression: fexpr.type == "FunctionExpression",
     expression: {
         type: "AssignmentExpression",
         operator: "=",

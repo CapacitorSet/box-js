@@ -171,7 +171,8 @@ cc decoder.c -o decoder
 			lib.verbose("    Replacing `function A.prototype.B()` (use --no-rewrite-prototype to skip)...", false);
 			traverse(tree, function(key, val) {
 				if (!val) return;
-				if (val.type !== "FunctionDeclaration") return;
+				if (val.type !== "FunctionDeclaration" && 
+				    val.type !== "FunctionExpression") return;
 				if (!val.id) return;
 				if (val.id.type !== "MemberExpression") return;
 				return require("./patches/prototype.js")(val);
@@ -378,7 +379,7 @@ const sandbox = {
 // See https://github.com/nodejs/node/issues/8071#issuecomment-240259088
 // It will prevent console.log from calling the "inspect" property,
 // which can be kinda messy with Proxies
-//require("util").inspect.defaultOptions.customInspect = false;
+require("util").inspect.defaultOptions.customInspect = false;
 
 if (argv["dangerous-vm"]) {
 	lib.verbose("Analyzing with native vm module (dangerous!)");
@@ -455,27 +456,37 @@ function hoist(obj, scope) {
 	// All declarations should be moved to the top of current function scope
 	let newScope = scope;
 	if(obj.type === "FunctionExpression" && obj.body.type === "BlockStatement")
-		newScope = obj.body
+		newScope = obj.body;
 
-	const keys = Object.keys(obj);
-	for (let i = 0; i < keys.length; i++) {
-		const key = keys[i];
-		if(Array.isArray(obj[key])) {
-			let hoisted = [];
-			obj[key] = obj[key].filter((el) => {
-				if(el.hoist)
-				{
-					// Should be hoisted? Add to array and filter out from current.
-					hoisted.push(el);
-					return false;
-				} else {
-					return true;
-				}
-			})
-			// Hoist all elements
-			scope.body.unshift(...hoisted)
-		}
+	for (let key of Object.keys(obj)) {
 		if (obj[key] !== null && typeof obj[key] === "object")
+		{
+			let hoisted = [];
+			if(Array.isArray(obj[key])) {
+				obj[key] = obj[key].reduce((arr, el) => {
+					if(el.hoist)
+					{
+						// Mark as hoisted yet
+						el.hoist = false;
+						// Should be hoisted? Add to array and filter out from current.
+						hoisted.push(el);
+						// If it was an expression: leave identifier
+						if(el.hoistExpression)
+							arr.push(el.expression.left)
+					} else
+						arr.push(el)
+					return arr
+				}, [])
+			} else if(obj[key].hoist) {
+				let el = obj[key];
+				
+				el.hoist = false;
+				hoisted.push(el);
+				obj[key] = el.expression.left;
+			}
+			scope.body.unshift(...hoisted)
+			// Hoist all elements
 			hoist(obj[key], newScope);
+		}
 	}
 }

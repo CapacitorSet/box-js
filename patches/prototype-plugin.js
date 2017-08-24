@@ -13,13 +13,17 @@ module.exports = function(acorn) {
                  * If it's function statement and identifier is expected:
                  * 	set flag for next parseIdent call
                  **/
-                if(isStatement && this.type == acorn.tokTypes.name)
+                if(this.type == acorn.tokTypes.name)
                 {
                     this.isFuncStatementId = true;
+
                     // A bit dirty, but parsing statement is associated with additional checkLVal
                     let r = base.call(this, node, false, allowExpressionBody, isAsync);
+
                     // Recovering original node type
-                    r.type = "FunctionDeclaration"
+                    if(isStatement)
+                        r.type = "FunctionDeclaration"
+                    
                     return r
                 }
                 return base.apply(this, arguments);
