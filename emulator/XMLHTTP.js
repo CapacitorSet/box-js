@@ -4,9 +4,13 @@ const argv = require("../argv.js");
 function XMLHTTP() {
 	this.headers = {};
 	this.onreadystatechange = () => {};
+	this.readystate = 0;
+	this.statustext = "UNSENT";
 	this.open = function(method, url) {
 		this.url = url;
 		this.method = method;
+		this.readystate = 1;
+		this.statustext = "OPENED";
 	};
 	this.setrequestheader = function(key, val) {
 		key = key.replace(/:$/, ""); // Replace a trailing ":" if present
@@ -20,12 +24,14 @@ function XMLHTTP() {
 		lib.logUrl(this.method, this.url);
 		let response;
 		if (argv.download) {
-			this.status = 200;
 			try {
 				response = lib.fetchUrl(this.method, this.url, this.headers, data);
+				this.status = 200;
+				this.statustext = "OK";
 			} catch (e) {
 				// If there was an error fetching the URL, pretend that the distribution site is down
 				this.status = 404;
+				this.statustext = "Not found";
 				response = {
 					body: new Buffer(""),
 					headers: {},
@@ -34,6 +40,7 @@ function XMLHTTP() {
 		} else {
 			lib.info("Returning HTTP 404 (Not found); use --download to try to download the payload");
 			this.status = 404;
+			this.statustext = "Not found";
 			response = {
 				body: new Buffer(""),
 				headers: {},
