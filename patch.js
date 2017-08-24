@@ -1,9 +1,29 @@
 /* Patches from box-js */
 	window = this;
 
-	Date.prototype.getYear = function() {
-		return new Date().getFullYear();
+	let fullYearGetter = Date.prototype.getFullYear;
+	Date.prototype.getFullYear = function() {
+		console.log("Warning: the script tried to read the current date.");
+		console.log("If it doesn't work correctly (eg. fails to decrypt a string,");
+		console.log("try editing patch.js with a different year.");
+
+		// return 2017;
+		return fullYearGetter.call(this);
 	};
+	Date.prototype.getYear = function() {
+		return this.getFullYear();
+	};
+	Date.prototype.toString = function() {
+		// Example format: Thu Aug 24 18:17:18 UTC+0200 2017
+		const dayName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][this.getDay()];
+		const monName = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][this.getMonth()];
+		return [
+			dayName, monName, this.getUTCDay(),
+			this.getUTCHours() + ":" + this.getUTCMinutes() + ":" + this.getUTCSeconds(),
+			"UTC-0500", // New York timezone
+			this.getFullYear()
+		].join(" ");
+	}
 
 	Array.prototype.Count = function() {
 		return this.length;
@@ -15,7 +35,7 @@
 		return e;
 	}
 
-	_OriginalFunction = Function;
+	let _OriginalFunction = Function;
 	Function = function(...args) {
 		const originalSource = args.pop();
 		const source = `/* Function arguments: ${JSON.stringify(args)} */\n` + rewrite(originalSource);
