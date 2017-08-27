@@ -263,3 +263,7 @@ and iterate until the code emulates without errors.
 
  * advice on integrating UglifyJS in box-js
  * improving the features of UglifyJS used in deobfuscation
+
+@psrok:
+
+ * bugfixes
