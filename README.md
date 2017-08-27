@@ -99,6 +99,8 @@ cat ./*.results/active_urls.json | sort | uniq
 
 --no-rewrite-prototype (Boolean): Do not rewrite expressions like `function A.prototype.B()` as `A.prototype.B = function()`
 
+--no-hoist-prototype (Boolean): Do not hoist expressions like `function A.prototype.B()` (implied by no-rewrite-prototype)
+
 --no-shell-error (Boolean): Do not throw a fake error when executing `WScriptShell.Run` (it throws a fake error by default to pretend that the distribution sites are down, so that the script will attempt to poll every site)
 
 --no-typeof-rewrite (Boolean): Do not rewrite `typeof` (e.g. `typeof ActiveXObject`, which must return 'unknown' in the JScript standard and not 'object')
