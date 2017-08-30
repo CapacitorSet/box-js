@@ -258,6 +258,7 @@ and iterate until the code emulates without errors.
 @ALange:
 
  * support for non-UTF8 encodings
+ * bug reporting
 
 @alexlamsl, @kzc
 

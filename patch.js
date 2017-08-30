@@ -24,6 +24,41 @@
 			this.getFullYear()
 		].join(" ");
 	}
+	const legacyDate = Date;
+	Date = function() {
+		return new Proxy({
+			_actualTime: new legacyDate(...arguments),
+		}, {
+			get: (target, prop) => {
+				const modifiedDate = new legacyDate(target._actualTime.getTime() + _globalTimeOffset);
+				if (prop === Symbol.toPrimitive) return hint => {
+					switch (hint) {
+						case "string":
+						case "default":
+							return modifiedDate.toString();
+						case "number":
+							return modifiedDate.getTime();
+						default:
+							throw new Error("Unknown hint!");
+					}
+				}
+				if (typeof prop !== "symbol") {
+					if (!(prop in modifiedDate) && (prop in legacyDate)) return legacyDate[prop];
+					if (!(prop in legacyDate.prototype)) return undefined;                
+				}
+				const boundFn = modifiedDate[prop].bind(modifiedDate);
+				return function() {
+					const ret = boundFn.apply(null, arguments);
+					target._actualTime = new legacyDate(modifiedDate.getTime() - _globalTimeOffset);
+					return ret;
+				}
+			}
+		});
+	}
+	Date.now = () => legacyDate.now() + _globalTimeOffset;
+	Date.length = 7;
+	Date.parse = legacyDate.parse;
+	Date.UTC = legacyDate.UTC;
 
 	Array.prototype.Count = function() {
 		return this.length;
