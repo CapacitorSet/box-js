@@ -1,6 +1,11 @@
 /* Patches from box-js */
 	window = this;
 
+	_globalTimeOffset = 0;
+	WScript.sleep = function(delay) {
+		_globalTimeOffset += delay;
+	}
+
 	let fullYearGetter = Date.prototype.getFullYear;
 	Date.prototype.getFullYear = function() {
 		console.log("Warning: the script tried to read the current date.");

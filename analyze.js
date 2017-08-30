@@ -338,9 +338,10 @@ const sandbox = {
 					};
 				case "path":
 					return "C:\\TestFolder\\";
-				case "sleep":
-					// return x => console.log(`Sleeping for ${x} ms...`)
-					return (x) => {};
+				// case "sleep":
+				// This function is emulated in patch.js, because it requires access
+				// to the variable _globalTimeOffset, which belongs to the script and
+				// not to the emulator.
 				case "stdin":
 					return new Proxy({
 						atendofstream: {
@@ -369,6 +370,7 @@ const sandbox = {
 				case "version":
 					return "5.8";
 				default:
+					if (name.toLowerCase() in target) return target[name];
 					lib.kill(`WScript.${name} not implemented!`);
 			}
 		},
