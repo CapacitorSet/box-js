@@ -10,9 +10,11 @@ function WScriptShell() {
 			? "C:\\Documents and Settings\\User\\Application Data"
 			: "C:\\Users\\User\\AppData\\Roaming",
 		computername: "USER-PC",
+		comspec: "C:\\WINDOWS\\system32\\cmd.exe",
 		processor_revision: "0209",
 		processor_architecture: "x86",
 		programdata: "C:\\ProgramData",
+		systemroot: "C:\\WINDOWS",
 		tmp: "C:\\DOCUME~1\\User\\LOCALS~1\\Temp",
 		temp: "C:\\DOCUME~1\\User\\LOCALS~1\\Temp",
 		username: "User",
