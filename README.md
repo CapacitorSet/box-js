@@ -1,7 +1,7 @@
 box.js
 ======
 
-[![Build Status](https://travis-ci.org/CapacitorSet/box-js.svg?branch=master)](https://travis-ci.org/CapacitorSet/box-js) [![npm](https://img.shields.io/npm/v/box-js.svg)]()
+[![npm](https://img.shields.io/npm/v/box-js.svg)]() [![Build Status](https://travis-ci.org/CapacitorSet/box-js.svg?branch=master)](https://travis-ci.org/CapacitorSet/box-js) [![paypal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://paypal.me/capacitorset)
 
 A utility to analyze malicious JavaScript.
 
