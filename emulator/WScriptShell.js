@@ -40,6 +40,7 @@ function WScriptShell() {
 		if (/%\w+%/i.test(path)) {
 			lib.warning("Possibly failed to expand environment strings in " + path);
 		}
+
 		return path;
 	};
 	this.exec = this.run = function(...args) {
@@ -55,7 +56,8 @@ function WScriptShell() {
 		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS NT\\CURRENTVERSION\\SYSTEMROOT": "C:\\WINDOWS",
 		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS\\CURRENTVERSION\\EXPLORER\\SHELL FOLDERS\\COMMON DOCUMENTS": "C:\\Users\\Public\\Documents",
 		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS\\CURRENTVERSION\\INTERNET SETTINGS\\URL HISTORY\\DIRECTORY": "C:\\Windows\\History",
-		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS\\CURRENTVERSION\\EXPLORER\\VOLUMECACHES\\ACTIVE SETUP TEMP FOLDERS\\FOLDER": "C:\\Windows\\msdownld.tmp|?:\\msdownld.tmp"
+		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS\\CURRENTVERSION\\EXPLORER\\VOLUMECACHES\\ACTIVE SETUP TEMP FOLDERS\\FOLDER": "C:\\Windows\\msdownld.tmp|?:\\msdownld.tmp",
+		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS\\CURRENTVERSION\\EXPLORER\\SHELL FOLDERS\\COMMONMUSIC": "C:\\Users\\Public\\Music"
 	};
 	this._normalize_reg_key = (key) => {
 		key = key.toUpperCase().replace("HKEY_LOCAL_MACHINE", "HKLM");
