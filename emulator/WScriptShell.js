@@ -60,18 +60,33 @@ function WScriptShell() {
 		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS\\CURRENTVERSION\\EXPLORER\\SHELL FOLDERS\\COMMONMUSIC": "C:\\Users\\Public\\Music"
 	};
 	this._normalize_reg_key = (key) => {
-		key = key.toUpperCase().replace("HKEY_LOCAL_MACHINE", "HKLM");
-		key = key.replace("HKEY_CLASSES_ROOT", "HKCR").replace("HKEY_USERS", "HKU");
-		key = key.replace("HKEY_CURRENT_USER", "HKCU").replace("HKEY_CURRENT_CONFIG", "HKCC");
+		key = key
+			.replace("HKLM", "HKEY_LOCAL_MACHINE")
+			.replace("HKCR", "HKEY_CLASSES_ROOT")
+			.replace("HKU", "HKEY_USERS")
+			.replace("HKCU", "HKEY_CURRENT_USER")
+			.replace("HKCC", "HKEY_CURRENT_CONFIG");
 		return key;
 	};
 	this.regread = (key) => {
+		if (!this._reg_entries) // Load once needed
+			this._reg_entries = require("system-registry");
 		key = this._normalize_reg_key(key);
 		lib.verbose(`Reading registry key ${key}`);
-		if (key in this._reg_entries)
-			return this._reg_entries[key];
-		lib.warning(`Unknown registry key ${key}!`);
-		return "";
+
+		const normalizedEqual = (a, b) => a.toLowerCase() === b.toLowerCase();
+		let val = this._reg_entries;
+		const parts = key.split("\\");
+		for (part of parts) {
+			if (!Object.keys(val).some(key => normalizedEqual(key, part))) {
+				lib.warning(`Unknown registry key ${key}!`);
+				return "";
+			}
+			// De-normalization: retrieve the key with the actual capitalization
+			const actualKey = Object.keys(val).filter(key => normalizedEqual(key, part))[0]
+			val = val[actualKey];
+		}
+		return val;
 	};
 	this.regwrite = (key, value, type = "(unspecified)") => {
 		key = this._normalize_reg_key(key);
