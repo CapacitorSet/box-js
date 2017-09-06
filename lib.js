@@ -53,11 +53,13 @@ function log(tag, text, toFile = true, toStdout = true) {
 		fs.appendFileSync(directory + "/analysis.log", message + "\n");
 }
 
+const getUUID = uuid.v4;
+
 module.exports = {
 	directory,
 	argv,
 	kill,
-	getUUID: uuid.v4,
+	getUUID,
 
 	debug: log.bind(null, "debug"),
 	verbose: log.bind(null, "verb"),
@@ -149,4 +151,11 @@ module.exports = {
 		logSnippet(filename, {as: "eval'd JS"}, code);
 		return code; // Helps with tail call optimization
 	},
+	runShellCommand: (command) => {
+		const filename = getUUID();
+		log("info", `Executing ${directory + filename} in the WScript shell`);
+		logSnippet(filename, {as: "WScript code"}, command);
+		if (!argv["no-shell-error"])
+			throw new Error("If you can read this, re-run box.js with the --no-shell-error flag.");
+	}
 };

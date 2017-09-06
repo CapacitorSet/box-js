@@ -44,22 +44,7 @@ function WScriptShell() {
 
 		return path;
 	};
-	this.exec = this.run = function(...args) {
-		const command = args.join(" ");
-		const filename = lib.getUUID();
-		lib.info(`Executing ${lib.directory + filename} in the WScript shell`);
-		lib.logSnippet(filename, {as: "WScript code"}, command);
-		if (!argv["no-shell-error"])
-			throw new Error("If you can read this, re-run box.js with the --no-shell-error flag.");
-	};
-	this._reg_entries = {
-		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS NT\\CURRENTVERSION\\CURRENTVERSION": "5.1",
-		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS NT\\CURRENTVERSION\\SYSTEMROOT": "C:\\WINDOWS",
-		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS\\CURRENTVERSION\\EXPLORER\\SHELL FOLDERS\\COMMON DOCUMENTS": "C:\\Users\\Public\\Documents",
-		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS\\CURRENTVERSION\\INTERNET SETTINGS\\URL HISTORY\\DIRECTORY": "C:\\Windows\\History",
-		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS\\CURRENTVERSION\\EXPLORER\\VOLUMECACHES\\ACTIVE SETUP TEMP FOLDERS\\FOLDER": "C:\\Windows\\msdownld.tmp|?:\\msdownld.tmp",
-		"HKLM\\SOFTWARE\\MICROSOFT\\WINDOWS\\CURRENTVERSION\\EXPLORER\\SHELL FOLDERS\\COMMONMUSIC": "C:\\Users\\Public\\Music"
-	};
+	this.run = cmd => lib.runShellCommand(cmd);
 	this._normalize_reg_key = (key) => {
 		key = key
 			.replace("HKLM", "HKEY_LOCAL_MACHINE")

@@ -1,9 +1,7 @@
 const lib = require("../lib");
 
-function VirtualShellApplication(name) {
-	this.shellexecute = function(...args) {
-		lib.info("Executing: " + args.join(" "));
-	};
+function ShellApplication(name) {
+	this.shellexecute = (file, args = "", dir = "") => lib.runShellCommand(dir + file + " " + args);
 	this.namespace = (folder) => {
 		const folders = {
 			7: "C:\\Users\\MyUsername\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\StartUp",
@@ -20,4 +18,4 @@ function VirtualShellApplication(name) {
 	};
 }
 
-module.exports = lib.proxify(VirtualShellApplication, "ShellApplication");
+module.exports = lib.proxify(ShellApplication, "ShellApplication");
