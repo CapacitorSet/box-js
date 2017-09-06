@@ -11,6 +11,7 @@ function WScriptShell() {
 			: "C:\\Users\\User\\AppData\\Roaming",
 		computername: "USER-PC",
 		comspec: "%SystemRoot%\\system32\\cmd.exe",
+		os: "Windows_NT",
 		processor_revision: "0209",
 		processor_architecture: "x86",
 		programdata: "C:\\ProgramData",
