@@ -290,7 +290,7 @@ const sandbox = {
 	},
 	ScriptEngine: () => {
 		const type = "JScript"; // or "JavaScript", or "VBScript"
-		lib.warn(`Emulating a ${type} engine (in ScriptEngine)`);
+		// lib.warn(`Emulating a ${type} engine (in ScriptEngine)`);
 		return type;
 	},
 	_typeof: (x) => x.typeof ? x.typeof : typeof x,
