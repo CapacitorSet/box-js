@@ -6,7 +6,7 @@ const iconv = require("iconv-lite");
 const path = require("path");
 const {VM} = require("vm2");
 const child_process = require("child_process");
-const argv = require("./argv.js");
+const argv = require("./argv.js").run;
 
 const filename = process.argv[2];
 

@@ -1,8 +1,8 @@
 const cp = require("child_process");
 const fs = require("fs");
 const path = require("path");
-const walk = require("walk");
-const argv = require("./argv.js");
+const walk = require("walk-sync");
+const argv = require("./argv.js").run;
 
 // Read and format JSON flag documentation
 if (argv.help || process.argv.length === 2) {
@@ -21,7 +21,7 @@ Usage:
 Flags:
 	`);
 	console.log(columnify(
-		argv.flags.map((flag) => ({
+		require("./argv.js").flags.run.map((flag) => ({
 			name: (flag.alias ? `-${flag.alias}, ` : "") + `--${flag.name}`,
 			description: flag.description,
 		})),
@@ -82,23 +82,13 @@ files
 	.forEach(task => tasks.push(task));
 
 folders
-	.map(filepath => {
-		// "Flattens" a folder to an array of {filepath, filename}
-		const files = [];
-		walk.walkSync(filepath, {
-			listeners: {
-				file: (root, stat, next) => {
-					files.push({
-						filepath: path.join(root, stat.name),
-						filename: stat.name,
-					});
-					next();
-				},
-			},
-		});
-		return files;
-	})
+	.map(root => ({root, files: walk(root, {directories: false})}))
+	.map(({root, files}) => files.map(file => root + "/" + file))
 	.reduce((a, b) => a.concat(b), []) // flatten
+	.map(filepath => ({
+		filepath,
+		filename: path.basename(filepath),
+	}))
 	.forEach(task => tasks.push(task));
 
 if (tasks.length === 0) {

@@ -3,7 +3,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 const uuid = require("uuid");
 const request = require("sync-request");
-const argv = require("./argv.js");
+const argv = require("./argv.js").run;
 
 const directory = process.argv[3];
 
@@ -49,7 +49,7 @@ function log(tag, text, toFile = true, toStdout = true) {
 	const level = levels[tag];
 	if (level < levels[argv.loglevel]) return;
 	const message = `[${tag}] ${text}`;
-	if (!argv.quiet && (toStdout || argv.loglevel === "debug")) // Debug level always writes to stdout and file, but --quiet overrides writing to the console.
+	if (toStdout || argv.loglevel === "debug") // Debug level always writes to stdout and file
 		console.log(message);
 	if (toFile || argv.loglevel === "debug")
 		fs.appendFileSync(directory + "/analysis.log", message + "\n");

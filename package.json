@@ -10,13 +10,14 @@
     "esprima": "*",
     "iconv-lite": "*",
     "jschardet": "^1.5.1",
+    "limiter": "^1.1.2",
     "queue": "^4.4.0",
     "sync-request": "*",
     "system-registry": "^1.0.0",
     "uglify-es": "^3.0.28",
     "uuid": "*",
     "vm2": "^3.5.0",
-    "walk": "*"
+    "walk-sync": "^0.3.2"
   },
   "devDependencies": {
     "babel-eslint": "*",
@@ -38,7 +39,8 @@
   },
   "homepage": "https://github.com/CapacitorSet/box-js#readme",
   "bin": {
-    "box-js": "run.js"
+    "box-js": "run.js",
+    "box-export": "export.js"
   },
   "scripts": {
     "lint": "eslint run.js analyze.js test/ emulator/",

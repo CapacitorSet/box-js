@@ -1,144 +1,185 @@
-[
-    {
-        "name": "help",
-        "alias": "h",
-        "type": "Boolean",
-        "description": "Show the help text and quit"
-    },
-    {
-        "name": "version",
-        "alias": "v",
-        "type": "Boolean",
-        "description": "Show the package version and quit"
-    },
-    {
-        "name": "license",
-        "type": "Boolean",
-        "description": "Show the license and quit"
-    },
-    {
-        "name": "debug",
-        "type": "Boolean",
-        "description": "Die when an emulation error occurs, even in \"batch mode\""
-    },
-    {
-        "name": "loglevel",
-        "type": "String",
-        "description": "Logging level (debug, verbose, info, warning, error - default \"info\""
-    },
-    {
-        "name": "threads",
-        "type": "Number",
-        "description": "When running in batch mode, how many analyses to run at the same time (0 = unlimited, default: as many as the number of CPU cores)"
-    },
-    {
-        "name": "download",
-        "type": "Boolean",
-        "description": "Actually download the payloads"
-    },
-    {
-        "name": "encoding",
-        "type": "String",
-        "description": "Encoding of the input sample (will be automatically detected by default)"
-    },
-    {
-        "name": "timeout",
-        "type": "Number",
-        "description": "The script will timeout after this many seconds (default 10)"
-    },
-    {
-        "name": "output-dir",
-        "type": "String",
-        "description": "The location on disk to write the results files and folders to (defaults to the current directory)"
-    },
-    {
-        "name": "preprocess",
-        "type": "Boolean",
-        "description": "Preprocess the original source code (makes reverse engineering easier, but takes a few seconds)"
-    },
-    {
-        "name": "unsafe-preprocess",
-        "type": "Boolean",
-        "description": "More aggressive preprocessing. Often results in better code, but can break on some edge cases (eg. redefining prototypes)"
-    },
-    {
-        "name": "no-kill",
-        "type": "Boolean",
-        "description": "Do not kill the application when runtime errors occur"
-    },
-    {
-        "name": "no-echo",
-        "type": "Boolean",
-        "description": "When the script prints data, do not print it to the console"
-    },
-    {
-        "name": "no-rewrite",
-        "type": "Boolean",
-        "description": "Do not rewrite the source code at all, other than for `@cc_on` support"
-    },
-    {
-        "name": "no-catch-rewrite",
-        "type": "Boolean",
-        "description": "Do not rewrite try..catch clauses to make the exception global-scoped"
-    },
-    {
-        "name": "no-cc_on-rewrite",
-        "type": "Boolean",
-        "description": "Do not rewrite `/*@cc_on <...>@*/` to `<...>`"
-    },
-    {
-        "name": "no-eval-rewrite",
-        "type": "Boolean",
-        "description": "Do not rewrite `eval` so that its argument is rewritten"
-    },
-    {
-        "name": "no-file-exists",
-        "type": "Boolean",
-        "description": "Return `false` for Scripting.FileSystemObject.FileExists(x)"
-    },
-    {
-        "name": "no-folder-exists",
-        "type": "Boolean",
-        "description": "Return `false` for Scripting.FileSystemObject.FileExists(x)"
-    },
-    {
-        "name": "function-rewrite",
-        "type": "Boolean",
-        "description": "Rewrite function calls in order to catch eval calls"
-    },
-    {
-        "name": "no-rewrite-prototype",
-        "type": "Boolean",
-        "description": "Do not rewrite expressions like `function A.prototype.B()` as `A.prototype.B = function()`"
-    },
-    {
-        "name": "no-hoist-prototype",
-        "type": "Boolean",
-        "description": "Do not hoist expressions like `function A.prototype.B()` (implied by no-rewrite-prototype)"
-    },
-    {
-        "name": "no-shell-error",
-        "type": "Boolean",
-        "description": "Do not throw a fake error when executing `WScriptShell.Run` (it throws a fake error by default to pretend that the distribution sites are down, so that the script will attempt to poll every site)"
-    },
-    {
-        "name": "no-typeof-rewrite",
-        "type": "Boolean",
-        "description": "Do not rewrite `typeof` (e.g. `typeof ActiveXObject`, which must return 'unknown' in the JScript standard and not 'object')"
-    },
-    {
-        "name": "proxy",
-        "type": "String",
-        "description": "[experimental] Use the specified proxy for downloads. This is not relevant if the --download flag is not present."
-    },
-    {
-        "name": "windows-xp",
-        "type": "Boolean",
-        "description": "Emulate Windows XP (influences the value of environment variables)"
-    },
-    {
-        "name": "dangerous-vm",
-        "type": "Boolean",
-        "description": "Use the `vm` module, rather than `vm2`. This sandbox can be broken, so **don't use this** unless you're 100% sure of what you're doing. Helps with debugging by giving correct stack traces."
-    }
-]
+{
+    "run": [
+        {
+            "name": "help",
+            "alias": "h",
+            "type": "Boolean",
+            "description": "Show the help text and quit"
+        },
+        {
+            "name": "version",
+            "alias": "v",
+            "type": "Boolean",
+            "description": "Show the package version and quit"
+        },
+        {
+            "name": "license",
+            "type": "Boolean",
+            "description": "Show the license and quit"
+        },
+        {
+            "name": "debug",
+            "type": "Boolean",
+            "description": "Die when an emulation error occurs, even in \"batch mode\""
+        },
+        {
+            "name": "loglevel",
+            "type": "String",
+            "description": "Logging level (debug, verbose, info, warning, error - default \"info\")"
+        },
+        {
+            "name": "threads",
+            "type": "Number",
+            "description": "When running in batch mode, how many analyses to run at the same time (0 = unlimited, default: as many as the number of CPU cores)"
+        },
+        {
+            "name": "download",
+            "type": "Boolean",
+            "description": "Actually download the payloads"
+        },
+        {
+            "name": "encoding",
+            "type": "String",
+            "description": "Encoding of the input sample (will be automatically detected by default)"
+        },
+        {
+            "name": "timeout",
+            "type": "Number",
+            "description": "The script will timeout after this many seconds (default 10)"
+        },
+        {
+            "name": "output-dir",
+            "type": "String",
+            "description": "The location on disk to write the results files and folders to (defaults to the current directory)"
+        },
+        {
+            "name": "preprocess",
+            "type": "Boolean",
+            "description": "Preprocess the original source code (makes reverse engineering easier, but takes a few seconds)"
+        },
+        {
+            "name": "unsafe-preprocess",
+            "type": "Boolean",
+            "description": "More aggressive preprocessing. Often results in better code, but can break on some edge cases (eg. redefining prototypes)"
+        },
+        {
+            "name": "no-kill",
+            "type": "Boolean",
+            "description": "Do not kill the application when runtime errors occur"
+        },
+        {
+            "name": "no-echo",
+            "type": "Boolean",
+            "description": "When the script prints data, do not print it to the console"
+        },
+        {
+            "name": "no-rewrite",
+            "type": "Boolean",
+            "description": "Do not rewrite the source code at all, other than for `@cc_on` support"
+        },
+        {
+            "name": "no-catch-rewrite",
+            "type": "Boolean",
+            "description": "Do not rewrite try..catch clauses to make the exception global-scoped"
+        },
+        {
+            "name": "no-cc_on-rewrite",
+            "type": "Boolean",
+            "description": "Do not rewrite `/*@cc_on <...>@*/` to `<...>`"
+        },
+        {
+            "name": "no-eval-rewrite",
+            "type": "Boolean",
+            "description": "Do not rewrite `eval` so that its argument is rewritten"
+        },
+        {
+            "name": "no-file-exists",
+            "type": "Boolean",
+            "description": "Return `false` for Scripting.FileSystemObject.FileExists(x)"
+        },
+        {
+            "name": "no-folder-exists",
+            "type": "Boolean",
+            "description": "Return `false` for Scripting.FileSystemObject.FileExists(x)"
+        },
+        {
+            "name": "function-rewrite",
+            "type": "Boolean",
+            "description": "Rewrite function calls in order to catch eval calls"
+        },
+        {
+            "name": "no-rewrite-prototype",
+            "type": "Boolean",
+            "description": "Do not rewrite expressions like `function A.prototype.B()` as `A.prototype.B = function()`"
+        },
+        {
+            "name": "no-hoist-prototype",
+            "type": "Boolean",
+            "description": "Do not hoist expressions like `function A.prototype.B()` (implied by no-rewrite-prototype)"
+        },
+        {
+            "name": "no-shell-error",
+            "type": "Boolean",
+            "description": "Do not throw a fake error when executing `WScriptShell.Run` (it throws a fake error by default to pretend that the distribution sites are down, so that the script will attempt to poll every site)"
+        },
+        {
+            "name": "no-typeof-rewrite",
+            "type": "Boolean",
+            "description": "Do not rewrite `typeof` (e.g. `typeof ActiveXObject`, which must return 'unknown' in the JScript standard and not 'object')"
+        },
+        {
+            "name": "proxy",
+            "type": "String",
+            "description": "[experimental] Use the specified proxy for downloads. This is not relevant if the --download flag is not present."
+        },
+        {
+            "name": "windows-xp",
+            "type": "Boolean",
+            "description": "Emulate Windows XP (influences the value of environment variables)"
+        },
+        {
+            "name": "dangerous-vm",
+            "type": "Boolean",
+            "description": "Use the `vm` module, rather than `vm2`. This sandbox can be broken, so **don't use this** unless you're 100% sure of what you're doing. Helps with debugging by giving correct stack traces."
+        }
+    ],
+    "export": [
+        {
+            "name": "help",
+            "alias": "h",
+            "type": "Boolean",
+            "description": "Show the help text and quit"
+        },
+        {
+            "name": "version",
+            "alias": "v",
+            "type": "Boolean",
+            "description": "Show the package version and quit"
+        },
+        {
+            "name": "license",
+            "type": "Boolean",
+            "description": "Show the license and quit"
+        },
+        {
+            "name": "loglevel",
+            "type": "String",
+            "description": "Logging level (debug, verbose, info, warning, error - default \"info\")"
+        },
+        {
+            "name": "vt-key",
+            "type": "String",
+            "description": "VirusTotal API key"
+        },
+        {
+            "name": "vt-rate-limit",
+            "type": "Number",
+            "description": "Rate limit (in requests per minute) against the VirusTotal API (default 4)"
+        },
+        {
+            "name": "vt-urls",
+            "type": "Boolean",
+            "description": "Submit URLs to VirusTotal"
+        }
+    ]
+}
