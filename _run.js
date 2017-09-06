@@ -10,9 +10,15 @@ if (argv.help || process.argv.length === 2) {
 	console.log(`box-js is a utility to analyze malicious JavaScript files.
 
 Usage:
-    box-js <files|directories> [args]
+    box-js [flags] <files|directories>
 
-Arguments:
+    Pass a list of samples to be analyzed. Note that directories are searched
+      recursively, so you can pass a directory that contains several samples and
+      they will be analyzed in parallel.
+    Creates one .results directory for each sample; see README.md for more
+      information.
+
+Flags:
 	`);
 	console.log(columnify(
 		argv.flags.map((flag) => ({
@@ -40,54 +46,49 @@ if (argv.license) {
 	process.exit(0);
 }
 
-if (!argv.timeout)
+let timeout = argv.timeout;
+if (!timeout) {
 	console.log("Using a 10 seconds timeout, pass --timeout to specify another timeout in seconds");
-const timeout = Number(argv.timeout) || 10;
+	timeout = 10;
+}
 
-const outputDir = argv["output-dir"] || "./";
+Array.prototype.functionalSplit = function(f) {
+	// Call f on every item, put it in a if f returns true, put it in b otherwise.
+	const a = [];
+	const b = [];
+	for (const elem of this)
+		if (f(elem))
+			a.push(elem);
+		else
+			b.push(elem);
+	return [a, b];
+}
 
-const isFile = (filepath) => {
-	try {
-		fs.statSync(filepath);
-		return true;
-	} catch (e) {
-		return false;
-	}
-};
+const args = process.argv.slice(2);
+args.push(`--timeout=${timeout}`);
 
-const options = process.argv
-	.slice(2)
-	.filter((filepath) => !isFile(filepath));
-
-options.push(`--timeout=${timeout}`);
-
-// Files and directories
-const targets = process.argv
-	.slice(2)
-	.filter(isFile);
+const [targets, options] = args.functionalSplit(fs.existsSync);
 
 // Array of {filepath, filename}
 const tasks = [];
 
-// Files
-targets
-	.filter(filepath => !fs.statSync(filepath).isDirectory())
+const [folders, files] = targets.functionalSplit(path => fs.statSync(path).isDirectory());
+
+files
 	.map(filepath => ({
 		filepath,
 		filename: path.basename(filepath),
 	}))
 	.forEach(task => tasks.push(task));
 
-// Folders
-targets
-	.filter(filepath => fs.statSync(filepath).isDirectory())
+folders
 	.map(filepath => {
 		// "Flattens" a folder to an array of {filepath, filename}
-		const tasks = [];
+		const files = [];
 		walk.walkSync(filepath, {
 			listeners: {
 				file: (root, stat, next) => {
-					tasks.push({
+					files.push({
 						filepath: path.join(root, stat.name),
 						filename: stat.name,
 					});
@@ -95,7 +96,7 @@ targets
 				},
 			},
 		});
-		return tasks;
+		return files;
 	})
 	.reduce((a, b) => a.concat(b), []) // flatten
 	.forEach(task => tasks.push(task));
@@ -120,7 +121,8 @@ if (tasks.length > 1) // If batch mode
 	else
 		console.log(`Analyzing ${tasks.length} items with ${q.concurrency} threads (use --threads to change this value)`)
 
-tasks.forEach(({filepath, filename}) => q.push(analyze.bind(null, filepath, filename)));
+const outputDir = argv["output-dir"] || "./";
+tasks.forEach(({filepath, filename}) => q.push(cb => analyze(filepath, filename, cb)));
 
 let completed = 0;
 
@@ -132,18 +134,10 @@ q.on("success", () => {
 
 q.start();
 
-function isDirectory(filepath) {
-	try {
-		return fs.statSync(filepath).isDirectory();
-	} catch (e) {
-		return false;
-	}
-}
-
 function analyze(filepath, filename, cb) {
 	let directory = path.join(outputDir, filename + ".results");
 	// Find a suitable directory name
-	for (let i = 1; isDirectory(directory); i++)
+	for (let i = 1; fs.existsSync(directory); i++)
 		directory = path.join(outputDir, filename + "." + i + ".results");
 
 	fs.mkdirSync(directory);
@@ -151,12 +145,9 @@ function analyze(filepath, filename, cb) {
 	const worker = cp.fork(path.join(__dirname, "analyze"), [filepath, directory, ...options]);
 
 	const killTimeout = setTimeout(() => {
-		if (!argv.quiet) {
-			console.log(`Analysis for ${filename} timed out.`);
-			if (!argv.preprocess) {
-				console.log("Hint: if the script is heavily obfuscated, --preprocess --unsafe-preprocess can speed up the emulation.");
-			}
-		}
+		console.log(`Analysis for ${filename} timed out.`);
+		if (!argv.preprocess)
+			console.log("Hint: if the script is heavily obfuscated, --preprocess --unsafe-preprocess can speed up the emulation.");
 		worker.kill();
 		cb();
 	}, timeout * 1000);
@@ -168,7 +159,7 @@ function analyze(filepath, filename, cb) {
 	});
 
 	worker.on("exit", function(code) {
-		if (code === 1 && !argv.quiet) {
+		if (code === 1) {
 			console.log(`
  * If the error is about a weird \"Unknown ActiveXObject\", try --no-kill.
  * If the error is about a legitimate \"Unknown ActiveXObject\", report a bug at https://github.com/CapacitorSet/box-js/issues/ .`);
@@ -180,7 +171,7 @@ function analyze(filepath, filename, cb) {
 	});
 
 	worker.on("error", function(err) {
-		if (!argv.quiet) console.log(err);
+		console.log(err);
 		clearTimeout(killTimeout);
 		worker.kill();
 		cb();
