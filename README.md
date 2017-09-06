@@ -30,7 +30,7 @@ Box.js will emulate a Windows JScript environment, print a summary of the emulat
  * `snippets.json`, a list of pieces of code executed by the sample (JavaScript, shell commands, etc.);
  * `urls.json`, a list of URLs contacted;
  * `active_urls.json`, a list of URLs that seem to drop active malware;
- * `resources.json`, the ADODB streams (i.e. the files that the script wrote to disk).
+ * `resources.json`, the ADODB streams (i.e. the files that the script wrote to disk) with file types and hashes.
 
 ## Batch usage
 
@@ -149,7 +149,21 @@ Every HTTP request is both printed on the terminal and logged in `urls.json`. Du
 
 `snippets.json` contains every piece of code that `box-js` came across, either JavaScript, a cmd.exe command or a PowerShell script.
 
-`resources.json` contains every file written to disk by the sample. For instance, if the application tried to save `Hello world!` to `$PATH/foo.txt`, the content of `resources.json` would be `{ "9a24...": "(path)\\foo.txt" }`, and the content of the file `sample.txt/9a24...` would be `Hello world!`. This file is also important: watch out for any resource ending in .dll or .exe.
+`resources.json` contains every file written to disk by the sample. For instance, if the application tried to save `Hello world!` to `$PATH/foo.txt`, the content of `resources.json` would be:
+
+```json
+{
+	"9a24...": {
+		"path": "(path)\\foo.txt",
+		"type": "ASCII text, with no line terminators",
+		"md5": "86fb269d190d2c85f6e0468ceca42a20",
+		"sha1": "d3486ae9136e7856bc42212385ea797094475802",
+		"sha256": "c0535e4be2b79ffd93291305436bf889314e4a3faec05ecffcbb7df31ad9e51a"
+	}
+}
+```
+
+The `resources.json` file is also important: watch out for any executable resource (eg. with `"type": "PE32 executable (GUI) Intel 80386, for MS Windows"`).
 
 # Patching
 

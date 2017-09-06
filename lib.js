@@ -1,3 +1,5 @@
+const child_process = require("child_process");
+const crypto = require("crypto");
 const fs = require("fs");
 const uuid = require("uuid");
 const request = require("sync-request");
@@ -51,6 +53,10 @@ function log(tag, text, toFile = true, toStdout = true) {
 		console.log(message);
 	if (toFile || argv.loglevel === "debug")
 		fs.appendFileSync(directory + "/analysis.log", message + "\n");
+}
+
+function hash(algo, string) {
+	return crypto.createHash(algo).update(string).digest("hex");
 }
 
 const getUUID = uuid.v4;
@@ -126,14 +132,12 @@ module.exports = {
 		if (urls.indexOf(url) === -1) urls.push(url);
 		fs.writeFileSync(directory + "urls.json", JSON.stringify(urls, null, "\t"));
 	},
-	logResource: function(resourceName, logContent, content) {
-		resources[resourceName] = logContent;
+	logResource: function(resourceName, emulatedPath, content) {
 		fs.writeFileSync(directory + resourceName, content);
-		fs.writeFileSync(directory + "resources.json", JSON.stringify(resources, null, "\t"));
-
-		let filetype = require("child_process").execSync("file " + JSON.stringify(directory + resourceName)).toString("utf8");
-		filetype = filetype.replace(`${directory + resourceName}: `, "").replace("\n", "");
 		log("info", `Saved ${directory + resourceName} (${content.length} bytes)`);
+
+		let filetype = child_process.execSync("file " + JSON.stringify(directory + resourceName)).toString("utf8");
+		filetype = filetype.replace(`${directory + resourceName}: `, "").replace("\n", "");
 		log("info", `${directory + resourceName} has been detected as ${filetype}.`);
 
 		if (/executable/.test(filetype)) {
@@ -143,6 +147,22 @@ module.exports = {
 				activeUrls.push(latestUrl);
 			fs.writeFileSync(directory + "active_urls.json", JSON.stringify(activeUrls, null, "\t"));
 		}
+
+		const md5 = hash("md5", content);
+		log("verb", "md5:    " + md5);
+		const sha1 = hash("sha1", content);
+		log("verb", "sha1:   " + sha1);
+		const sha256 = hash("sha256", content);
+		log("verb", "sha256: " + sha256);
+
+		resources[resourceName] = {
+			path: emulatedPath,
+			type: filetype,
+			md5,
+			sha1,
+			sha256
+		};
+		fs.writeFileSync(directory + "resources.json", JSON.stringify(resources, null, "\t"));
 	},
 	logSnippet,
 	logJS: function(code) {
