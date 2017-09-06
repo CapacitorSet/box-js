@@ -5,6 +5,7 @@ const fs = require("fs");
 const iconv = require("iconv-lite");
 const path = require("path");
 const {VM} = require("vm2");
+const child_process = require("child_process");
 const argv = require("./argv.js");
 
 const filename = process.argv[2];
@@ -39,13 +40,54 @@ if (code.match("<job") || code.match("<script")) { // The sample may actually be
 	code = code.replace(/\]\]>/g, "");
 }
 
+function lacksBinary(name) {
+	const path = child_process.spawnSync("command", ["-v", name], {shell: true}).stdout;
+	return path.length === 0;
+}
+
 function rewrite(code) {
 	if (code.match("@cc_on")) {
 		lib.debug("Code uses conditional compilation");
 		if (!argv["no-cc_on-rewrite"]) {
-			lib.info("    Replacing @cc_on statements (use --no-cc_on-rewrite to skip)...", false);
-			code = code.replace(/\/\*@cc_on/g, "");
-			code = code.replace(/@\*\//g, "");
+			code = code
+				.replace(/\/\*@cc_on/gi, "")
+				.replace(/@cc_on/gi, "")
+				.replace(/\/\*@/g, "\n").replace(/@\*\//g, "\n");
+			// "@if" processing requires m4 and cc, but don't require them otherwise
+			if (/@if/.test(code)) {
+				/*
+					"@if (cond) source" becomes "\n _boxjs_if(cond)" with JS
+					"\n _boxjs_if(cond)" becomes "\n #if (cond) \n source" with m4
+					"\n #if (cond) \n source" becomes "source" with the C preprocessor
+				*/
+				code = code
+					.replace(/@if\s*/gi, "\n_boxjs_if")
+					.replace(/@elif\s*/gi, "\n_boxjs_elif")
+					.replace(/@else/gi, "\n#else\n")
+					.replace(/@end/gi, "\n#endif\n")
+					.replace(/@/g, "_boxjs_at");
+				// Require m4, cc
+				if (lacksBinary("cc")) lib.kill("You must install a C compiler (executable 'cc' not found).");
+				if (lacksBinary("m4")) lib.kill("You must install m4.");
+				code = `
+define(\`_boxjs_if', #if ($1)\n)
+define(\`_boxjs_elif', #elif ($1)\n)
+` + code;
+				lib.info("    Replacing @cc_on statements (use --no-cc_on-rewrite to skip)...", false);
+				const outputM4 = child_process.spawnSync("m4", [], {input: code});
+				const outputCc = child_process.spawnSync("cc", [
+					"-E", "-P", // preprocess, don't compile
+					"-xc", // read from stdin, lang: c
+					"-D_boxjs_at_x86=1", "-D_boxjs_at_win16=0", "-D_boxjs_at_win32=1", "-D_boxjs_at_win64=1", // emulate Windows 32 bit
+					"-D_boxjs_at_jscript=1",
+					"-o-", // print to stdout
+					"-" // read from stdin
+				], {
+					input: outputM4.stdout.toString("utf8")
+				});
+				code = outputCc.stdout.toString("utf8");
+			}
+			code = code.replace(/_boxjs_at/g, "@");
 		} else {
 			lib.warn(
 				`The code appears to contain conditional compilation statements.
