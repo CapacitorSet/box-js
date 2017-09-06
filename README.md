@@ -61,8 +61,6 @@ cat ./*.results/active_urls.json | sort | uniq
 
 --debug (Boolean): Die when an emulation error occurs, even in "batch mode"
 
---quiet (Boolean): Do not print analysis-related messages. If in batch mode, print completion data (percentage, remaining items)
-
 --loglevel (String): Logging level (debug, verbose, info, warning, error - default "info"
 
 --threads (Number): When running in batch mode, how many analyses to run at the same time (0 = unlimited, default: as many as the number of CPU cores)
