@@ -167,6 +167,16 @@
             "description": "Logging level (debug, verbose, info, warning, error - default \"info\")"
         },
         {
+            "name": "cuckoo-address",
+            "type": "String",
+            "description": "Address of the Cuckoo API (format: host:port, eg. localhost:8000)"
+        },
+        {
+            "name": "cuckoo-urls",
+            "type": "Boolean",
+            "description": "Submit URLs to a Cuckoo sandbox"
+        },
+        {
             "name": "vt-key",
             "type": "String",
             "description": "VirusTotal API key"
