@@ -172,14 +172,54 @@
             "description": "Address of the Cuckoo API (format: host:port, eg. localhost:8000)"
         },
         {
+            "name": "cuckoo-all-files",
+            "type": "Boolean",
+            "description": "Submit all files written to disk to a Cuckoo sandbox"
+        },
+        {
+            "name": "cuckoo-executables",
+            "type": "Boolean",
+            "description": "Submit all executables written to disk to a Cuckoo sandbox. Has no effect when used with --cuckoo-all-files."
+        },
+        {
             "name": "cuckoo-urls",
             "type": "Boolean",
             "description": "Submit URLs to a Cuckoo sandbox"
         },
         {
+            "name": "malwr-key",
+            "type": "String",
+            "description": "Malwr API key"
+        },
+        {
+            "name": "malwr-all-files",
+            "type": "Boolean",
+            "description": "Submit all files written to disk to Malwr"
+        },
+        {
+            "name": "malwr-executables",
+            "type": "Boolean",
+            "description": "Submit all executables written to disk to Malwr. Has no effect when used with --malwr-all-files."
+        },
+        {
+            "name": "malwr-private",
+            "type": "Boolean",
+            "description": "Mark Malwr samples as private (not to be shared with the community)"
+        },
+        {
             "name": "vt-key",
             "type": "String",
             "description": "VirusTotal API key"
+        },
+        {
+            "name": "vt-all-files",
+            "type": "Boolean",
+            "description": "Submit all files written to disk to VirusTotal"
+        },
+        {
+            "name": "vt-executables",
+            "type": "Boolean",
+            "description": "Submit all executables written to disk to VirusTotal. Has no effect when used with --vt-all-files."
         },
         {
             "name": "vt-rate-limit",

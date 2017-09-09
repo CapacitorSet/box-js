@@ -1,25 +1,15 @@
 const argv = require("./argv.js").export;
+const child_process = require("child_process");
 const fs = require("fs");
-const RateLimiter = require('limiter').RateLimiter;
-const syncRequest = require("sync-request");
+const RateLimiter = require("limiter").RateLimiter;
 const walk = require("walk-sync");
 
-function request(method, URL, params) {
-	if (method === "GET")
-		URL += "?" + Object.keys(params)
-			.map(key => ({key, value: params[key]}))
-			.map(({key, value}) => `${key}=${encodeURIComponent(value)}`)
-			.join("&");
-
-	let options = {
-		headers: {
-			"User-Agent": "box-export (https://github.com/CapacitorSet/box-js/)"
-		}
-	};
-	if (method === "POST")
-		options.form = params;
-	return syncRequest(method, URL, options);
+function lacksBinary(name) {
+	const path = child_process.spawnSync("command", ["-v", name], {shell: true}).stdout;
+	return path.length === 0;
 }
+if (lacksBinary("curl"))
+	throw new Error("Curl must be installed.");
 
 function log(tag, text) {
 	const levels = {
@@ -84,45 +74,77 @@ if (argv.license) {
 	process.exit(0);
 }
 
-Array.prototype.functionalSplit = function(f) {
-	// Call f on every item, put it in a if f returns true, put it in b otherwise.
-	const a = [];
-	const b = [];
-	for (const elem of this)
-		if (f(elem))
-			a.push(elem);
-		else
-			b.push(elem);
-	return [a, b];
-}
 Array.prototype.flatten = function() {
 	return this.reduce((a, b) => a.concat(b), []);
-}
-Array.prototype.objectFlatten = function() {
-	return this.reduce((a, b) => Object.assign({}, a, b), {});
 };
 Array.prototype.uniqueStrings = function() {
 	// O(n) check using an object as hash map
 	// Works for arrays of strings, not guaranteed to work for anything else
-	let unique = {};
+	const unique = {};
 	for (const elem of this)
 		unique[elem] = null;
 	return Object.keys(unique);
-}
-Array.prototype.unique = function(comparator = (a, b) => a === b) {
-	if (this.every(item => typeof item === "string")) // Optimize: O(n) rather than O(n^2)
-		return this.uniqueStrings();
-	return this.reduce(
-		(uniq, item) => uniq.some(x => comparator(x, item))
-			? uniq
-			: [...uniq, item],
-		[]
-	);
 };
 
-const args = process.argv.slice(2);
+function request(method, URL, params, files) {
+	const args = [
+		// Disables "Expect: 103 continue", useful for debugging
+		// "-H", "Expect:",
+		"--user-agent", "box-export (https://github.com/CapacitorSet/box-js/)",
+	];
+	if (method === "GET") {
+		URL += "?" + Object.keys(params)
+			.map(key => ({key, value: params[key]}))
+			.map(({key, value}) => `${key}=${encodeURIComponent(value)}`)
+			.join("&");
+		if (Object.keys(files).length !== 0) { // Allow an empty object
+			log("error", "Tried to upload file(s) " + JSON.stringify(files) + " to endpoint " + URL);
+			throw new Error("Cannot upload files in a GET request!");
+		}
+	} else if (method === "POST") {
+		for (const key of Object.keys(params))
+			args.push("--data", key + "=" + params[key]);
+		for (const key of Object.keys(files))
+			args.push("--form", key + "=@" + files[key]);
+	}
 
-let [folders, options] = args.functionalSplit(fs.existsSync);
+	args.push(URL);
+
+	return child_process.spawnSync("curl", args);
+}
+
+function APISubmit(method, endpoint, params, files, limiter, cb) {
+	const f = () => {
+		request(method, endpoint, params, files);
+		cb();
+	};
+	if (limiter)
+		limiter.removeTokens(1, f);
+	else
+		f();
+}
+
+function bulkAPISubmit(
+	items,
+	method, endpoint,
+	paramFactory = () => ({}), fileFactory = () => ({}),
+	setupMsg = total => `Submitting ${total} items`, progressMsg = "Items submitted:",
+	limiter, rateLimit, unit) {
+	const numItems = items.length;
+	log("info", setupMsg(numItems));
+	let processedItems = 0;
+
+	if (numItems <= rateLimit)
+		log("info", `Due to API limits, this will take ${(numItems / rateLimit - 1).toFixed(1)} ${unit}s.`);
+	for (const item of items)
+		APISubmit(method, endpoint, paramFactory(item), fileFactory(item), limiter, () => {
+			processedItems++;
+			log("info", progressMsg + ` ${processedItems}/${numItems} (${(100 * processedItems/numItems).toFixed(2)}%)`);
+		});
+}
+
+const args = process.argv.slice(2);
+let folders = args.filter(fs.existsSync);
 
 log("info", "Reading file list...");
 folders = folders
@@ -142,6 +164,37 @@ if (folders.length === 0) {
 	process.exit(-1);
 }
 
+let cuckooAddress;
+if (argv["cuckoo-urls"] || argv["cuckoo-all-files"] || argv["cuckoo-executables"]) {
+	if (!argv["cuckoo-address"])
+		throw new Error("Please enter a valid Cuckoo address (see --help for more information).");
+	cuckooAddress = argv["cuckoo-address"];
+	if (!/^http/i.test(cuckooAddress))
+		cuckooAddress = "http://" + cuckooAddress;
+}
+
+let malwrApiKey;
+// Malwr doesn't enforce rate limits, but let's be nice
+const malwrRateLimit = 1;
+let malwrLimiter;
+if (argv["malwr-all-files"] || argv["malwr-executables"]) {
+	if (!argv["malwr-key"])
+		throw new Error("Please enter a valid API key for Malwr (see --help for more information).");
+	malwrApiKey = argv["malwr-key"];
+	malwrLimiter = new RateLimiter(malwrApiKey, "second");
+}
+
+let vtApiKey;
+let vtRateLimit, vtLimiter;
+if (argv["vt-urls"] || argv["vt-all-files"] || argv["vt-executables"]) {
+	if (!argv["vt-key"])
+		throw new Error("Please enter a valid API key for VirusTotal (see --help for more information).");
+	vtApiKey = argv["vt-key"];
+	// The public API is limited to 4 requests per minute.
+	vtRateLimit = argv["vt-rate-limit"] || 4;
+	vtLimiter = new RateLimiter(vtRateLimit, "minute");
+}
+
 let urls, numUrls;
 if (argv["cuckoo-urls"] || argv["vt-urls"]) {
 	log("info", "Parsing URLs...");
@@ -156,87 +209,109 @@ if (argv["cuckoo-urls"] || argv["vt-urls"]) {
 		})
 		.map(item => JSON.parse(fs.readFileSync(item + "/urls.json")))
 		.flatten()
-		.unique();
+		.uniqueStrings();
 	numUrls = urls.length;
 }
 
-let cuckooAddress;
-if (argv["cuckoo-urls"] || argv["cuckoo-all-files"] || argv["cuckoo-executables"]) {
-	if (!argv["cuckoo-address"])
-		throw new Error("Please enter a valid Cuckoo address.");
-	cuckooAddress = argv["cuckoo-address"];
-	if (!/^http/i.test(cuckooAddress))
-		cuckooAddress = "http://" + cuckooAddress;
-}
-
-let malwrLimiter;
-if (argv["malwr-all-files"] || argv["malwr-executables"]) {
-	if (!argv["malwr-key"])
-		throw new Error("Please enter a valid API key for Malwr.");
-	// Malwr doesn't enforce rate limits, but let's be nice
-	malwrLimiter = new RateLimiter(1, "second");
-}
-
-let vtRateLimit, vtLimiter;
-if (argv["vt-urls"] || argv["vt-all-files"] || argv["vt-executables"]) {
-	// The public API is limited to 4 requests per minute.
-	vtRateLimit = argv["vt-rate-limit"] || 4;
-	vtLimiter = new RateLimiter(vtRateLimit, "minute");
-	if (!argv["vt-key"])
-		throw new Error("Please enter a valid API key for VirusTotal.");
-}
-
 if (argv["cuckoo-urls"]) {
-	log("info", `Submitting ${numUrls} URLs to Cuckoo`);
-	let cuckooSubmittedUrls = 0;
-	for (const url of urls) {
-		request("POST", cuckooAddress + "/tasks/create/url", {
-			url
-		});
-		cuckooSubmittedUrls++;
-		log("info", `URLs submitted to Cuckoo: ${cuckooSubmittedUrls}/${numUrls} (${(100 * cuckooSubmittedUrls/numUrls).toFixed(2)}%)`);
-	}
+	bulkAPISubmit(
+		urls,
+		"POST", cuckooAddress + "/tasks/create/url",
+		url => ({url}), undefined,
+		num => `Submitting ${numUrls} URLs to Cuckoo`, "URLs submitted to Cuckoo:"
+	);
 }
 
 if (argv["vt-urls"]) {
-	log("info", `Submitting ${numUrls} URLs to VirusTotal`);
-	let vtSubmittedUrls = 0;
-	// If the requests can be sent without hitting the rate limit, do not print progress info
-	const quiet = numUrls <= vtRateLimit;
-	if (!quiet)
-		log("info", `Due to API limits, this will take ${(numUrls / vtRateLimit - 1).toFixed(1)} minutes.`);
-	for (const url of urls)
-		vtLimiter.removeTokens(1, () => {
-			request("GET", "http://localhost:8000/test", {
-				apikey: argv["vt-key"],
-				url
-			});
-			vtSubmittedUrls++;
-			if (!quiet)
-				log("info", `URLs submitted to VirusTotal: ${vtSubmittedUrls}/${numUrls} (${(100 * vtSubmittedUrls/numUrls).toFixed(2)}%)`);
-		});
+	bulkAPISubmit(
+		urls,
+		"GET", "http://localhost:8000/test",
+		url => ({apikey: vtApiKey, url}), undefined,
+		num => `Submitting ${num} URLs to VirusTotal`, "URLs submitted to VirusTotal:",
+		vtLimiter, vtRateLimit, "minute"
+	);
 }
 
-/*
-const allFiles = folders
-	.filter(item => {
-		if (!fs.existsSync(item + "/resources.json")) {
-			log("verb", `URL collection: discarding ${item} because it doesn't contain resources.json`);
-			return false;
+let allFiles = [], executables = [];
+if (argv["cuckoo-all-files"] || argv["cuckoo-executables"]
+	|| argv["malwr-all-files"] || argv["malwr-executables"]
+	|| argv["vt-all-files"] || argv["vt-executables"]) {
+	for (const folder of folders) {
+		if (!fs.existsSync(folder + "/resources.json")) {
+			log("verb", `URL collection: discarding ${folder} because it doesn't contain resources.json`);
+			continue;
 		}
-		log("debug", `URL collection: folder ${item} is valid.`);
-		return true;
-	})
-	.map(item => fs.readFileSync(item + "/resources.json", "utf8"))
-	.map(x => {
-		try {
-			return JSON.parse(x);
-		} catch (e) {
-			console.log(x);
-			console.log(e);
-			process.exit(1);
+		log("debug", `URL collection: folder ${folder} is valid.`);
+		const resourcesString = fs.readFileSync(folder + "/resources.json", "utf8");
+		if (resourcesString === "") continue;
+		const resources = JSON.parse(resourcesString);
+		for (const filename in resources) {
+			if (!resources.hasOwnProperty(filename)) continue;
+			const resource = resources[filename];
+			// If the resource was already inserted, skip.
+			if (allFiles.some(file => file.sha256 === resource.sha256))
+				continue;
+			allFiles.push({
+				path: folder + "/" + filename,
+				emulatedPath: resource.path,
+				type: resource.type,
+				md5: resource.md5,
+				sha1: resource.sha1,
+				sha256: resource.sha256,
+			});
 		}
-	})
-	.objectFlatten()
-	.unique((a, b) => a.sha256 === b.sha256);
-*/
+	}
+	executables = allFiles.filter(item => /executable/.test(item.type));
+}
+
+if (argv["cuckoo-all-files"]) {
+	bulkAPISubmit(
+		allFiles,
+		"POST", cuckooAddress + "/tasks/create/file",
+		undefined, file => ({file: file.path}),
+		num => `Submitting ${num} files to Cuckoo`, "Files submitted to Cuckoo:"
+	);
+} else if (argv["cuckoo-executables"]) {
+	bulkAPISubmit(
+		executables,
+		"POST", cuckooAddress + "/tasks/create/file",
+		undefined, file => ({file: file.path}),
+		num => `Submitting ${num} files to Cuckoo`, "Files submitted to Cuckoo:"
+	);
+}
+
+if (argv["malwr-all-files"]) {
+	bulkAPISubmit(
+		allFiles,
+		"POST", "http://localhost:8000/test",
+		() => ({api_key: malwrApiKey, shared: !argv["malwr-private"]}), file => ({file: file.path}),
+		num => `Submitting ${num} files to Malwr`, "Files submitted to Malwr:",
+		malwrLimiter, malwrRateLimit, "second"
+	);
+} else if (argv["malwr-executables"]) {
+	bulkAPISubmit(
+		executables,
+		"POST", "http://localhost:8000/test",
+		() => ({api_key: malwrApiKey, shared: !argv["malwr-private"]}), file => ({file: file.path}),
+		num => `Submitting ${num} files to Malwr`, "Files submitted to Malwr:",
+		malwrLimiter, malwrRateLimit, "second"
+	);
+}
+
+if (argv["vt-all-files"]) {
+	bulkAPISubmit(
+		allFiles,
+		"POST", "http://localhost:8000/test",
+		() => ({apikey: vtApiKey}), file => ({file: file.path}),
+		num => `Submitting ${num} files to VirusTotal`, "Files submitted to VirusTotal:",
+		vtLimiter, vtRateLimit, "minute"
+	);
+} else {
+	bulkAPISubmit(
+		executables,
+		"POST", "http://localhost:8000/test",
+		() => ({apikey: vtApiKey}), file => ({file: file.path}),
+		num => `Submitting ${num} files to VirusTotal`, "Files submitted to VirusTotal:",
+		vtLimiter, vtRateLimit, "minute"
+	);
+}
