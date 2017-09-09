@@ -15,6 +15,8 @@ npm install box-js --global
 
 # Usage
 
+>Looking to use box-js with Cuckoo? Use `cuckoo-package.py` as an analysis package.
+
 Let's say you have a sample called `sample.js`: to analyze it, simply run
 
 ```
@@ -31,6 +33,8 @@ Box.js will emulate a Windows JScript environment, print a summary of the emulat
  * `urls.json`, a list of URLs contacted;
  * `active_urls.json`, a list of URLs that seem to drop active malware;
  * `resources.json`, the ADODB streams (i.e. the files that the script wrote to disk) with file types and hashes.
+
+ You can analyze these by yourself, or you can automatically submit them to Malwr, VirusTotal or a Cuckoo sandbox: for more information, run `box-export --help`.
 
 ## Batch usage
 
