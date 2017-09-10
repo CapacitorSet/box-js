@@ -30,3 +30,19 @@ This does the following:
 >Of course, you can use whichever flags you want, eg. `--download --timeout=120`.
 
 When the analysis terminates, you will find the results in /tmp/samplescollection, where you can analyze them by yourself or with `box-export`.
+
+## REST API
+
+>This section is a work-in-progress.
+
+Box-js includes a small REST API for uploading samples. To use it, install Hapi and rimraf (`npm install hapi rimraf`) and run `node integrations/api/api.js`.
+
+>The user running the API server must also be able to spawn Docker containers.
+
+### Methods
+
+ * `GET /concurrency`: returns an integer representing the concurrency, i.e. how many analyses to run at the same time at most.
+ * `POST /concurrency` with parameter `value`: change the concurrency.
+ * `GET /sample/{id}`: returns the status of the given analysis (1 if it's complete, 0 otherwise).
+ * `POST /sample` with parameter `sample`, a file: enqueue the sample you uploaded. Returns the analysis ID (to be used with `GET /sample/{id}`).
+ * `DELETE /sample/{id}`: delete the folder corresponding to the given sample. Should only be called after the analysis terminates.
