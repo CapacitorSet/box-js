@@ -1,10 +1,16 @@
 # Integrations
 
-## Cuckoo, Malwr, VirusTotal
+## Submitting to Cuckoo, Malwr, VirusTotal
 
 You can automatically submit the results of an analysis to a Cuckoo sandbox, Malwr or VirusTotal. Run `box-export --help` (or `node integrations/export/export.js --help`) for more information.
 
-## Docker
+## Running in Cuckoo
+
+>This section is a work-in-progress.
+
+Start the REST API server (see below), and use `integrations/cuckoo/cuckoo.py` as a processing module.
+
+## Running in Docker
 
 You might want to run the analysis in a temporary Docker container in order to isolate the process. This has positive security implications: although box-js already uses a hardened sandbox, Docker provides another stronger level of isolation.
 
