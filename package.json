@@ -6,7 +6,7 @@
     "acorn": "^5.1.2",
     "columnify": "*",
     "command-line-args": "^4.0.7",
-    "escodegen": "*",
+    "escodegen": "^1.9.0",
     "esprima": "*",
     "iconv-lite": "*",
     "jschardet": "^1.5.1",
