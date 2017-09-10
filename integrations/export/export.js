@@ -1,4 +1,4 @@
-const argv = require("./argv.js").export;
+const argv = require("../../argv.js").export;
 const child_process = require("child_process");
 const fs = require("fs");
 const RateLimiter = require("limiter").RateLimiter;
@@ -49,7 +49,7 @@ Usage:
 Flags:
 	`);
 	console.log(columnify(
-		require("./argv.js").flags.export.map((flag) => ({
+		require("../../argv.js").flags.export.map((flag) => ({
 			name: (flag.alias ? `-${flag.alias}, ` : "") + `--${flag.name}`,
 			description: flag.description,
 		})),
