@@ -7,7 +7,6 @@
     "columnify": "*",
     "command-line-args": "^4.0.7",
     "escodegen": "^1.9.0",
-    "esprima": "*",
     "iconv-lite": "*",
     "jschardet": "^1.5.1",
     "limiter": "^1.1.2",
@@ -40,7 +39,7 @@
   "homepage": "https://github.com/CapacitorSet/box-js#readme",
   "bin": {
     "box-js": "run.js",
-    "box-export": "export.js"
+    "box-export": "integrations/export/export.js"
   },
   "scripts": {
     "lint": "eslint run.js analyze.js test/ emulator/",
