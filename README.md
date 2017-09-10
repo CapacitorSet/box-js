@@ -36,6 +36,8 @@ Box.js will emulate a Windows JScript environment, print a summary of the emulat
 
  You can analyze these by yourself, or you can automatically submit them to Malwr, VirusTotal or a Cuckoo sandbox: for more information, run `box-export --help`.
 
+ >For further isolation, it is recommended to run the analysis in a temporary Docker container. Consult `integrations/README.md` for more information.
+
 ## Batch usage
 
 While box.js is typically used on single files, it can also run batch analyses. You can simply pass a list of files or folders to analyse:
