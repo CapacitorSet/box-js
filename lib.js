@@ -1,11 +1,12 @@
 const child_process = require("child_process");
 const crypto = require("crypto");
 const fs = require("fs");
-const uuid = require("uuid");
+const path = require("path");
 const request = require("sync-request");
+const uuid = require("uuid");
 const argv = require("./argv.js").run;
 
-const directory = process.argv[3];
+const directory = path.normalize(process.argv[3]);
 
 const urls = [];
 const activeUrls = [];
@@ -17,8 +18,8 @@ let latestUrl = "";
 
 const logSnippet = function(filename, logContent, content) {
 	snippets[filename] = logContent;
-	fs.writeFileSync(directory + filename, content);
-	fs.writeFileSync(directory + "snippets.json", JSON.stringify(snippets, null, "\t"));
+	fs.writeFileSync(path.join(directory, filename), content);
+	fs.writeFileSync(path.join(directory, "snippets.json"), JSON.stringify(snippets, null, "\t"));
 };
 
 function kill(message) {
@@ -52,7 +53,7 @@ function log(tag, text, toFile = true, toStdout = true) {
 	if (toStdout || argv.loglevel === "debug") // Debug level always writes to stdout and file
 		console.log(message);
 	if (toFile || argv.loglevel === "debug")
-		fs.appendFileSync(directory + "/analysis.log", message + "\n");
+		fs.appendFileSync(path.join(directory, "analysis.log"), message + "\n");
 }
 
 function hash(algo, string) {
@@ -62,7 +63,6 @@ function hash(algo, string) {
 const getUUID = uuid.v4;
 
 module.exports = {
-	directory,
 	argv,
 	kill,
 	getUUID,
@@ -130,22 +130,23 @@ module.exports = {
 		log("info", `${method} ${url}`);
 		latestUrl = url;
 		if (urls.indexOf(url) === -1) urls.push(url);
-		fs.writeFileSync(directory + "urls.json", JSON.stringify(urls, null, "\t"));
+		fs.writeFileSync(path.join(directory, "urls.json"), JSON.stringify(urls, null, "\t"));
 	},
 	logResource: function(resourceName, emulatedPath, content) {
-		fs.writeFileSync(directory + resourceName, content);
-		log("info", `Saved ${directory + resourceName} (${content.length} bytes)`);
+		const filePath = path.join(directory, resourceName);
+		fs.writeFileSync(filePath, content);
+		log("info", `Saved ${filePath} (${content.length} bytes)`);
 
-		let filetype = child_process.execSync("file " + JSON.stringify(directory + resourceName)).toString("utf8");
-		filetype = filetype.replace(`${directory + resourceName}: `, "").replace("\n", "");
-		log("info", `${directory + resourceName} has been detected as ${filetype}.`);
+		let filetype = child_process.execSync("file " + JSON.stringify(filePath)).toString("utf8");
+		filetype = filetype.replace(`${filePath}: `, "").replace("\n", "");
+		log("info", `${filePath} has been detected as ${filetype}.`);
 
 		if (/executable/.test(filetype)) {
 			log("info", `Active URL detected: ${latestUrl}`);
 			// Log active url
 			if (activeUrls.indexOf(latestUrl) === -1)
 				activeUrls.push(latestUrl);
-			fs.writeFileSync(directory + "active_urls.json", JSON.stringify(activeUrls, null, "\t"));
+			fs.writeFileSync(path.join(directory, "active_urls.json"), JSON.stringify(activeUrls, null, "\t"));
 		}
 
 		const md5 = hash("md5", content);
@@ -162,7 +163,7 @@ module.exports = {
 			sha1,
 			sha256
 		};
-		fs.writeFileSync(directory + "resources.json", JSON.stringify(resources, null, "\t"));
+		fs.writeFileSync(path.join(directory, "resources.json"), JSON.stringify(resources, null, "\t"));
 	},
 	logSnippet,
 	logJS: function(code) {
@@ -173,7 +174,7 @@ module.exports = {
 	},
 	runShellCommand: (command) => {
 		const filename = getUUID();
-		log("info", `Executing ${directory + filename} in the WScript shell`);
+		log("info", `Executing ${path.join(directory, filename)} in the WScript shell`);
 		logSnippet(filename, {as: "WScript code"}, command);
 		if (!argv["no-shell-error"])
 			throw new Error("If you can read this, re-run box.js with the --no-shell-error flag.");
