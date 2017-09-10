@@ -1,10 +1,16 @@
 # Integrations
 
-## Cuckoo, Malwr, VirusTotal
+## Submitting to Cuckoo, Malwr, VirusTotal
 
 You can automatically submit the results of an analysis to a Cuckoo sandbox, Malwr or VirusTotal. Run `box-export --help` (or `node integrations/export/export.js --help`) for more information.
 
-## Docker
+## Running in Cuckoo
+
+>This section is a work-in-progress.
+
+Start the REST API server (see below), and use `integrations/cuckoo/cuckoo.py` as a processing module.
+
+## Running in Docker
 
 You might want to run the analysis in a temporary Docker container in order to isolate the process. This has positive security implications: although box-js already uses a hardened sandbox, Docker provides another stronger level of isolation.
 
@@ -46,3 +52,5 @@ Box-js includes a small REST API for uploading samples. To use it, install Hapi 
  * `GET /sample/{id}`: returns the status of the given analysis (1 if it's complete, 0 otherwise).
  * `POST /sample` with parameter `sample`, a file: enqueue the sample you uploaded. Returns the analysis ID (to be used with `GET /sample/{id}`).
  * `DELETE /sample/{id}`: delete the folder corresponding to the given sample. Should only be called after the analysis terminates.
+ * `GET /sample/{id}/urls`: get the list of URLs extracted by the given sample. Should only be called after the analysis terminates.
+ * `GET /sample/{id}/resources`: get the list of resources created by the given sample. Should only be called after the analysis terminates.
