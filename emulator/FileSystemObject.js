@@ -1,5 +1,5 @@
 const lib = require("../lib");
-const argv = require("../argv.js");
+const argv = require("../argv.js").run;
 const winpath = require("path").win32;
 
 function TextStream(filename) {

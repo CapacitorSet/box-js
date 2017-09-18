@@ -1,5 +1,5 @@
 const lib = require("../lib.js");
-const argv = require("../argv.js");
+const argv = require("../argv.js").run;
 
 function WScriptShell() {
 	const vars = {
