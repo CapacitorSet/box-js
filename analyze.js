@@ -81,9 +81,9 @@ define(\`_boxjs_elif', #elif ($1)\n)
 					"-D_boxjs_at_x86=1", "-D_boxjs_at_win16=0", "-D_boxjs_at_win32=1", "-D_boxjs_at_win64=1", // emulate Windows 32 bit
 					"-D_boxjs_at_jscript=1",
 					"-o-", // print to stdout
-					"-" // read from stdin
+					"-", // read from stdin
 				], {
-					input: outputM4.stdout.toString("utf8")
+					input: outputM4.stdout.toString("utf8"),
 				});
 				code = outputCc.stdout.toString("utf8");
 			}
@@ -176,11 +176,11 @@ If you run into unexpected results, try uncommenting lines that look like
 				allowReturnOutsideFunction: true, // used when rewriting function bodies
 				plugins: {
 					// enables acorn plugin needed by prototype rewrite
-					JScriptMemberFunctionStatement: !argv["no-rewrite-prototype"]
-				}
+					JScriptMemberFunctionStatement: !argv["no-rewrite-prototype"],
+				},
 			});
 		} catch (e) {
-			lib.error("Couldn't parse with Acorn:")
+			lib.error("Couldn't parse with Acorn:");
 			lib.error(e);
 			lib.error("");
 			if (filename.match(/jse$/)) {
@@ -213,8 +213,8 @@ cc decoder.c -o decoder
 			lib.verbose("    Replacing `function A.prototype.B()` (use --no-rewrite-prototype to skip)...", false);
 			traverse(tree, function(key, val) {
 				if (!val) return;
-				if (val.type !== "FunctionDeclaration" && 
-				    val.type !== "FunctionExpression") return;
+				if (val.type !== "FunctionDeclaration" &&
+					val.type !== "FunctionExpression") return;
 				if (!val.id) return;
 				if (val.id.type !== "MemberExpression") return;
 				return require("./patches/prototype.js")(val);
@@ -431,7 +431,7 @@ if (argv["dangerous-vm"]) {
 	vm.runInNewContext(code, sandbox, {
 		displayErrors: true,
 		lineOffset: -fs.readFileSync(path.join(__dirname, "patch.js"), "utf8").split("\n").length,
-		filename: "sample.js"
+		filename: "sample.js",
 	});
 } else {
 	lib.debug("Analyzing with vm2 v" + require("vm2/package.json").version);
@@ -499,36 +499,34 @@ function hoist(obj, scope) {
 	scope = scope || obj;
 	// All declarations should be moved to the top of current function scope
 	let newScope = scope;
-	if(obj.type === "FunctionExpression" && obj.body.type === "BlockStatement")
+	if (obj.type === "FunctionExpression" && obj.body.type === "BlockStatement")
 		newScope = obj.body;
 
-	for (let key of Object.keys(obj)) {
-		if (obj[key] !== null && typeof obj[key] === "object")
-		{
-			let hoisted = [];
-			if(Array.isArray(obj[key])) {
+	for (const key of Object.keys(obj)) {
+		if (obj[key] !== null && typeof obj[key] === "object") {
+			const hoisted = [];
+			if (Array.isArray(obj[key])) {
 				obj[key] = obj[key].reduce((arr, el) => {
-					if(el.hoist)
-					{
+					if (el.hoist) {
 						// Mark as hoisted yet
 						el.hoist = false;
 						// Should be hoisted? Add to array and filter out from current.
 						hoisted.push(el);
 						// If it was an expression: leave identifier
-						if(el.hoistExpression)
-							arr.push(el.expression.left)
+						if (el.hoistExpression)
+							arr.push(el.expression.left);
 					} else
-						arr.push(el)
-					return arr
-				}, [])
-			} else if(obj[key].hoist) {
-				let el = obj[key];
-				
+						arr.push(el);
+					return arr;
+				}, []);
+			} else if (obj[key].hoist) {
+				const el = obj[key];
+
 				el.hoist = false;
 				hoisted.push(el);
 				obj[key] = el.expression.left;
 			}
-			scope.body.unshift(...hoisted)
+			scope.body.unshift(...hoisted);
 			// Hoist all elements
 			hoist(obj[key], newScope);
 		}
