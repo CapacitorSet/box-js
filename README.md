@@ -38,6 +38,8 @@ Box.js will emulate a Windows JScript environment, print a summary of the emulat
 
  >For further isolation, it is recommended to run the analysis in a temporary Docker container. Consult `integrations/README.md` for more information.
 
+ >If you wish to automate the analysis, you can use the return codes - documented in `integrations/README.md` - to distinguish between different types of errors.
+
 ## Batch usage
 
 While box.js is typically used on single files, it can also run batch analyses. You can simply pass a list of files or folders to analyse:
@@ -65,9 +67,9 @@ cat ./*.results/active_urls.json | sort | uniq
 
 --license (Boolean): Show the license and quit
 
---debug (Boolean): Die when an emulation error occurs, even in "batch mode"
+--debug (Boolean): Die when an emulation error occurs, even in "batch mode", and pass on the exit code.
 
---loglevel (String): Logging level (debug, verbose, info, warning, error - default "info"
+--loglevel (String): Logging level (debug, verbose, info, warning, error - default "info")
 
 --threads (Number): When running in batch mode, how many analyses to run at the same time (0 = unlimited, default: as many as the number of CPU cores)
 
@@ -284,5 +286,9 @@ and iterate until the code emulates without errors.
  * improving the features of UglifyJS used in deobfuscation
 
 @psrok:
+
+ * bugfixes
+
+@gaelmuller:
 
  * bugfixes

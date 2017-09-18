@@ -69,12 +69,6 @@
 		return this.length;
 	};
 
-	function Error(message, description) {
-		const e = new Error(message);
-		e.description = description;
-		return e;
-	}
-
 	let _OriginalFunction = Function;
 	Function = function(...args) {
 		const originalSource = args.pop();

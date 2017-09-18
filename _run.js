@@ -93,7 +93,7 @@ folders
 
 if (tasks.length === 0) {
 	console.log("Please pass one or more filenames or directories as an argument.");
-	process.exit(-1);
+	process.exit(255);
 }
 
 // Prevent "possible memory leak" warning
@@ -139,31 +139,45 @@ function analyze(filepath, filename, cb) {
 		if (!argv.preprocess)
 			console.log("Hint: if the script is heavily obfuscated, --preprocess --unsafe-preprocess can speed up the emulation.");
 		worker.kill();
+		if (argv.debug) process.exit(2);
 		cb();
 	}, timeout * 1000);
 
-	worker.on("message", function() {
-		clearTimeout(killTimeout);
-		worker.kill();
-		cb();
+	let expectShellError = false;
+
+	worker.on("message", function(message) {
+		switch (message) {
+			case "expect-shell-error":
+				expectShellError = true;
+				break;
+			case "no-expect-shell-error":
+				expectShellError = false;
+				break;
+		}
 	});
 
 	worker.on("exit", function(code) {
+		if (argv.debug && expectShellError) {
+			// Use the appropriate exit code, as documented in the README
+			process.exit(5);
+		}
 		if (code === 1) {
 			console.log(`
  * If the error is about a weird \"Unknown ActiveXObject\", try --no-kill.
- * If the error is about a legitimate \"Unknown ActiveXObject\", report a bug at https://github.com/CapacitorSet/box-js/issues/ .`);
+ * Otherwise, report a bug at https://github.com/CapacitorSet/box-js/issues/ .`);
 		}
 		clearTimeout(killTimeout);
 		worker.kill();
-		if (argv.debug) process.exit(-1);
+		if (argv.debug) process.exit(code);
 		cb();
 	});
 
 	worker.on("error", function(err) {
+		console.log("error!");
 		console.log(err);
 		clearTimeout(killTimeout);
 		worker.kill();
+		if (argv.debug) process.exit(1);
 		cb();
 	});
 

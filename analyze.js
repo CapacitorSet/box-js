@@ -103,99 +103,100 @@ If you run into unexpected results, try uncommenting lines that look like
 	}
 
 	if (!argv["no-rewrite"]) {
-		lib.verbose("Rewriting code...", false);
-		if (argv["dumb-concat-simplify"]) {
-			lib.verbose("    Simplifying \"dumb\" concatenations (remove --dumb-concat-simplify to skip)...", false);
-			code = code.replace(/'[ \r\n]*\+[ \r\n]*'/gm, "");
-			code = code.replace(/"[ \r\n]*\+[ \r\n]*"/gm, "");
-		}
-
-		if (argv.preprocess) {
-			lib.verbose(`    Preprocessing with uglify-es v${require("uglify-es/package.json").version} (remove --preprocess to skip)...`, false);
-			const unsafe = !!argv["unsafe-preprocess"];
-			lib.debug("Unsafe preprocess: " + unsafe);
-			const result = require("uglify-es").minify(code, {
-				parse: {
-					bare_returns: true, // used when rewriting function bodies
-				},
-				compress: {
-					passes: 3,
-
-					booleans: true,
-					cascade: true,
-					collapse_vars: true,
-					comparisons: true,
-					conditionals: true,
-					dead_code: true,
-					drop_console: false,
-					evaluate: true,
-					if_return: true,
-					inline: true,
-					join_vars: false, // readability
-					keep_fargs: unsafe, // code may rely on Function.length
-					keep_fnames: unsafe, // code may rely on Function.prototype.name
-					keep_infinity: true, // readability
-					loops: true,
-					negate_iife: false, // readability
-					properties: true,
-					pure_getters: false, // many variables are proxies, which don't have pure getters
-					/* If unsafe preprocessing is enabled, tell uglify-es that Math.* functions
-					 * have no side effects, and therefore can be removed if the result is
-					 * unused. Related issue: mishoo/UglifyJS2#2227
-					 */
-					pure_funcs: unsafe ?
-						// https://stackoverflow.com/a/10756976
-						Object.getOwnPropertyNames(Math).map(key => `Math.${key}`) :
-						null,
-					reduce_vars: true,
-					/* Using sequences (a; b; c; -> a, b, c) provides some performance benefits
-					 * (https://github.com/CapacitorSet/box-js/commit/5031ba7114b60f1046e53b542c0e4810aad68a76#commitcomment-23243778),
-					 * but it makes code harder to read. Therefore, this behaviour is disabled.
-					 */
-					sequences: false,
-					toplevel: true,
-					typeofs: false, // typeof foo == "undefined" -> foo === void 0: the former is more readable
-					unsafe,
-					unused: true,
-				},
-				output: {
-					beautify: true,
-					comments: true,
-				},
-			});
-			if (result.error) {
-				lib.error("Couldn't preprocess with uglify-es: " + JSON.stringify(result.error));
-			} else {
-				code = result.code;
-			}
-		}
-
-		let tree;
 		try {
-			tree = acorn.parse(code, {
-				allowReturnOutsideFunction: true, // used when rewriting function bodies
-				plugins: {
-					// enables acorn plugin needed by prototype rewrite
-					JScriptMemberFunctionStatement: !argv["no-rewrite-prototype"],
-				},
-			});
-		} catch (e) {
-			lib.error("Couldn't parse with Acorn:");
-			lib.error(e);
-			lib.error("");
-			if (filename.match(/jse$/)) {
-				lib.error(
-					`This appears to be a JSE (JScript.Encode) file.
+			lib.verbose("Rewriting code...", false);
+			if (argv["dumb-concat-simplify"]) {
+				lib.verbose("    Simplifying \"dumb\" concatenations (remove --dumb-concat-simplify to skip)...", false);
+				code = code.replace(/'[ \r\n]*\+[ \r\n]*'/gm, "");
+				code = code.replace(/"[ \r\n]*\+[ \r\n]*"/gm, "");
+			}
+
+			if (argv.preprocess) {
+				lib.verbose(`    Preprocessing with uglify-es v${require("uglify-es/package.json").version} (remove --preprocess to skip)...`, false);
+				const unsafe = !!argv["unsafe-preprocess"];
+				lib.debug("Unsafe preprocess: " + unsafe);
+				const result = require("uglify-es").minify(code, {
+					parse: {
+						bare_returns: true, // used when rewriting function bodies
+					},
+					compress: {
+						passes: 3,
+
+						booleans: true,
+						cascade: true,
+						collapse_vars: true,
+						comparisons: true,
+						conditionals: true,
+						dead_code: true,
+						drop_console: false,
+						evaluate: true,
+						if_return: true,
+						inline: true,
+						join_vars: false, // readability
+						keep_fargs: unsafe, // code may rely on Function.length
+						keep_fnames: unsafe, // code may rely on Function.prototype.name
+						keep_infinity: true, // readability
+						loops: true,
+						negate_iife: false, // readability
+						properties: true,
+						pure_getters: false, // many variables are proxies, which don't have pure getters
+						/* If unsafe preprocessing is enabled, tell uglify-es that Math.* functions
+						 * have no side effects, and therefore can be removed if the result is
+						 * unused. Related issue: mishoo/UglifyJS2#2227
+						 */
+						pure_funcs: unsafe ?
+							// https://stackoverflow.com/a/10756976
+							Object.getOwnPropertyNames(Math).map(key => `Math.${key}`) :
+							null,
+						reduce_vars: true,
+						/* Using sequences (a; b; c; -> a, b, c) provides some performance benefits
+						 * (https://github.com/CapacitorSet/box-js/commit/5031ba7114b60f1046e53b542c0e4810aad68a76#commitcomment-23243778),
+						 * but it makes code harder to read. Therefore, this behaviour is disabled.
+						 */
+						sequences: false,
+						toplevel: true,
+						typeofs: false, // typeof foo == "undefined" -> foo === void 0: the former is more readable
+						unsafe,
+						unused: true,
+					},
+					output: {
+						beautify: true,
+						comments: true,
+					},
+				});
+				if (result.error) {
+					lib.error("Couldn't preprocess with uglify-es: " + JSON.stringify(result.error));
+				} else {
+					code = result.code;
+				}
+			}
+
+			let tree;
+			try {
+				tree = acorn.parse(code, {
+					allowReturnOutsideFunction: true, // used when rewriting function bodies
+					plugins: {
+						// enables acorn plugin needed by prototype rewrite
+						JScriptMemberFunctionStatement: !argv["no-rewrite-prototype"],
+					},
+				});
+			} catch (e) {
+				lib.error("Couldn't parse with Acorn:");
+				lib.error(e);
+				lib.error("");
+				if (filename.match(/jse$/)) {
+					lib.error(
+`This appears to be a JSE (JScript.Encode) file.
 Please compile the decoder and decode it first:
 
 cc decoder.c -o decoder
 ./decoder ${filename} ${filename.replace(/jse$/, "js")}
 
 `
-				);
-			} else {
-				lib.error(
-					`This doesn't seem to be a JavaScript/WScript file.
+					);
+				} else {
+					lib.error(
+`This doesn't seem to be a JavaScript/WScript file.
 If this is a JSE file (JScript.Encode), compile
 decoder.c and run it on the file, like this:
 
@@ -203,88 +204,93 @@ cc decoder.c -o decoder
 ./decoder ${filename} ${filename}.js
 
 `
-				);
-			}
-			process.exit(-1);
-			return;
-		}
-
-		if (!argv["no-rewrite-prototype"]) {
-			lib.verbose("    Replacing `function A.prototype.B()` (use --no-rewrite-prototype to skip)...", false);
-			traverse(tree, function(key, val) {
-				if (!val) return;
-				if (val.type !== "FunctionDeclaration" &&
-					val.type !== "FunctionExpression") return;
-				if (!val.id) return;
-				if (val.id.type !== "MemberExpression") return;
-				return require("./patches/prototype.js")(val);
-			});
-		}
-
-
-		if (!argv["no-hoist-prototype"]) {
-			lib.verbose("    Hoisting `function A.prototype.B()` (use --no-hoist-prototype to skip)...", false);
-			hoist(tree);
-		}
-
-		if (argv["function-rewrite"]) {
-			lib.verbose("    Rewriting functions (remove --function-rewrite to skip)...", false);
-			traverse(tree, function(key, val) {
-				if (key !== "callee") return;
-				if (val.autogenerated) return;
-				switch (val.type) {
-					case "MemberExpression":
-						return require("./patches/this.js")(val.object, val);
-					default:
-						return require("./patches/nothis.js")(val);
+					);
 				}
-			});
+				process.exit(4);
+				return;
+			}
+
+			if (!argv["no-rewrite-prototype"]) {
+				lib.verbose("    Replacing `function A.prototype.B()` (use --no-rewrite-prototype to skip)...", false);
+				traverse(tree, function(key, val) {
+					if (!val) return;
+					if (val.type !== "FunctionDeclaration" &&
+						val.type !== "FunctionExpression") return;
+					if (!val.id) return;
+					if (val.id.type !== "MemberExpression") return;
+					return require("./patches/prototype.js")(val);
+				});
+			}
+
+
+			if (!argv["no-hoist-prototype"]) {
+				lib.verbose("    Hoisting `function A.prototype.B()` (use --no-hoist-prototype to skip)...", false);
+				hoist(tree);
+			}
+
+			if (argv["function-rewrite"]) {
+				lib.verbose("    Rewriting functions (remove --function-rewrite to skip)...", false);
+				traverse(tree, function(key, val) {
+					if (key !== "callee") return;
+					if (val.autogenerated) return;
+					switch (val.type) {
+						case "MemberExpression":
+							return require("./patches/this.js")(val.object, val);
+						default:
+							return require("./patches/nothis.js")(val);
+					}
+				});
+			}
+
+			if (!argv["no-typeof-rewrite"]) {
+				lib.verbose("    Rewriting typeof calls (use --no-typeof-rewrite to skip)...", false);
+				traverse(tree, function(key, val) {
+					if (!val) return;
+					if (val.type !== "UnaryExpression") return;
+					if (val.operator !== "typeof") return;
+					if (val.autogenerated) return;
+					return require("./patches/typeof.js")(val.argument);
+				});
+			}
+
+			if (!argv["no-eval-rewrite"]) {
+				lib.verbose("    Rewriting eval calls (use --no-eval-rewrite to skip)...", false);
+				traverse(tree, function(key, val) {
+					if (!val) return;
+					if (val.type !== "CallExpression") return;
+					if (val.callee.type !== "Identifier") return;
+					if (val.callee.name !== "eval") return;
+					return require("./patches/eval.js")(val.arguments);
+				});
+			}
+
+			if (!argv["no-catch-rewrite"]) { // JScript quirk
+				lib.verbose("    Rewriting try/catch statements (use --no-catch-rewrite to skip)...", false);
+				traverse(tree, function(key, val) {
+					if (!val) return;
+					if (val.type !== "TryStatement") return;
+					if (!val.handler) return;
+					if (val.autogenerated) return;
+					return require("./patches/catch.js")(val);
+				});
+			}
+
+			// console.log(JSON.stringify(tree, null, "\t"));
+			code = escodegen.generate(tree);
+
+			// The modifications may have resulted in more concatenations, eg. "a" + ("foo", "b") + "c" -> "a" + "b" + "c"
+			if (argv["dumb-concat-simplify"]) {
+				lib.verbose("    Simplifying \"dumb\" concatenations (remove --dumb-concat-simplify to skip)...", false);
+				code = code.replace(/'[ \r\n]*\+[ \r\n]*'/gm, "");
+				code = code.replace(/"[ \r\n]*\+[ \r\n]*"/gm, "");
+			}
+
+			lib.verbose("Rewritten successfully.", false);
+		} catch (e) {
+			console.log("An error occurred during rewriting:");
+			console.log(e);
+			process.exit(3);
 		}
-
-		if (!argv["no-typeof-rewrite"]) {
-			lib.verbose("    Rewriting typeof calls (use --no-typeof-rewrite to skip)...", false);
-			traverse(tree, function(key, val) {
-				if (!val) return;
-				if (val.type !== "UnaryExpression") return;
-				if (val.operator !== "typeof") return;
-				if (val.autogenerated) return;
-				return require("./patches/typeof.js")(val.argument);
-			});
-		}
-
-		if (!argv["no-eval-rewrite"]) {
-			lib.verbose("    Rewriting eval calls (use --no-eval-rewrite to skip)...", false);
-			traverse(tree, function(key, val) {
-				if (!val) return;
-				if (val.type !== "CallExpression") return;
-				if (val.callee.type !== "Identifier") return;
-				if (val.callee.name !== "eval") return;
-				return require("./patches/eval.js")(val.arguments);
-			});
-		}
-
-		if (!argv["no-catch-rewrite"]) { // JScript quirk
-			lib.verbose("    Rewriting try/catch statements (use --no-catch-rewrite to skip)...", false);
-			traverse(tree, function(key, val) {
-				if (!val) return;
-				if (val.type !== "TryStatement") return;
-				if (!val.handler) return;
-				if (val.autogenerated) return;
-				return require("./patches/catch.js")(val);
-			});
-		}
-
-		// console.log(JSON.stringify(tree, null, "\t"));
-		code = escodegen.generate(tree);
-
-		// The modifications may have resulted in more concatenations, eg. "a" + ("foo", "b") + "c" -> "a" + "b" + "c"
-		if (argv["dumb-concat-simplify"]) {
-			lib.verbose("    Simplifying \"dumb\" concatenations (remove --dumb-concat-simplify to skip)...", false);
-			code = code.replace(/'[ \r\n]*\+[ \r\n]*'/gm, "");
-			code = code.replace(/"[ \r\n]*\+[ \r\n]*"/gm, "");
-		}
-
-		lib.verbose("Rewritten successfully.", false);
 	}
 
 	return code;

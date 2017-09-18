@@ -176,7 +176,9 @@ module.exports = {
 		const filename = getUUID();
 		log("info", `Executing ${path.join(directory, filename)} in the WScript shell`);
 		logSnippet(filename, {as: "WScript code"}, command);
+		process.send("expect-shell-error");
 		if (!argv["no-shell-error"])
 			throw new Error("If you can read this, re-run box.js with the --no-shell-error flag.");
+		process.send("no-expect-shell-error");
 	}
 };

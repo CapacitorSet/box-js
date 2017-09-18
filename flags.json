@@ -20,7 +20,7 @@
         {
             "name": "debug",
             "type": "Boolean",
-            "description": "Die when an emulation error occurs, even in \"batch mode\""
+            "description": "Die when an emulation error occurs, even in \"batch mode\", and pass on the exit code."
         },
         {
             "name": "loglevel",

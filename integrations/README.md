@@ -37,6 +37,20 @@ This does the following:
 
 When the analysis terminates, you will find the results in /tmp/samplescollection, where you can analyze them by yourself or with `box-export`.
 
+If you wish to use Docker in an external application, it can be useful to use `--debug` and check the return code:
+
+ * 0 is, of course, success.
+ * 1 is returned for generic errors.
+ * 2 is returned when the script times out.
+   >You should retry the analysis with a higher timeout, if the current/default one is too short.
+ * 3 is returned when an error occurred during rewriting.
+   >You should try to re-run the analysis with --no-rewrite.
+ * 4 is returned when the file couldn't be parsed, most likely because it's not JavaScript (eg. it's actually VBScript, or it's JSE and needs to be decoded).
+   >You should try to decode the sample with the given decoder, and re-run the analysis on the plaintext sample.
+ * 5 is returned when a shell fake-error was not catched by the dropper.
+   >You should try to re-run the analysis with --no-shell-error.
+ * 255 is returned when no files or directories were passed (or all the directories were empty).
+
 ## REST API
 
 >This section is a work-in-progress.

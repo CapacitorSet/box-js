@@ -1,6 +1,6 @@
 const fs = require("fs");
 const flags = JSON.parse(fs.readFileSync("flags.json", "utf8"));
-const text = flags.map((item) => `--${item.name} (${item.type}): ${item.description}`).join("\n\n");
+const text = flags.run.map((item) => `--${item.name} (${item.type}): ${item.description}`).join("\n\n");
 const README = fs.readFileSync("README.md", "utf8");
 fs.writeFileSync(
 	"README.md",
