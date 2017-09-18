@@ -14,6 +14,12 @@ const filename = process.argv[2];
 require("./patches/prototype-plugin.js")(acorn);
 
 lib.debug("Analysis launched: " + JSON.stringify(process.argv));
+lib.verbose("Box-js version: " + require("./package.json").version);
+if (fs.existsSync(path.join(__dirname, ".git"))) {
+	lib.verbose("Commit: " + fs.readFileSync(path.join(__dirname, ".git/refs/heads/master"), "utf8").replace(/\n/, ""));
+} else {
+	lib.verbose("No git folder found.");
+}
 lib.verbose(`Analyzing ${filename}`, false);
 const sampleBuffer = fs.readFileSync(filename);
 let encoding;
