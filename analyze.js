@@ -507,7 +507,7 @@ function hoist(obj, scope) {
 			const hoisted = [];
 			if (Array.isArray(obj[key])) {
 				obj[key] = obj[key].reduce((arr, el) => {
-					if (el.hoist) {
+					if (el && el.hoist) {
 						// Mark as hoisted yet
 						el.hoist = false;
 						// Should be hoisted? Add to array and filter out from current.
