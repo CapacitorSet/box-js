@@ -348,87 +348,65 @@ const sandbox = {
 		return type;
 	},
 	_typeof: (x) => x.typeof ? x.typeof : typeof x,
-	WScript: new Proxy({}, {
-		get: function(target, name) {
-			if (typeof name === "string") name = name.toLowerCase();
-			switch (name) {
-				case Symbol.toPrimitive:
-					return () => "Windows Script Host";
-				case "tostring":
-					return "Windows Script Host";
-
-				case "arguments":
-					return new Proxy((n) => `${n}th argument`, {
-						get: function(target, name) {
-							switch (name) {
-								case "Unnamed":
-									return [];
-								case "length":
-									return 0;
-								case "ShowUsage":
-									return {
-										typeof: "unknown",
-									};
-								case "Named":
-									return [];
-								default:
-									return new Proxy(
-										target[name],
-										{
-											get: (target, name) => name.toLowerCase() === "typeof" ? "unknown" : target[name],
-										}
-									);
-							}
-						},
-					});
-				case "createobject":
-					return ActiveXObject;
-				case "echo":
-					if (argv["no-echo"])
-						return () => {};
-					return (x) => {
-						lib.verbose("Script wrote: " + x);
-						lib.verbose("Add flag --no-echo to disable this.");
-					};
-				case "path":
-					return "C:\\TestFolder\\";
-				// case "sleep":
-				// This function is emulated in patch.js, because it requires access
-				// to the variable _globalTimeOffset, which belongs to the script and
-				// not to the emulator.
-				case "stdin":
-					return new Proxy({
-						atendofstream: {
+	WScript: {
+		Arguments: new Proxy((n) => `${n}th argument`, {
+			get: function(target, name) {
+				switch (name) {
+					case "Unnamed":
+						return [];
+					case "length":
+						return 0;
+					case "ShowUsage":
+						return {
 							typeof: "unknown",
-						},
-						line: 1,
-						writeline: (text) => {
-							if (argv["no-echo"]) return;
-							lib.verbose("Script wrote: " + text);
-							lib.verbose("Add flag --no-echo to disable this.");
-						},
-					}, {
-						get: function(target, name) {
-							name = name.toLowerCase();
-							if (!(name in target))
-								lib.kill(`WScript.StdIn.${name} not implemented!`);
-							return target[name];
-						},
-					});
-				case "quit":
-					return () => {};
-				case "scriptfullname":
-					return "(ScriptFullName)";
-				case "scriptname":
-					return "sample.js";
-				case "version":
-					return "5.8";
-				default:
-					if (name.toLowerCase() in target) return target[name];
-					lib.kill(`WScript.${name} not implemented!`);
-			}
+						};
+					case "Named":
+						return [];
+					default:
+						return new Proxy(
+							target[name],
+							{
+								get: (target, name) => name.toLowerCase() === "typeof" ? "unknown" : target[name],
+							}
+						);
+				}
+			},
+		}),
+		BuildVersion: "1234",
+		FullName: "C:\\WINDOWS\\system32\\wscript.exe",
+		Interactive: true,
+		Name: "wscript.exe",
+		Path: "C:\\TestFolder\\",
+		ScriptFullName: "C:\\Documents and Settings\\User\\Desktop\\sample.js",
+		ScriptName: "sample.js",
+		get StdErr() {
+			lib.error("WScript.StdErr not implemented");
 		},
-	}),
+		get StdIn() {
+			lib.error("WScript.StdIn not implemented");
+		},
+		get StdOut() {
+			lib.error("WScript.StdOut not implemented");
+		},
+		Version: "5.8",
+		get ConnectObject() {
+			lib.error("WScript.ConnectObject not implemented");
+		},
+		CreateObject: ActiveXObject,
+		get DisconnectObject() {
+			lib.error("WScript.DisconnectObject not implemented");
+		},
+		Echo() {},
+		get GetObject() {
+			lib.error("WScript.GetObject not implemented");
+		},
+		Quit() {},
+		// Note that Sleep() is implemented in patch.js because it requires
+		// access to the variable _globalTimeOffset, which belongs to the script
+		// and not to the emulator.
+		[Symbol.toPrimitive]: () => "Windows Script Host",
+		toString: "Windows Script Host",
+	},
 	WSH: "Windows Script Host",
 };
 
