@@ -1,4 +1,5 @@
 const lib = require("../lib.js");
+const TextStream = require("./TextStream.js");
 const argv = require("../argv.js").run;
 
 function WScriptShell() {
@@ -44,7 +45,21 @@ function WScriptShell() {
 
 		return path;
 	};
-	this.run = cmd => lib.runShellCommand(cmd);
+	this.run = cmd => {
+		lib.runShellCommand(cmd);
+		return 0;
+	};
+	this.exec = cmd => {
+		lib.runShellCommand(cmd);
+		return {
+			ExitCode: 1,
+			ProcessID: Math.floor(Math.random() * 1000),
+			Status: 1, // Finished			
+			StdErr: null,
+			StdIn: null,
+			StdOut: new TextStream(`<output of ${cmd}>`),
+		};
+	};
 	this._normalize_reg_key = (key) => {
 		key = key
 			.replace("HKLM", "HKEY_LOCAL_MACHINE")
