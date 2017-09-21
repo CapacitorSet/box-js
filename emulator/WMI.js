@@ -1,35 +1,46 @@
 const lib = require("../lib");
 
-function VirtualWMIObject(object) {
-	return new Proxy(object, {
-		get: function(target, name) {
-			if (typeof name === "string") name = name.toLowerCase();
-			switch (name) {
-				case "instancesof":
-					return function(table) {
-						table = table.toLowerCase();
-						if (table in target) return target[table];
-						lib.kill(`WMIObject(${JSON.stringify(target)}).InstancesOf(${table}) not implemented!`);
-					};
-				case "execquery":
-					return query => {
-						query = query.toLowerCase();
-						// TODO: implement actual SQL
-						if (query === "select * from win32_process") {
-							lib.info("Script tried to read the list of processes");
-							return [{name: "wscript.exe"}];
-						}
-						if (query === "select version from win32_operatingsystem") return [{version: "10"}];
-						throw new Error(`Not implemented: query "${query}"`);
-					}
-				default:
-					if (name in target) return target[name];
-					if (name === "valueof") return undefined;
-					if (name === "tojson") return () => JSON.stringify(target);
-					lib.kill(`WMIObject(${JSON.stringify(target)}).${name} not implemented!`);
-			}
+// Note: all fields MUST be in lowercase!
+const tables = {
+	antivirusproduct: [],
+	win32_computersystemproduct: [],
+	win32_logicaldisk: [{ // dirty patch by @ALange
+		deviceid: "C:",
+		volumeserialnumber: "B55B4A40",
+	}],
+	win32_operatingsystem: [{
+		version: "5.3",
+		caption: "Windows XP",
+	}],
+	win32_process: [{
+		name: "wscript.exe",
+	}],
+};
+
+Object.keys(tables).forEach(name => {
+	if (/[A-Z]/.test(name))
+		lib.kill("Internal error: non-lowercase table name");
+	tables[name].forEach(row => Object.keys(row).forEach(label => {
+		if (/[A-Z]/.test(label))
+			lib.kill("Internal error: non-lowercase property");
+	}));
+});
+
+function getTable(_tableName) {
+	const tableName = _tableName.toLowerCase();
+	if (tableName === "win32_process")
+		lib.info("Script tried to read the list of processes");
+	lib.verbose(`Script tried to read table ${tableName}`);
+	if (!(tableName in tables))
+		lib.kill("Table ${tableName} not implemented!");
+	// Proxify everything
+	return tables[tableName].map(row => new Proxy(row, {
+		get(target, _prop) {
+			const prop = _prop.toLowerCase();
+			if (prop in target) return target[prop];
+			kill(`${tableName}.${prop} not implemented!`);
 		},
-	});
+	}));
 }
 
 module.exports.GetObject = function(name) {
@@ -46,17 +57,22 @@ module.exports.GetObject = function(name) {
 			lib.kill(`GetObject(${name}) not implemented!`);
 	}
 */
-	return new VirtualWMIObject({
-		"win32_computersystemproduct": [new VirtualWMIObject({
-			name: "Foobar",
-		})],
-		"win32_operatingsystem": [new VirtualWMIObject({
-			caption: "Microsoft Windows 10 Pro",
-		})],
-		"win32_logicaldisk": [new VirtualWMIObject({ // dirty patch by @ALange
-			deviceid: "C:",
-			volumeserialnumber: "B55B4A40",
-		})],
-		"antivirusproduct": [],
+	return new Proxy({
+		InstancesOf: getTable,
+		ExecQuery: query => {
+			// TODO: implement actual SQL
+			const parts = query.match(/^select +(\*|(?:\w+, *)*(?:\w+)) +from +(\w+)/i);
+			if (!parts)
+				lib.kill(`Not implemented: query "${query}"`);
+			// For now, fields are ignored.
+			// const fields = parts[1];
+			const tableName = parts[2].toLowerCase();
+			return getTable(tableName);
+		},
+	}, {
+		get(target, name) {
+			if (name in target) return target[name];
+			lib.kill(`WMI.GetObject.${name} not implemented!`);
+		},
 	});
 };
