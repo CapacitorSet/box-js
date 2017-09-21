@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created by diasvg.py -->
+<svg width="12.605cm" height="11.095cm" viewBox="6.950 1.455 12.605 11.095"
+ xmlns="http://www.w3.org/2000/svg"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- Layer: Background -->
+<g id="Background">
+<!-- Flowchart - Box -->
+<rect x="7.000" y="1.505" width="12.505" height="10.995" fill="#D8E5E5" stroke="#000000" stroke-width="0.100"  rx="0.000" />
+<!-- Flowchart - Box -->
+<rect x="7.500" y="2.000" width="11.505" height="1.900" fill="#FFC0CB" stroke="#000000" stroke-width="0.100"  rx="0.000" />
+<text x="13.252" y="3.145"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Malware</text>
+<!-- Flowchart - Box -->
+<rect x="7.500" y="4.500" width="11.500" height="3.000" fill="#FFC0CB" stroke="#000000" stroke-width="0.100"  rx="0.000" />
+<text x="13.250" y="5.795"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Emulated Microsoft JScript</text>
+<text x="13.250" y="6.595"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Emulated Windows</text>
+<!-- Standard - Text -->
+<text x="19.305" y="12.150"  fill="#000000" text-anchor="end" font-size="0.80" font-family="sans" font-style="italic" font-weight="400">
+Native</text>
+<!-- Flowchart - Box -->
+<rect x="7.500" y="9.000" width="11.500" height="1.900" fill="#90EE90" stroke="#000000" stroke-width="0.100"  rx="0.000" />
+<text x="13.250" y="10.145"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Linux/BSD</text>
+<!-- Standard - Line -->
+<line x1="16.125" y1="9.000" x2="16.125" y2="7.987" stroke="#000000" stroke-width="0.100" />
+<polygon fill="#000000" stroke="#000000" stroke-width="0.100"  points="16.125,7.612 16.375,8.112 16.125,7.987 15.875,8.112 "/>
+<!-- Standard - Line -->
+<line x1="10.375" y1="7.500" x2="10.375" y2="8.513" stroke="#000000" stroke-width="0.100" />
+<polygon fill="#000000" stroke="#000000" stroke-width="0.100"  points="10.375,8.888 10.125,8.388 10.375,8.513 10.625,8.388 "/>
+</g>
+</svg>

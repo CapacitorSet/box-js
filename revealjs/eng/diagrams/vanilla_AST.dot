@@ -1,0 +1,16 @@
+digraph AST {
+	"eval" [style="filled" fillcolor="#ef9a9a"]
+	"eval(pippo.decrypt() + \"unknown code\")" [style="filled" fillcolor="#ef9a9a"]
+	subgraph argument {
+		node [style="filled" fillcolor="#c5e1a5"]
+		"pippo.decrypt() + \"unknown code\""
+
+		"pippo.decrypt() + \"unknown code\"" -> "pippo.decrypt()"
+		"pippo.decrypt()" -> "Prototype.decrypt"
+		"pippo.decrypt()" -> "pippo"
+		"pippo.decrypt() + \"unknown code\"" -> "\"unknown code\""
+	}
+
+	"eval(pippo.decrypt() + \"unknown code\")" -> "eval"
+	"eval(pippo.decrypt() + \"unknown code\")" -> "pippo.decrypt() + \"unknown code\""
+}
