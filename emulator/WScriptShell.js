@@ -36,7 +36,10 @@ function WScriptShell() {
 	this.createshortcut = () => ({});
 	this.expandenvironmentstrings = (path) => {
 		Object.keys(vars).forEach(key => {
-			path = path.replace(RegExp("%" + key + "%", "gi"), vars[key]);
+			const regex = RegExp("%" + key + "%", "gi");
+			if (!regex.test(path)) return;
+			lib.info(`Script read environment variable ${key}`);
+			path = path.replace(regex, vars[key]);
 		});
 
 		if (/%\w+%/i.test(path)) {
