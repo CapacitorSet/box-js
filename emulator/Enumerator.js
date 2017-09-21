@@ -1,26 +1,23 @@
 const lib = require("../lib");
 
-function Enumerator(array) {
-	this._internalindex = 0;
-	this._Length = () => array.length;
-	this.item = function(index = this._internalindex) {
-		return array[index];
-	};
-	this.movenext = () => this._internalindex++;
-	this.atend = () => array.length === this._internalindex;
-}
-
-module.exports = function(array) {
-	return new Proxy(new Enumerator(array), {
-		get: function(target, name) {
-			name = name.toLowerCase();
-			switch (name) {
-				case "length":
-					return target._Length();
-				default:
-					if (name in target) return target[name];
-					lib.kill(`Enumerator.${name} not implemented!`);
-			}
-		},
-	});
+module.exports = class Enumerator {
+	constructor(array) {
+		this.array = array;
+		this.index = 0;
+	}
+	get length() {
+		return this.array.length;
+	}
+	atEnd() {
+		return this.index === this.array.length;
+	}
+	item() {
+		return this.array[this.index];
+	}
+	moveFirst() {
+		this.index = 0;
+	}
+	moveNext() {
+		this.index++;
+	}
 };
