@@ -8,23 +8,23 @@
 <!-- Flowchart - Box -->
 <rect x="2.500" y="0.000" width="5.000" height="2.000" fill="#FFFFFF" stroke="#000000" stroke-width="0.100"  rx="0.000" />
 <text x="5.000" y="1.195"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
-Filtri email</text>
+Email filters</text>
 <!-- Flowchart - Box -->
 <rect x="2.500" y="3.000" width="4.997" height="2.000" fill="#FFFFFF" stroke="#000000" stroke-width="0.100"  rx="0.000" />
 <text x="4.999" y="4.195"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
-Ricercatori</text>
+Researchers</text>
 <!-- Flowchart - Box -->
 <rect x="9.000" y="0.000" width="4.000" height="5.000" fill="#FFFFFF" stroke="#000000" stroke-width="0.100"  rx="0.000" />
 <text x="11.000" y="2.295"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
-Coda di</text>
+Work</text>
 <text x="11.000" y="3.095"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
-lavoro</text>
+queue</text>
 <!-- Flowchart - Box -->
 <rect x="14.500" y="0.000" width="5.000" height="4.950" fill="#90EE90" stroke="#000000" stroke-width="0.100"  rx="0.000" />
 <text x="17.000" y="2.270"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
-1° stadio:</text>
+1st stage:</text>
 <text x="17.000" y="3.070"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
-emulazione</text>
+emulation</text>
 <!-- Flowchart - Box -->
 <rect x="20.500" y="3.000" width="5.500" height="1.900" fill="#FFFFFF" stroke="#000000" stroke-width="0.100"  rx="0.000" />
 <text x="23.250" y="4.145"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
@@ -32,7 +32,7 @@ Blacklist</text>
 <!-- Flowchart - Box -->
 <rect x="20.500" y="0.000" width="5.500" height="2.000" fill="#FFC0CB" stroke="#000000" stroke-width="0.100"  rx="0.000" />
 <text x="23.250" y="1.195"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
-Analisi in VM</text>
+VM analysis</text>
 <!-- Standard - ZigZagLine -->
 <polyline fill="none" stroke="#000000" stroke-width="0.100"  points="7.500,1.000 8.000,1.000 8.000,2.500 8.468,2.500 "/>
 <polygon fill="#000000" stroke="#000000" stroke-width="0.100"  points="8.843,2.500 8.343,2.750 8.468,2.500 8.343,2.250 "/>
@@ -59,7 +59,7 @@ Analisi in VM</text>
 RabbitMQ</text>
 <!-- Standard - Text -->
 <text x="17.000" y="6.095"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
-Node.js su</text>
+Node.js on</text>
 <text x="17.000" y="6.895"  fill="#000000" text-anchor="middle" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
 Docker</text>
 </g>

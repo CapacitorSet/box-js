@@ -1,22 +1,22 @@
 digraph AST {
 	"eval" [style="filled" fillcolor="#ef9a9a"]
-	"eval(rewrite(pippo.decrypt() + \"unknown code\"))" [style="filled" fillcolor="#ef9a9a"]
+	"eval(rewrite(foobar.decrypt() + \"unknown code\"))" [style="filled" fillcolor="#ef9a9a"]
 	subgraph rewrittenArgument {
 		node [style="filled" fillcolor="#ffe082"]
 
-		"rewrite(pippo.decrypt() + \"unknown code\")" -> "rewrite"
-		"rewrite(pippo.decrypt() + \"unknown code\")" -> "pippo.decrypt() + \"unknown code\""
+		"rewrite(foobar.decrypt() + \"unknown code\")" -> "rewrite"
+		"rewrite(foobar.decrypt() + \"unknown code\")" -> "foobar.decrypt() + \"unknown code\""
 	}
 	subgraph argument {
 		node [style="filled" fillcolor="#c5e1a5"]
-		"pippo.decrypt() + \"unknown code\"" [style="filled" fillcolor="#c5e1a5"]
+		"foobar.decrypt() + \"unknown code\"" [style="filled" fillcolor="#c5e1a5"]
 
-		"pippo.decrypt() + \"unknown code\"" -> "pippo.decrypt()"
-		"pippo.decrypt()" -> "Prototype.decrypt"
-		"pippo.decrypt()" -> "pippo"
-		"pippo.decrypt() + \"unknown code\"" -> "\"unknown code\""
+		"foobar.decrypt() + \"unknown code\"" -> "foobar.decrypt()"
+		"foobar.decrypt()" -> "Prototype.decrypt"
+		"foobar.decrypt()" -> "foobar"
+		"foobar.decrypt() + \"unknown code\"" -> "\"unknown code\""
 	}
 
-	"eval(rewrite(pippo.decrypt() + \"unknown code\"))" -> "eval"
-	"eval(rewrite(pippo.decrypt() + \"unknown code\"))" -> "rewrite(pippo.decrypt() + \"unknown code\")"
+	"eval(rewrite(foobar.decrypt() + \"unknown code\"))" -> "eval"
+	"eval(rewrite(foobar.decrypt() + \"unknown code\"))" -> "rewrite(foobar.decrypt() + \"unknown code\")"
 }
