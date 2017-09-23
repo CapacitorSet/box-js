@@ -348,8 +348,8 @@ const sandbox = {
 		return type;
 	},
 	_typeof: (x) => x.typeof ? x.typeof : typeof x,
-	WScript: {
-		Arguments: new Proxy((n) => `${n}th argument`, {
+	WScript: new Proxy({
+		arguments: new Proxy((n) => `${n}th argument`, {
 			get: function(target, name) {
 				switch (name) {
 					case "Unnamed":
@@ -372,41 +372,48 @@ const sandbox = {
 				}
 			},
 		}),
-		BuildVersion: "1234",
-		FullName: "C:\\WINDOWS\\system32\\wscript.exe",
-		Interactive: true,
-		Name: "wscript.exe",
-		Path: "C:\\TestFolder\\",
-		ScriptFullName: "C:\\Documents and Settings\\User\\Desktop\\sample.js",
-		ScriptName: "sample.js",
-		get StdErr() {
+		buildversion: "1234",
+		fullname: "C:\\WINDOWS\\system32\\wscript.exe",
+		interactive: true,
+		name: "wscript.exe",
+		path: "C:\\TestFolder\\",
+		scriptfullname: "C:\\Documents and Settings\\User\\Desktop\\sample.js",
+		scriptname: "sample.js",
+		get stderr() {
 			lib.error("WScript.StdErr not implemented");
 		},
-		get StdIn() {
+		get stdin() {
 			lib.error("WScript.StdIn not implemented");
 		},
-		get StdOut() {
+		get stdout() {
 			lib.error("WScript.StdOut not implemented");
 		},
-		Version: "5.8",
-		get ConnectObject() {
+		version: "5.8",
+		get connectobject() {
 			lib.error("WScript.ConnectObject not implemented");
 		},
-		CreateObject: ActiveXObject,
-		get DisconnectObject() {
+		createobject: ActiveXObject,
+		get disconnectobject() {
 			lib.error("WScript.DisconnectObject not implemented");
 		},
-		Echo() {},
-		get GetObject() {
+		echo() {},
+		get getobject() {
 			lib.error("WScript.GetObject not implemented");
 		},
-		Quit() {},
+		quit() {},
 		// Note that Sleep() is implemented in patch.js because it requires
 		// access to the variable _globalTimeOffset, which belongs to the script
 		// and not to the emulator.
 		[Symbol.toPrimitive]: () => "Windows Script Host",
-		toString: "Windows Script Host",
-	},
+		tostring: "Windows Script Host",
+	}, {
+		get(target, prop) {
+			// For whatever reasons, WScript.* properties are case insensitive.
+			if (typeof prop === "string")
+				prop = prop.toLowerCase();
+			return target[prop];
+		}
+	}),
 	WSH: "Windows Script Host",
 };
 
