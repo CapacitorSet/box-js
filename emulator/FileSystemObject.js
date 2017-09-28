@@ -25,7 +25,7 @@ function TextStream(filename) {
 		lib.logResource(this.uuid, this.filename, this.buffer);
 	};
 	this.writeline = (line) => {
-		this.buffer = this.buffer + line + "\n";
+		this.buffer = this.buffer + line + "\r\n";
 		lib.writeFile(filename, this.buffer);
 		lib.logResource(this.uuid, this.filename, this.buffer);
 	};
