@@ -144,6 +144,10 @@ function FileSystemObject() {
 		return `C:\\(Special folder ${id}\\`;
 	};
 	this.gettempname = () => "(Temporary file)";
+	this.movefile = (src, dest, overwrite) => {
+		lib.info(`Copying ${src} to ${dest}`);
+		lib.writeFile(dest, `(Contents of ${dest})`);
+	};
 }
 
 module.exports = lib.proxify(FileSystemObject, "FileSystemObject");
