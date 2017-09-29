@@ -2,7 +2,7 @@
 	window = this;
 
 	_globalTimeOffset = 0;
-	WScript.Sleep = function(delay) {
+	WScript.sleep = function(delay) {
 		_globalTimeOffset += delay;
 	}
 
