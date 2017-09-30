@@ -21,24 +21,18 @@ function XMLHTTP() {
 		if (data)
 			lib.info(`Data sent to ${this.url}:`, data);
 		this.readystate = 4;
-		lib.logUrl(this.method, this.url);
 		let response;
-		if (argv.download) {
-			try {
-				response = lib.fetchUrl(this.method, this.url, this.headers, data);
+		try {
+			response = lib.fetchUrl(this.method, this.url, this.headers, data);
+			if (argv.download) {
 				this.status = 200;
 				this.statustext = "OK";
-			} catch (e) {
-				// If there was an error fetching the URL, pretend that the distribution site is down
+			} else {
 				this.status = 404;
 				this.statustext = "Not found";
-				response = {
-					body: new Buffer(""),
-					headers: {},
-				};
 			}
-		} else {
-			lib.info("Returning HTTP 404 (Not found); use --download to try to download the payload");
+		} catch (e) {
+			// If there was an error fetching the URL, pretend that the distribution site is down
 			this.status = 404;
 			this.statustext = "Not found";
 			response = {

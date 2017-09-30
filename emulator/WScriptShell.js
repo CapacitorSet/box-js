@@ -76,6 +76,7 @@ function WScriptShell() {
 		if (!this._reg_entries) // Load once needed
 			this._reg_entries = require("system-registry");
 		key = this._normalize_reg_key(key);
+		lib.logIOC("RegRead", {key}, "The script read a registry key.");
 		lib.verbose(`Reading registry key ${key}`);
 
 		const normalizedEqual = (a, b) => a.toLowerCase() === b.toLowerCase();
@@ -94,6 +95,7 @@ function WScriptShell() {
 	};
 	this.regwrite = (key, value, type = "(unspecified)") => {
 		key = this._normalize_reg_key(key);
+		lib.logIOC("RegWrite", {key, value, type}, "The script wrote a registry key.");
 		lib.info(`Setting registry key ${key} to ${value} of type ${type}`);
 		this._reg_entries[key] = value;
 	};

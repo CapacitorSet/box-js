@@ -96,14 +96,21 @@ function ProxiedDrive(name) {
 
 function FileSystemObject() {
 	this.buildpath = (...args) => args.join("\\");
-	this.createfolder = (folder) => "(Temporary new folder)";
+	this.createfolder = (folder) => {
+		lib.logIOC("FolderCreate", {folder}, "The script created a folder.");
+		return "(Temporary new folder)";
+	}
 	this.createtextfile = this.opentextfile = (filename) => new ProxiedTextStream(filename);
 	this.copyfile = (src, dest, overwrite) => {
+		lib.logIOC("FileCopy", {src, dest}, "The script copied a file.");
 		lib.info(`Copying ${src} to ${dest}`);
 		lib.writeFile(dest, `(Contents of ${dest})`);
 	};
 	this.drives = [new ProxiedDrive("C:")];
-	this.deletefile = () => true;
+	this.deletefile = (path) => {
+		lib.logIOC("FileDelete", {path}, "The script deleted a file.");
+		return true;
+	}
 	this.fileexists = (path) => {
 		const value = !argv["no-file-exists"];
 		if (value) {
@@ -145,7 +152,8 @@ function FileSystemObject() {
 	};
 	this.gettempname = () => "(Temporary file)";
 	this.movefile = (src, dest, overwrite) => {
-		lib.info(`Copying ${src} to ${dest}`);
+		lib.logIOC("FileMove", {src, dest}, "The script moved a file.");
+		lib.info(`Moving ${src} to ${dest}`);
 		lib.writeFile(dest, `(Contents of ${dest})`);
 	};
 }

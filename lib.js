@@ -13,6 +13,7 @@ const activeUrls = [];
 const snippets = {};
 const resources = {};
 const files = {};
+const IOC = [];
 
 let latestUrl = "";
 
@@ -62,6 +63,19 @@ function hash(algo, string) {
 
 const getUUID = uuid.v4;
 
+function logIOC(type, value, description) {
+	log("info", "IOC: " + description);
+	IOC.push({type, value, description});
+	fs.writeFileSync(path.join(directory, "IOC.json"), JSON.stringify(IOC, null, "\t"));
+}
+
+function logUrl(method, url) {
+	log("info", `${method} ${url}`);
+	latestUrl = url;
+	if (urls.indexOf(url) === -1) urls.push(url);
+	fs.writeFileSync(path.join(directory, "urls.json"), JSON.stringify(urls, null, "\t"));
+}
+
 module.exports = {
 	argv,
 	kill,
@@ -93,6 +107,15 @@ module.exports = {
 	fetchUrl: function(method, url, headers = {}, body) {
 		// Ignore HTTPS errors
 		process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+		logUrl(method, url);
+		logIOC("UrlFetch", {method, url, headers, body}, "The script fetched an URL.");
+		if (!doDownload) {
+			lib.info("Returning HTTP 404 (Not found); use --download to try to download the payload");
+			return {
+				body: new Buffer(""),
+				headers: {},
+			};
+		}
 		try {
 			log("info", "Downloading...");
 
@@ -121,17 +144,14 @@ module.exports = {
 		}
 	},
 	writeFile: function(filename, contents) {
+		logIOC("FileWrite", {file: filename, contents}, "The script wrote a file.");
 		files[filename] = contents;
 	},
 	readFile: function(filename) {
+		logIOC("FileRead", {file: filename}, "The script read a file.");
 		return files[filename];
 	},
-	logUrl: function(method, url) {
-		log("info", `${method} ${url}`);
-		latestUrl = url;
-		if (urls.indexOf(url) === -1) urls.push(url);
-		fs.writeFileSync(path.join(directory, "urls.json"), JSON.stringify(urls, null, "\t"));
-	},
+	logUrl,
 	logResource: function(resourceName, emulatedPath, content) {
 		const filePath = path.join(directory, resourceName);
 		fs.writeFileSync(filePath, content);
@@ -156,13 +176,16 @@ module.exports = {
 		const sha256 = hash("sha256", content);
 		log("verb", "sha256: " + sha256);
 
-		resources[resourceName] = {
+		const resource = {
 			path: emulatedPath,
 			type: filetype,
+			latestUrl,
 			md5,
 			sha1,
 			sha256
 		};
+		resources[resourceName] = resource;
+		logIOC("NewResource", resource, "The script created a resource.");
 		fs.writeFileSync(path.join(directory, "resources.json"), JSON.stringify(resources, null, "\t"));
 	},
 	logSnippet,
@@ -172,8 +195,10 @@ module.exports = {
 		logSnippet(filename, {as: "eval'd JS"}, code);
 		return code; // Helps with tail call optimization
 	},
+	logIOC,
 	runShellCommand: (command) => {
 		const filename = getUUID();
+		logIOC("Run", {command}, "The script ran a command.");
 		log("info", `Executing ${path.join(directory, filename)} in the WScript shell`);
 		logSnippet(filename, {as: "WScript code"}, command);
 		process.send("expect-shell-error");
