@@ -1,0 +1,261 @@
+openapi: 3.0.0
+info:
+  title: Box-js API
+  version: beta
+servers:
+  - url: 'http://127.0.0.1:9000/'
+paths:
+  '/sample/{id}':
+    get:
+      summary: Retrieves the analysis results
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: >-
+            The analysis ID, as a UUID (eg.
+            `e483593a-4640-42cd-888d-0e97206e9131`)
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: >
+                      Exit code of the analysis, as documented
+                      [here](https://github.com/CapacitorSet/box-js/tree/master/integrations#running-in-docker)
+                  stderr:
+                    type: string
+                    description: |
+                      Errors printed during the analysis, if any
+                    example: ''
+        '400':
+          description: Invalid ID. The ID must be an UUID.
+        '404':
+          description: 'Folder not found, or analysis not ready.'
+    delete:
+      summary: Deletes the analysis data
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: >-
+            The analysis ID, as a UUID (eg.
+            `e483593a-4640-42cd-888d-0e97206e9131`)
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK (returns "1").
+        '400':
+          description: Invalid ID. The ID must be an UUID.
+        '404':
+          description: >-
+            Folder not found. The analysis may have already been deleted, or it
+            never existed in the first place.
+  '/sample/{id}/urls':
+    get:
+      summary: Returns the list of extracted URLs
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: >-
+            The analysis ID, as a UUID (eg.
+            `e483593a-4640-42cd-888d-0e97206e9131`)
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: 'http://malware.com/cryptolocker.exe'
+        '400':
+          description: Invalid ID. The ID must be an UUID.
+        '404':
+          description: >-
+            File not found. Either the analysis was deleted, isn't yet ready, or
+            no URL was extracted yet.
+  '/sample/{id}/resources':
+    get:
+      summary: Returns the list of resources (i.e. files)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: >-
+            The analysis ID, as a UUID (eg.
+            `e483593a-4640-42cd-888d-0e97206e9131`)
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    <UUID>:
+                      type: object
+                      properties:
+                        path:
+                          type: string
+                          description: The path in the emulated environment
+                          example: 'C:\Windows\malware.exe'
+                        type:
+                          type: string
+                          description: 'The file type, as reported by `file`'
+                          example: 'PE32 executable (GUI) Intel 80386, for MS Windows'
+                        md5:
+                          type: string
+                          description: The MD5 hash of the resource
+        '400':
+          description: Invalid ID. The ID must be an UUID.
+        '404':
+          description: >-
+            File not found. Either the analysis was deleted, isn't yet ready, or
+            no URL was extracted yet.
+  '/sample/{id}/snippets':
+    get:
+      summary: Returns the list of snippets (i.e. all code that was executed)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: >-
+            The analysis ID, as a UUID (eg.
+            `e483593a-4640-42cd-888d-0e97206e9131`)
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    <UUID>:
+                      type: object
+                      properties:
+                        as:
+                          type: string
+                          description: The type of code (JS or shell command)
+                          example: eval'd JS
+        '400':
+          description: Invalid ID. The ID must be an UUID.
+        '404':
+          description: File not found. Either the analysis was deleted or isn't ready yet.
+  '/sample/{id}/raw/{filename}':
+    get:
+      summary: Returns a file from an analysis
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: >-
+            The analysis ID, as a UUID (eg.
+            `e483593a-4640-42cd-888d-0e97206e9131`)
+          schema:
+            type: string
+            format: uuid
+        - name: filename
+          required: true
+          in: query
+          description: The filename (eg. `analysis.log`)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK (returns the file).
+        '400':
+          description: Invalid ID. The ID must be an UUID.
+        '404':
+          description: >-
+            File not found. Either the analysis was deleted, isn't yet ready or
+            the file does not exist.
+  /sample:
+    post:
+      summary: Uploads a sample
+      responses:
+        '200':
+          description: OK (returns the sample ID)
+  /concurrency:
+    get:
+      summary: >-
+        Returns the concurrency level (i.e. how many analyses can run at the
+        same time)
+      responses:
+        '200':
+          description: OK (returns the concurrency level)
+    post:
+      summary: Updates the concurrency level
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                value:
+                  type: integer
+                  description: The new concurrency level
+                  example: 4
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                value:
+                  type: integer
+                  description: The new concurrency level
+                  example: 4
+      responses:
+        '200':
+          description: OK (returns "1")
+  /debug/connectivity:
+    get:
+      summary: Returns "1"
+      description: >
+        This endpoint can be used to run connectivity checks, i.e. to ensure
+        that you can reach the API server. Simply request /debug/connectivity;
+        it should return "1".
+      responses:
+        '200':
+          description: OK (returns "1")
+  /debug/docker:
+    get:
+      summary: Runs a test container
+      description: >
+        This endpoint will try to create the container
+        [`hello-world`](https://hub.docker.com/_/hello-world/) and verify that
+        its output is correct. It is used to verify that the application can
+        create containers successfully; an error may indicate that Docker wasn't
+        installed correctly, or that the user running the API server can't
+        create Docker containers because of incorrect permissions.
+      responses:
+        '200':
+          description: OK (returns "1")
+        '500':
+          description: >-
+            An error occurred creating the Docker container, read the output for
+            more information.
