@@ -17,7 +17,7 @@ npm install box-js --global
 
 >Looking to use box-js with Cuckoo? Use `cuckoo-package.py` as an analysis package.
 
-Let's say you have a sample called `sample.js`\tto analyze it, simply run
+Let's say you have a sample called `sample.js`: to analyze it, simply run
 
 ```
 box-js sample.js
@@ -35,7 +35,7 @@ Box.js will emulate a Windows JScript environment, print a summary of the emulat
  * `resources.json`, the ADODB streams (i.e. the files that the script wrote to disk) with file types and hashes;
  * `IOC.json`, a list of behaviours identified as IOCs (Indicators of Compromise). These include registry accesses, written files, HTTP requests and so on.
 
- You can analyze these by yourself, or you can automatically submit them to Malwr, VirusTotal or a Cuckoo sandbox\tfor more information, run `box-export --help`.
+ You can analyze these by yourself, or you can automatically submit them to Malwr, VirusTotal or a Cuckoo sandbox: for more information, run `box-export --help`.
 
  >For further isolation, it is recommended to run the analysis in a temporary Docker container. Consult `integrations/README.md` for more information.
 
@@ -49,7 +49,7 @@ While box.js is typically used on single files, it can also run batch analyses. 
 box-js sample1.js sample2.js /var/data/mySamples ...
 ```
 
-By default box.js will process samples in parallel, running one analysis per core. You can use a different setting by specifying a value for `--threads`\tin particular, 0 will remove the limit, making box-js spawn as many analysis threads as possible and resulting in very fast analysis but possibly overloading the system (note that **analyses are usually CPU-bound**, not RAM-bound).
+By default box.js will process samples in parallel, running one analysis per core. You can use a different setting by specifying a value for `--threads`: in particular, 0 will remove the limit, making box-js spawn as many analysis threads as possible and resulting in very fast analysis but possibly overloading the system (note that **analyses are usually CPU-bound**, not RAM-bound).
 
 You can use `--loglevel=warn` to silence analysis-related messages and only display progress info.
 
@@ -103,7 +103,7 @@ The first source of information is the console output. On a succesful analysis, 
 ```
 Using a 10 seconds timeout, pass --timeout to specify another timeout in seconds
 Analyzing sample.js
-Header set for http://foo.bar/baz\tUser-Agent Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)
+Header set for http://foo.bar/baz: User-Agent Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)
 Emulating a GET request to http://foo.bar/baz
 Downloaded 301054 bytes.
 Saved sample.js.results/a0af1253-597c-4eed-9e8f-5b633ff5f66a (301054 bytes)
@@ -112,7 +112,7 @@ Saved sample.js.results/f8df7228-7e0a-4241-9dae-c4e1664dc5d8 (303128 bytes)
 sample.js.results/f8df7228-7e0a-4241-9dae-c4e1664dc5d8 has been detected as PE32 executable (GUI) Intel 80386, for MS Windows.
 http://foo.bar/baz is an active URL.
 Executing sample.js.results/d241e130-346f-4c0c-a698-f925dbd68f0c in the WScript shell
-Header set for http://somethingelse.com/\tUser-Agent Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)
+Header set for http://somethingelse.com/: User-Agent Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)
 Emulating a GET request to http://somethingelse.com/
 ...
 ```
@@ -145,7 +145,7 @@ Every HTTP request is both printed on the terminal and logged in `urls.json`. Du
 }
 ```
 
-The `resources.json` file is also important\twatch out for any executable resource (eg. with `"type"\t"PE32 executable (GUI) Intel 80386, for MS Windows"`).
+The `resources.json` file is also important: watch out for any executable resource (eg. with `"type": "PE32 executable (GUI) Intel 80386, for MS Windows"`).
 
 # Patching
 
@@ -202,7 +202,7 @@ const lib = require("../lib");
 
 module.exports = function ProxiedWinHttpRequest() {
 	return new Proxy(new WinHttpRequest(), {
-		get\tfunction(target, name, receiver) {
+		get: function(target, name, receiver) {
 			switch (name) {
 				/* Add here "special" traps with case statements */
 				default:
@@ -218,7 +218,7 @@ function WinHttpRequest() {
 }
 ```
 
-Rerun the analysis\tit will fail again, telling you what exactly was not implemented.
+Rerun the analysis: it will fail again, telling you what exactly was not implemented.
 
 ```
 1 Jan 00:00:00 - WinHttpRequest.open not implemented!
