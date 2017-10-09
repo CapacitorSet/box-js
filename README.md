@@ -81,7 +81,7 @@ cat ./*.results/active_urls.json | sort | uniq
 --no-catch-rewrite		Do not rewrite try..catch clauses to make the exception global-scoped
 --no-cc_on-rewrite		Do not rewrite `/*@cc_on <...>@*/` to `<...>`
 --no-eval-rewrite		Do not rewrite `eval` so that its argument is rewritten
---no-file-exists		Return `false` for Scripting.FileSystemObject.FileExists(x)
+--no-file-exists			Return `false` for Scripting.FileSystemObject.FileExists(x)
 --no-folder-exists		Return `false` for Scripting.FileSystemObject.FileExists(x)
 --function-rewrite		Rewrite function calls in order to catch eval calls
 --no-rewrite-prototype		Do not rewrite expressions like `function A.prototype.B()` as `A.prototype.B = function()`
@@ -135,12 +135,12 @@ Every HTTP request is both printed on the terminal and logged in `urls.json`. Du
 
 ```json
 {
-	"9a24..."\t{
-		"path"\t"(path)\\foo.txt",
-		"type"\t"ASCII text, with no line terminators",
-		"md5"\t"86fb269d190d2c85f6e0468ceca42a20",
-		"sha1"\t"d3486ae9136e7856bc42212385ea797094475802",
-		"sha256"\t"c0535e4be2b79ffd93291305436bf889314e4a3faec05ecffcbb7df31ad9e51a"
+	"9a24...":{
+		"path":"(path)\\foo.txt",
+		"type":"ASCII text, with no line terminators",
+		"md5":"86fb269d190d2c85f6e0468ceca42a20",
+		"sha1":"d3486ae9136e7856bc42212385ea797094475802",
+		"sha256":"c0535e4be2b79ffd93291305436bf889314e4a3faec05ecffcbb7df31ad9e51a"
 	}
 }
 ```
@@ -264,7 +264,7 @@ and iterate until the code emulates without errors.
  * advice on integrating UglifyJS in box-js
  * improving the features of UglifyJS used in deobfuscation
 
-[@psrok](https://github.com/psrok)
+[@psrok](https://github.com/psrok)  
 <span style="font-size:0.8em; color: #333">Contributor</span>
 
  * bugfixes
