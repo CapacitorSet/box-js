@@ -3,7 +3,7 @@ box.js
 
 [![npm](https://img.shields.io/npm/v/box-js.svg)]() [![Build Status](https://travis-ci.org/CapacitorSet/box-js.svg?branch=master)](https://travis-ci.org/CapacitorSet/box-js) [![paypal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://paypal.me/capacitorset)
 
-A utility to analyze malicious JavaScript.
+Javascript Malware Analayzer
 
 # Installation
 
@@ -17,7 +17,7 @@ npm install box-js --global
 
 >Looking to use box-js with Cuckoo? Use `cuckoo-package.py` as an analysis package.
 
-Let's say you have a sample called `sample.js`: to analyze it, simply run
+Let's say you have a sample called `sample.js`\tto analyze it, simply run
 
 ```
 box-js sample.js
@@ -35,7 +35,7 @@ Box.js will emulate a Windows JScript environment, print a summary of the emulat
  * `resources.json`, the ADODB streams (i.e. the files that the script wrote to disk) with file types and hashes;
  * `IOC.json`, a list of behaviours identified as IOCs (Indicators of Compromise). These include registry accesses, written files, HTTP requests and so on.
 
- You can analyze these by yourself, or you can automatically submit them to Malwr, VirusTotal or a Cuckoo sandbox: for more information, run `box-export --help`.
+ You can analyze these by yourself, or you can automatically submit them to Malwr, VirusTotal or a Cuckoo sandbox\tfor more information, run `box-export --help`.
 
  >For further isolation, it is recommended to run the analysis in a temporary Docker container. Consult `integrations/README.md` for more information.
 
@@ -49,7 +49,7 @@ While box.js is typically used on single files, it can also run batch analyses. 
 box-js sample1.js sample2.js /var/data/mySamples ...
 ```
 
-By default box.js will process samples in parallel, running one analysis per core. You can use a different setting by specifying a value for `--threads`: in particular, 0 will remove the limit, making box-js spawn as many analysis threads as possible and resulting in very fast analysis but possibly overloading the system (note that **analyses are usually CPU-bound**, not RAM-bound).
+By default box.js will process samples in parallel, running one analysis per core. You can use a different setting by specifying a value for `--threads`\tin particular, 0 will remove the limit, making box-js spawn as many analysis threads as possible and resulting in very fast analysis but possibly overloading the system (note that **analyses are usually CPU-bound**, not RAM-bound).
 
 You can use `--loglevel=warn` to silence analysis-related messages and only display progress info.
 
@@ -62,61 +62,36 @@ cat ./*.results/active_urls.json | sort | uniq
 ## Flags
 
 <!--START_FLAGS-->
---help (Boolean): Show the help text and quit
-
---version (Boolean): Show the package version and quit
-
---license (Boolean): Show the license and quit
-
---debug (Boolean): Die when an emulation error occurs, even in "batch mode", and pass on the exit code.
-
---loglevel (String): Logging level (debug, verbose, info, warning, error - default "info")
-
---threads (Number): When running in batch mode, how many analyses to run at the same time (0 = unlimited, default: as many as the number of CPU cores)
-
---download (Boolean): Actually download the payloads
-
---encoding (String): Encoding of the input sample (will be automatically detected by default)
-
---timeout (Number): The script will timeout after this many seconds (default 10)
-
---output-dir (String): The location on disk to write the results files and folders to (defaults to the current directory)
-
---preprocess (Boolean): Preprocess the original source code (makes reverse engineering easier, but takes a few seconds)
-
---unsafe-preprocess (Boolean): More aggressive preprocessing. Often results in better code, but can break on some edge cases (eg. redefining prototypes)
-
---no-kill (Boolean): Do not kill the application when runtime errors occur
-
---no-echo (Boolean): When the script prints data, do not print it to the console
-
---no-rewrite (Boolean): Do not rewrite the source code at all, other than for `@cc_on` support
-
---no-catch-rewrite (Boolean): Do not rewrite try..catch clauses to make the exception global-scoped
-
---no-cc_on-rewrite (Boolean): Do not rewrite `/*@cc_on <...>@*/` to `<...>`
-
---no-eval-rewrite (Boolean): Do not rewrite `eval` so that its argument is rewritten
-
---no-file-exists (Boolean): Return `false` for Scripting.FileSystemObject.FileExists(x)
-
---no-folder-exists (Boolean): Return `false` for Scripting.FileSystemObject.FileExists(x)
-
---function-rewrite (Boolean): Rewrite function calls in order to catch eval calls
-
---no-rewrite-prototype (Boolean): Do not rewrite expressions like `function A.prototype.B()` as `A.prototype.B = function()`
-
---no-hoist-prototype (Boolean): Do not hoist expressions like `function A.prototype.B()` (implied by no-rewrite-prototype)
-
---no-shell-error (Boolean): Do not throw a fake error when executing `WScriptShell.Run` (it throws a fake error by default to pretend that the distribution sites are down, so that the script will attempt to poll every site)
-
---no-typeof-rewrite (Boolean): Do not rewrite `typeof` (e.g. `typeof ActiveXObject`, which must return 'unknown' in the JScript standard and not 'object')
-
---proxy (String): [experimental] Use the specified proxy for downloads. This is not relevant if the --download flag is not present.
-
---windows-xp (Boolean): Emulate Windows XP (influences the value of environment variables)
-
---dangerous-vm (Boolean): Use the `vm` module, rather than `vm2`. This sandbox can be broken, so **don't use this** unless you're 100% sure of what you're doing. Helps with debugging by giving correct stack traces.
+```
+--help				Show the help text and quit
+--version			Show the package version and quit
+--license			Show the license and quit
+--debug				Die when an emulation error occurs, even in "batch mode", and pass on the exit code.
+--loglevel (String)		Logging level (debug, verbose, info, warning, error - default "info")
+--threads (Number)		When running in batch mode, how many analyses to run at the same time (0 = unlimited, default as many as the number of CPU cores)
+--download			Actually download the payloads
+--encoding (String)		Encoding of the input sample (will be automatically detected by default)
+--timeout (Number)		The script will timeout after this many seconds (default 10)
+--output-dir (String)		The location on disk to write the results files and folders to (defaults to the current directory)
+--preprocess			Preprocess the original source code (makes reverse engineering easier, but takes a few seconds)
+--unsafe-preprocess		More aggressive preprocessing. Often results in better code, but can break on some edge cases (eg. redefining prototypes)
+--no-kill			Do not kill the application when runtime errors occur
+--no-echo			When the script prints data, do not print it to the console
+--no-rewrite			Do not rewrite the source code at all, other than for `@cc_on` support
+--no-catch-rewrite		Do not rewrite try..catch clauses to make the exception global-scoped
+--no-cc_on-rewrite		Do not rewrite `/*@cc_on <...>@*/` to `<...>`
+--no-eval-rewrite		Do not rewrite `eval` so that its argument is rewritten
+--no-file-exists		Return `false` for Scripting.FileSystemObject.FileExists(x)
+--no-folder-exists		Return `false` for Scripting.FileSystemObject.FileExists(x)
+--function-rewrite		Rewrite function calls in order to catch eval calls
+--no-rewrite-prototype		Do not rewrite expressions like `function A.prototype.B()` as `A.prototype.B = function()`
+--no-hoist-prototype		Do not hoist expressions like `function A.prototype.B()` (implied by no-rewrite-prototype)
+--no-shell-error		Do not throw a fake error when executing `WScriptShell.Run` (it throws a fake error by default to pretend that the distribution sites are down, so that the script will attempt to poll every site)
+--no-typeof-rewrite		Do not rewrite `typeof` (e.g. `typeof ActiveXObject`, which must return 'unknown' in the JScript standard and not 'object')
+--proxy (String)		[experimental] Use the specified proxy for downloads. This is not relevant if the --download flag is not present.
+--windows-xp			Emulate Windows XP (influences the value of environment variables)
+--dangerous-vm			Use the `vm` module, rather than `vm2`. This sandbox can be broken, so **don't use this** unless you're 100% sure of what you're doing. Helps with debugging by giving correct stack traces.
+```
 <!--END_FLAGS-->
 
 # Analyzing the output
@@ -128,7 +103,7 @@ The first source of information is the console output. On a succesful analysis, 
 ```
 Using a 10 seconds timeout, pass --timeout to specify another timeout in seconds
 Analyzing sample.js
-Header set for http://foo.bar/baz: User-Agent Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)
+Header set for http://foo.bar/baz\tUser-Agent Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)
 Emulating a GET request to http://foo.bar/baz
 Downloaded 301054 bytes.
 Saved sample.js.results/a0af1253-597c-4eed-9e8f-5b633ff5f66a (301054 bytes)
@@ -137,7 +112,7 @@ Saved sample.js.results/f8df7228-7e0a-4241-9dae-c4e1664dc5d8 (303128 bytes)
 sample.js.results/f8df7228-7e0a-4241-9dae-c4e1664dc5d8 has been detected as PE32 executable (GUI) Intel 80386, for MS Windows.
 http://foo.bar/baz is an active URL.
 Executing sample.js.results/d241e130-346f-4c0c-a698-f925dbd68f0c in the WScript shell
-Header set for http://somethingelse.com/: User-Agent Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)
+Header set for http://somethingelse.com/\tUser-Agent Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)
 Emulating a GET request to http://somethingelse.com/
 ...
 ```
@@ -160,17 +135,17 @@ Every HTTP request is both printed on the terminal and logged in `urls.json`. Du
 
 ```json
 {
-	"9a24...": {
-		"path": "(path)\\foo.txt",
-		"type": "ASCII text, with no line terminators",
-		"md5": "86fb269d190d2c85f6e0468ceca42a20",
-		"sha1": "d3486ae9136e7856bc42212385ea797094475802",
-		"sha256": "c0535e4be2b79ffd93291305436bf889314e4a3faec05ecffcbb7df31ad9e51a"
+	"9a24..."\t{
+		"path"\t"(path)\\foo.txt",
+		"type"\t"ASCII text, with no line terminators",
+		"md5"\t"86fb269d190d2c85f6e0468ceca42a20",
+		"sha1"\t"d3486ae9136e7856bc42212385ea797094475802",
+		"sha256"\t"c0535e4be2b79ffd93291305436bf889314e4a3faec05ecffcbb7df31ad9e51a"
 	}
 }
 ```
 
-The `resources.json` file is also important: watch out for any executable resource (eg. with `"type": "PE32 executable (GUI) Intel 80386, for MS Windows"`).
+The `resources.json` file is also important\twatch out for any executable resource (eg. with `"type"\t"PE32 executable (GUI) Intel 80386, for MS Windows"`).
 
 # Patching
 
@@ -227,7 +202,7 @@ const lib = require("../lib");
 
 module.exports = function ProxiedWinHttpRequest() {
 	return new Proxy(new WinHttpRequest(), {
-		get: function(target, name, receiver) {
+		get\tfunction(target, name, receiver) {
 			switch (name) {
 				/* Add here "special" traps with case statements */
 				default:
@@ -243,7 +218,7 @@ function WinHttpRequest() {
 }
 ```
 
-Rerun the analysis: it will fail again, telling you what exactly was not implemented.
+Rerun the analysis\tit will fail again, telling you what exactly was not implemented.
 
 ```
 1 Jan 00:00:00 - WinHttpRequest.open not implemented!
@@ -265,31 +240,36 @@ function WinHttpRequest() {
 
 and iterate until the code emulates without errors.
 
-# Contributors
+# Special thanks to
 
-@CapacitorSet: Main developer
+[@CapacitorSet](https://github.com/CapacitorSet)  
+<span style="font-size:0.8em; color: #333">Main developer</span>
 
-@daviesjamie:
+[@daviesjamie](https://github.com/daviesjamie)  
+<span style="font-size:0.8em; color: #333">Contributor</span>
+ - npm packaging
+ - command-line help
+ - `--output-directory`
+ - bugfixes
 
- * npm packaging
- * command-line help
- * `--output-directory`
- * bugfixes
-
-@ALange:
+[@ALange](https://github.com/ALange)  
+<span style="font-size:0.8em; color: #333">Main developer</span>
 
  * support for non-UTF8 encodings
  * bug reporting
 
-@alexlamsl, @kzc
+[@alexlamsl](https://github.com/alexlamsl) and [@kzc](https://github.com/kzc)  
+<span style="font-size:0.8em; color: #333">Contributors</span>
 
  * advice on integrating UglifyJS in box-js
  * improving the features of UglifyJS used in deobfuscation
 
-@psrok:
+[@psrok](https://github.com/psrok)
+<span style="font-size:0.8em; color: #333">Contributor</span>
 
  * bugfixes
 
-@gaelmuller:
+[@gaelmuller](https://github.com/gaelmuller)  
+<span style="font-size:0.8em; color: #333">Contributor</span>
 
  * bugfixes
