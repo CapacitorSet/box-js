@@ -316,6 +316,7 @@ const sandbox = {
 	ActiveXObject,
 	alert: (x) => {},
 	console: {
+//		log: console.log.bind(console),
 		log: (x) => lib.info("Script output: " + JSON.stringify(x)),
 	},
 	Enumerator: require("./emulator/Enumerator"),
@@ -427,7 +428,7 @@ if (argv["dangerous-vm"]) {
 	const vm = require("vm");
 	vm.runInNewContext(code, sandbox, {
 		displayErrors: true,
-		lineOffset: -fs.readFileSync(path.join(__dirname, "patch.js"), "utf8").split("\n").length,
+		// lineOffset: -fs.readFileSync(path.join(__dirname, "patch.js"), "utf8").split("\n").length,
 		filename: "sample.js",
 	});
 } else {

@@ -71,8 +71,18 @@
 
 	let _OriginalFunction = Function;
 	Function = function(...args) {
-		const originalSource = args.pop();
-		const source = `/* Function arguments: ${JSON.stringify(args)} */\n` + rewrite(originalSource);
+		let originalSource = args.pop();
+		let source;
+		if (typeof originalSource === "function") {
+			originalSource = originalSource.toString();
+			source = rewrite("(" + originalSource + ")");
+		} else if (typeof originalSource === "string") {
+			source = `/* Function arguments: ${JSON.stringify(args)} */\n` + rewrite(originalSource);
+		} else {
+			// What the fuck JS
+			// For some reason, IIFEs result in a call to Function.
+			return new _OriginalFunction(...args, source);
+		}
 		logJS(source);
 		return new _OriginalFunction(...args, source);
 	}
