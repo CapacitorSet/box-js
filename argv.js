@@ -5,6 +5,19 @@ const pluralize = require("pluralize");
 
 const flags = JSON.parse(fs.readFileSync(path.join(__dirname, "flags.json"), "utf8"));
 
+function isFlag(argument) {
+	// e.g., --test and -t should match
+	return /^(--|-)\w*$/.test(argument);
+}
+
+function throwIfUnknownFlag(unknownArguments) {
+	const flags = unknownArguments ? unknownArguments.filter(isFlag) : [];
+
+	if (flags.length) {
+		throw new Error(`Unknown ${pluralize("argument", flags.length)}: ${flags}`);
+	}
+}
+
 function getArgs(flags) {
 	flags = flags.map((flag) => {
 		if (flag.type === "String") flag.type = String;
@@ -15,9 +28,9 @@ function getArgs(flags) {
 	const argv = commandLineArgs(flags, {
 		partial: true,
 	});
-	if (argv._unknown && argv._unknown.length) {
-		throw new Error(`Unknown ${pluralize("argument", argv._unknown.length)}: ${argv._unknown}`);
-	}
+
+	throwIfUnknownFlag(argv._unknown);
+
 	if (!argv.loglevel) argv.loglevel = "info"; // The default value handling in the library is buggy
 	if (argv.loglevel === "verbose") argv.loglevel = "verb";
 	if (argv.loglevel === "warning") argv.loglevel = "warn";
