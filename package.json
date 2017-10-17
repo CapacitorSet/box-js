@@ -10,6 +10,7 @@
     "iconv-lite": "*",
     "jschardet": "^1.5.1",
     "limiter": "^1.1.2",
+    "pluralize": "^7.0.0",
     "queue": "^4.4.0",
     "sync-request": "*",
     "system-registry": "^1.0.0",
