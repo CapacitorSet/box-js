@@ -1,20 +1,17 @@
 const fs = require("fs");
 const path = require("path");
 const commandLineArgs = require("command-line-args");
-const pluralize = require("pluralize");
 
 const flags = JSON.parse(fs.readFileSync(path.join(__dirname, "flags.json"), "utf8"));
 
 function isFlag(argument) {
-	// e.g., --test and -t should match
-	return /^(--|-)\w*$/.test(argument);
+	// e.g., --test-foo and -t should match
+	return /^(--|-)[\w-]*$/.test(argument);
 }
 
-function throwIfUnknownFlag(unknownArguments) {
-	const flags = unknownArguments ? unknownArguments.filter(isFlag) : [];
-
-	if (flags.length) {
-		throw new Error(`Unknown ${pluralize("argument", flags.length)}: ${flags}`);
+function throwIfUnknownFlag(unknownArguments = []) {
+	if (unknownArguments.some(isFlag)) {
+		throw new Error(`Unknown arguments: ${unknownArguments.filter(isFlag)}`);
 	}
 }
 
