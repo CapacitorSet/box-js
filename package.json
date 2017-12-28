@@ -13,7 +13,7 @@
     "queue": "^4.4.0",
     "sync-request": "*",
     "system-registry": "^1.0.0",
-    "uglify-es": "^3.0.28",
+    "uglify-es": "^3.3.2",
     "uuid": "*",
     "vm2": "^3.5.0",
     "walk-sync": "^0.3.2"

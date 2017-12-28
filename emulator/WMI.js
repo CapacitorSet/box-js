@@ -1,4 +1,9 @@
 const lib = require("../lib");
+const fs = require("fs");
+const path = require("path");
+
+const diskSize = Math.floor(Math.random() * (10 ** 11));
+const freeSpace = Math.floor(Math.random() * diskSize);
 
 // Note: all fields MUST be in lowercase!
 const tables = {
@@ -6,12 +11,12 @@ const tables = {
 	win32_computersystemproduct: [],
 	win32_logicaldisk: [{ // dirty patch by @ALange
 		deviceid: "C:",
+		drivetype: 3,
+		freespace: freeSpace,
+		size: diskSize,
 		volumeserialnumber: "B55B4A40",
 	}],
-	win32_operatingsystem: [{
-		version: "5.3",
-		caption: "Windows XP",
-	}],
+	win32_operatingsystem: JSON.parse(fs.readFileSync(path.join(__dirname, "processes.json"), "utf8")),
 	win32_process: [{
 		name: "wscript.exe",
 	}],
