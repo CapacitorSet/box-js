@@ -3,24 +3,24 @@
   "version": "1.9.6",
   "description": "A tool for studying JavaScript malware.",
   "dependencies": {
-    "acorn": "^5.1.2",
+    "acorn": "^5.4.1",
     "columnify": "*",
     "command-line-args": "^4.0.7",
     "escodegen": "^1.9.0",
-    "iconv-lite": "*",
+    "iconv-lite": "^0.4.19",
     "jschardet": "^1.5.1",
     "limiter": "^1.1.2",
     "queue": "^4.4.0",
     "sync-request": "*",
     "system-registry": "^1.0.0",
     "uglify-es": "^3.3.2",
-    "uuid": "*",
+    "uuid": "^3.2.1",
     "vm2": "^3.5.0",
     "walk-sync": "^0.3.2"
   },
   "devDependencies": {
     "babel-eslint": "*",
-    "eslint": "^4.6.1",
+    "eslint": "^4.7.0",
     "eslint-config-google": "*",
     "mocha": "^3.5.0"
   },
