@@ -35,7 +35,7 @@ const allFlags = [...flags.run, ...flags.export].reduce((set, item) => {
 	return set;
 }, []);
 const argv = commandLineArgs(allFlags, {partial: true});
-if (argv._unknown.some(isFlag)) {
+if (argv._unknown != null && argv._unknown.some(isFlag)) {
 	throw new Error(`Unknown arguments: ${unknownArguments.filter(isFlag)}`);
 }
 
