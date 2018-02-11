@@ -1,6 +1,6 @@
 {
   "name": "box-js",
-  "version": "1.9.6",
+  "version": "1.9.8",
   "description": "A tool for studying JavaScript malware.",
   "dependencies": {
     "acorn": "^5.4.1",
