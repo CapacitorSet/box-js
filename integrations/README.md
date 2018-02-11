@@ -14,17 +14,13 @@ Start the REST API server (see below), and use `integrations/cuckoo/cuckoo.py` a
 
 You might want to run the analysis in a temporary Docker container in order to isolate the process. This has positive security implications: although box-js already uses a hardened sandbox, Docker provides another stronger level of isolation.
 
-You can use the provided Dockerfile, in `integrations/docker`:
+You can run the analysis like this:
 
 ```
-docker build -t box-js .
+docker run --rm --volume /tmp/samplecollection:/samples capacitorset/box-js box-js /samples --output-dir=/samples --loglevel=debug
 ```
 
-And then run the analysis like this:
-
-```
-docker run --rm --volume /tmp/samplecollection:/samples box-js box-js /samples --output-dir=/samples --loglevel=debug
-```
+>If you wish to make changes, the Dockerfile is in `integrations/docker/Dockerfile`.
 
 This does the following:
 
