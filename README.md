@@ -62,61 +62,48 @@ cat ./*.results/active_urls.json | sort | uniq
 ## Flags
 
 <!--START_FLAGS-->
---help (Boolean): Show the help text and quit
-
---version (Boolean): Show the package version and quit
-
---license (Boolean): Show the license and quit
-
---debug (Boolean): Die when an emulation error occurs, even in "batch mode", and pass on the exit code.
-
---loglevel (String): Logging level (debug, verbose, info, warning, error - default "info")
-
---threads (Number): When running in batch mode, how many analyses to run at the same time (0 = unlimited, default: as many as the number of CPU cores)
-
---download (Boolean): Actually download the payloads
-
---encoding (String): Encoding of the input sample (will be automatically detected by default)
-
---timeout (Number): The script will timeout after this many seconds (default 10)
-
---output-dir (String): The location on disk to write the results files and folders to (defaults to the current directory)
-
---preprocess (Boolean): Preprocess the original source code (makes reverse engineering easier, but takes a few seconds)
-
---unsafe-preprocess (Boolean): More aggressive preprocessing. Often results in better code, but can break on some edge cases (eg. redefining prototypes)
-
---no-kill (Boolean): Do not kill the application when runtime errors occur
-
---no-echo (Boolean): When the script prints data, do not print it to the console
-
---no-rewrite (Boolean): Do not rewrite the source code at all, other than for `@cc_on` support
-
---no-catch-rewrite (Boolean): Do not rewrite try..catch clauses to make the exception global-scoped
-
---no-cc_on-rewrite (Boolean): Do not rewrite `/*@cc_on <...>@*/` to `<...>`
-
---no-eval-rewrite (Boolean): Do not rewrite `eval` so that its argument is rewritten
-
---no-file-exists (Boolean): Return `false` for Scripting.FileSystemObject.FileExists(x)
-
---no-folder-exists (Boolean): Return `false` for Scripting.FileSystemObject.FileExists(x)
-
---function-rewrite (Boolean): Rewrite function calls in order to catch eval calls
-
---no-rewrite-prototype (Boolean): Do not rewrite expressions like `function A.prototype.B()` as `A.prototype.B = function()`
-
---no-hoist-prototype (Boolean): Do not hoist expressions like `function A.prototype.B()` (implied by no-rewrite-prototype)
-
---no-shell-error (Boolean): Do not throw a fake error when executing `WScriptShell.Run` (it throws a fake error by default to pretend that the distribution sites are down, so that the script will attempt to poll every site)
-
---no-typeof-rewrite (Boolean): Do not rewrite `typeof` (e.g. `typeof ActiveXObject`, which must return 'unknown' in the JScript standard and not 'object')
-
---proxy (String): [experimental] Use the specified proxy for downloads. This is not relevant if the --download flag is not present.
-
---windows-xp (Boolean): Emulate Windows XP (influences the value of environment variables)
-
---dangerous-vm (Boolean): Use the `vm` module, rather than `vm2`. This sandbox can be broken, so **don't use this** unless you're 100% sure of what you're doing. Helps with debugging by giving correct stack traces.
+    NAME                   DESCRIPTION                                                                     
+    -h, --help             Show the help text and quit                                                     
+    -v, --version          Show the package version and quit                                               
+    --license              Show the license and quit                                                       
+    --debug                Die when an emulation error occurs, even in "batch mode", and pass on the exit  
+                           code.                                                                           
+    --loglevel             Logging level (debug, verbose, info, warning, error - default "info")           
+    --threads              When running in batch mode, how many analyses to run at the same time (0 =      
+                           unlimited, default: as many as the number of CPU cores)                         
+    --download             Actually download the payloads                                                  
+    --encoding             Encoding of the input sample (will be automatically detected by default)        
+    --timeout              The script will timeout after this many seconds (default 10)                    
+    --output-dir           The location on disk to write the results files and folders to (defaults to the 
+                           current directory)                                                              
+    --preprocess           Preprocess the original source code (makes reverse engineering easier, but takes
+                           a few seconds)                                                                  
+    --unsafe-preprocess    More aggressive preprocessing. Often results in better code, but can break on   
+                           some edge cases (eg. redefining prototypes)                                     
+    --no-kill              Do not kill the application when runtime errors occur                           
+    --no-echo              When the script prints data, do not print it to the console                     
+    --no-rewrite           Do not rewrite the source code at all, other than for `@cc_on` support          
+    --no-catch-rewrite     Do not rewrite try..catch clauses to make the exception global-scoped           
+    --no-cc_on-rewrite     Do not rewrite `/*@cc_on <...>@*/` to `<...>`                                   
+    --no-eval-rewrite      Do not rewrite `eval` so that its argument is rewritten                         
+    --no-file-exists       Return `false` for Scripting.FileSystemObject.FileExists(x)                     
+    --no-folder-exists     Return `false` for Scripting.FileSystemObject.FileExists(x)                     
+    --function-rewrite     Rewrite function calls in order to catch eval calls                             
+    --no-rewrite-prototype Do not rewrite expressions like `function A.prototype.B()` as `A.prototype.B =  
+                           function()`                                                                     
+    --no-hoist-prototype   Do not hoist expressions like `function A.prototype.B()` (implied by            
+                           no-rewrite-prototype)                                                           
+    --no-shell-error       Do not throw a fake error when executing `WScriptShell.Run` (it throws a fake   
+                           error by default to pretend that the distribution sites are down, so that the   
+                           script will attempt to poll every site)                                         
+    --no-typeof-rewrite    Do not rewrite `typeof` (e.g. `typeof ActiveXObject`, which must return         
+                           'unknown' in the JScript standard and not 'object')                             
+    --proxy                [experimental] Use the specified proxy for downloads. This is not relevant if   
+                           the --download flag is not present.                                             
+    --windows-xp           Emulate Windows XP (influences the value of environment variables)              
+    --dangerous-vm         Use the `vm` module, rather than `vm2`. This sandbox can be broken, so **don't  
+                           use this** unless you're 100% sure of what you're doing. Helps with debugging by
+                           giving correct stack traces.                                                    
 <!--END_FLAGS-->
 
 # Analyzing the output
@@ -267,29 +254,29 @@ and iterate until the code emulates without errors.
 
 # Contributors
 
-@CapacitorSet: Main developer
+[@CapacitorSet](https://github.com/CapacitorSet/): Main developer
 
-@daviesjamie:
+[@daviesjamie](https://github.com/daviesjamie/):
 
  * npm packaging
  * command-line help
  * `--output-directory`
  * bugfixes
 
-@ALange:
+[@ALange](https://github.com/ALange/):
 
  * support for non-UTF8 encodings
  * bug reporting
 
-@alexlamsl, @kzc
+[@alexlamsl](https://github.com/alexlamsl/), [@kzc](https://github.com/kzc/)
 
  * advice on integrating UglifyJS in box-js
  * improving the features of UglifyJS used in deobfuscation
 
-@psrok:
+[@psrok](https://github.com/psrok/):
 
  * bugfixes
 
-@gaelmuller:
+[@gaelmuller](https://github.com/gaelmuller/):
 
  * bugfixes
