@@ -129,7 +129,6 @@ If you run into unexpected results, try uncommenting lines that look like
 						passes: 3,
 
 						booleans: true,
-						cascade: true,
 						collapse_vars: true,
 						comparisons: true,
 						conditionals: true,
