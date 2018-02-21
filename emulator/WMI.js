@@ -2,7 +2,7 @@ const lib = require("../lib");
 const fs = require("fs");
 const path = require("path");
 
-const diskSize = Math.floor(Math.random() * (10 ** 11));
+const diskSize = Math.floor(Math.random() * 1E11);
 const freeSpace = Math.floor(Math.random() * diskSize);
 
 // Note: all fields MUST be in lowercase!
