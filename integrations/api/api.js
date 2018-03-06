@@ -66,7 +66,7 @@ app.get("/concurrency", (req, res) => res.send(String(q.concurrency)));
  */
 app.post("/concurrency", (req, res) => {
 	q.concurrency = req.body.value;
-	res.send("1");
+	res.json({server_err: 0});
 });
 
 /* GET /debug/connectivity
@@ -75,7 +75,7 @@ app.post("/concurrency", (req, res) => {
  */
 app.get("/debug/connectivity", (req, res) => {
 	console.log("Connectivity check successful.");
-	res.send("1");
+	res.json({server_err: 0});
 });
 
 /* GET /debug/docker
@@ -90,22 +90,31 @@ app.get("/debug/docker", async (req, res) => {
 		"--rm", // Delete container fs after finishing
 		"hello-world"
 	]);
+	console.log(proc);
 	const stderr = proc.stderr ? proc.stderr.toString() : "<none>";
 	if (proc.code !== 0) { // Check for success status code
 		console.log("Failed: status code is not zero.");
 		console.log(proc.stderr);
-		res.status(500).send(`Non-zero status code: ${proc.code}.\n\tStderr: ${stderr}`);
+		res.json({
+			server_err: 99,
+			code: proc.code,
+			stderr
+		});
 		return;
 	}
 	if (!/Hello from Docker!/g.test(proc.stdout.toString())) { // Check for presence of hello world
 		console.log("Failed: stdout does not contain hello world.");
 		console.log(proc);
 		const stdout = proc.stdout ? proc.stdout.toString() : "<none>";
-		res.status(500).send(`No hello world found.\n\tStdout: ${stdout}\n\tStderr: ${stderr}`);
+		res.json({
+			server_err: 99,
+			stdout,
+			stderr
+		});
 		return;
 	}
 	console.log("Successful.");
-	res.send("1");
+	res.json({server_err: 0});
 });
 
 /* GET /sample/:id
@@ -119,19 +128,19 @@ app.get("/debug/docker", async (req, res) => {
  */
 app.get("/sample/:id", async (req, res) => {
 	if (!/^[0-9a-f-]+$/.test(req.params.id)) {
-		res.status(400).send("Invalid ID");
+		res.json({server_err: 1});
 		return;
 	}
 
 	const outputFolder = lib.getOutputFolder(req.params.id);
 	if (!await p(fs.exists)(outputFolder)) {
-		res.status(404).send("Folder not found");
+		res.json({server_err: 2});
 		return;
 	}
 
 	const outputFile = path.join(outputFolder, ".analysis-completed");
 	if (!await p(fs.exists)(outputFile)) {
-		res.status(404).send("Analysis not ready");
+		res.json({server_err: 4});
 		return;
 	}
 
@@ -148,7 +157,7 @@ app.get("/sample/:id", async (req, res) => {
  */
 app.post("/sample", async (req, res) => {
 	if (!req.files) {
-		res.status(400).send("No file sent!");
+		res.json({server_err: 5});
 		return;
 	}
 	if (!req.body.flags)
@@ -159,7 +168,10 @@ app.post("/sample", async (req, res) => {
 	await p(fs.mkdir)(outputFolder);
 	const outputFile = path.join(outputFolder, "sample.js");
 	console.log(`New sample received, saving to ${outputFile}`);
-	res.send(analysisID);
+	res.json({
+		server_err: 0,
+		analysisID
+	});
 	req.files.sample.mv(outputFile, function(err) {
 		if (err) {
 			console.log("Couldn't receive uploaded file:");
@@ -184,6 +196,7 @@ app.post("/sample", async (req, res) => {
 				console.log(stderr.replace(/^/gm, " | "));
 			}
 			await p(fs.writeFile)(path.join(outputFolder, ".analysis-completed"), JSON.stringify({
+				server_err: 0, // successful
 				code: proc.code,
 				stderr
 			}));
@@ -202,19 +215,19 @@ app.post("/sample", async (req, res) => {
  */
 app.delete("/sample/:id", async (req, res) => {
 	if (!/^[0-9a-f-]+$/.test(req.params.id)) {
-		res.status(400).send("Invalid ID");
+		res.json({server_err: 1});
 		return;
 	}
 
 	const outputFolder = lib.getOutputFolder(req.params.id);
 	if (!await p(fs.exists)(outputFolder)) {
-		res.status(404).send("Not found");
+		res.json({server_err: 2});
 		return;
 	}
 
 	// We must delegate the directory removal to a setuid script.
 	await spawn(path.join(__dirname, "rimraf.js"), [req.params.id]);
-	res.send("1");
+	res.json({server_err: 0});
 });
 
 /* GET /sample/:id/raw/:filename
@@ -227,19 +240,19 @@ app.delete("/sample/:id", async (req, res) => {
  */
 app.get("/sample/:id/raw/:filename", async (req, res) => {
 	if (!/^[0-9a-f-]+$/.test(req.params.id)) {
-		res.status(400).send("Invalid ID");
+		res.json({server_err: 1});
 		return;
 	}
 
 	const outputFolder = lib.getOutputFolder(req.params.id);
 	if (!await p(fs.exists)(outputFolder)) {
-		res.status(404).send("Folder not found");
+		res.json({server_err: 2});
 		return;
 	}
 
 	const outputFile = path.join(outputFolder, "sample.js.results", req.params.filename);
 	if (!await p(fs.exists)(outputFile)) {
-		res.status(404).send("File not found");
+		res.json({server_err: 3});
 		return;
 	}
 
@@ -255,19 +268,19 @@ app.get("/sample/:id/raw/:filename", async (req, res) => {
  */
 app.get("/sample/:id/urls", async (req, res) => {
 	if (!/^[0-9a-f-]+$/.test(req.params.id)) {
-		res.status(400).send("Invalid ID");
+		res.json({server_err: 1});
 		return;
 	}
 
 	const outputFolder = lib.getOutputFolder(req.params.id);
 	if (!await p(fs.exists)(outputFolder)) {
-		res.status(404).send("Output directory not found");
+		res.json({server_err: 2});
 		return;
 	}
 
 	const file = path.join(outputFolder, "sample.js.results", "urls.json");
 	if (!await p(fs.exists)(file)) {
-		res.status(404).send("urls.json not found");
+		res.json({server_err: 3});
 		return;
 	}
 
@@ -283,19 +296,19 @@ app.get("/sample/:id/urls", async (req, res) => {
  */
 app.get("/sample/:id/resources", async (req, res) => {
 	if (!/^[0-9a-f-]+$/.test(req.params.id)) {
-		res.status(400).send("Invalid ID");
+		res.json({server_err: 1});
 		return;
 	}
 
 	const outputFolder = lib.getOutputFolder(req.params.id);
 	if (!await p(fs.exists)(outputFolder)) {
-		res.status(404).send("Output directory not found");
+		res.json({server_err: 2});
 		return;
 	}
 
 	const file = path.join(outputFolder, "sample.js.results", "resources.json");
 	if (!await p(fs.exists)(file)) {
-		res.status(404).send("resources.json not found");
+		res.json({server_err: 3});
 		return;
 	}
 
@@ -311,19 +324,19 @@ app.get("/sample/:id/resources", async (req, res) => {
  */
 app.get("/sample/:id/snippets", async (req, res) => {
 	if (!/^[0-9a-f-]+$/.test(req.params.id)) {
-		res.status(400).send("Invalid ID");
+		res.json({server_err: 1});
 		return;
 	}
 
 	const outputFolder = lib.getOutputFolder(req.params.id);
 	if (!await p(fs.exists)(outputFolder)) {
-		res.status(404).send("Output directory not found");
+		res.json({server_err: 2});
 		return;
 	}
 
 	const file = path.join(outputFolder, "sample.js.results", "snippets.json");
 	if (!await p(fs.exists)(file)) {
-		res.status(404).send("snippets.json not found");
+		res.json({server_err: 3});
 		return;
 	}
 
@@ -339,19 +352,19 @@ app.get("/sample/:id/snippets", async (req, res) => {
  */
 app.get("/sample/:id/ioc", async (req, res) => {
 	if (!/^[0-9a-f-]+$/.test(req.params.id)) {
-		res.status(400).send("Invalid ID");
+		res.json({server_err: 1});
 		return;
 	}
 
 	const outputFolder = lib.getOutputFolder(req.params.id);
 	if (!await p(fs.exists)(outputFolder)) {
-		res.status(404).send("Output directory not found");
+		res.json({server_err: 2});
 		return;
 	}
 
 	const file = path.join(outputFolder, "sample.js.results", "IOC.json");
 	if (!await p(fs.exists)(file)) {
-		res.status(404).send("IOC.json not found");
+		res.json({server_err: 3});
 		return;
 	}
 

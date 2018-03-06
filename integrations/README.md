@@ -64,3 +64,17 @@ Box-js includes a small REST API for uploading samples. To use it, install Hapi 
  * `DELETE /sample/{id}`: delete the folder corresponding to the given sample. Should only be called after the analysis terminates.
  * `GET /sample/{id}/urls`: get the list of URLs extracted by the given sample. Should only be called after the analysis terminates.
  * `GET /sample/{id}/resources`: get the list of resources created by the given sample. Should only be called after the analysis terminates.
+
+### Response
+
+> This section is a work in progress.
+
+The response always contains a field called "server_err", which is an integer which can take the following values:
+
+ * 0: No error.  
+ * 1: Invalid ID (an UUID was expected).
+ * 2: Folder not found.
+ * 3: File not found.
+ * 4: Analysis not yet ready.
+ * 5: No file given.
+ * 99: Other error
