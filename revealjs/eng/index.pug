@@ -323,7 +323,7 @@ html
 				center: true,
 
 				transition: 'slide', // none/fade/slide/convex/concave/zoom
-				showNotes: true,
+				showNotes: window.location.hash !== "#no-notes",
 
 				// More info https://github.com/hakimel/reveal.js#dependencies
 				dependencies: [
