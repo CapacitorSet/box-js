@@ -280,7 +280,7 @@ app.get("/sample/:id/urls", async (req, res) => {
 
 	const file = path.join(outputFolder, "sample.js.results", "urls.json");
 	if (!await p(fs.exists)(file)) {
-		res.json({server_err: 3});
+		res.send("[]");
 		return;
 	}
 
@@ -308,7 +308,7 @@ app.get("/sample/:id/resources", async (req, res) => {
 
 	const file = path.join(outputFolder, "sample.js.results", "resources.json");
 	if (!await p(fs.exists)(file)) {
-		res.json({server_err: 3});
+		res.send("{}");
 		return;
 	}
 
@@ -336,7 +336,7 @@ app.get("/sample/:id/snippets", async (req, res) => {
 
 	const file = path.join(outputFolder, "sample.js.results", "snippets.json");
 	if (!await p(fs.exists)(file)) {
-		res.json({server_err: 3});
+		res.send("[]");
 		return;
 	}
 
@@ -364,7 +364,7 @@ app.get("/sample/:id/ioc", async (req, res) => {
 
 	const file = path.join(outputFolder, "sample.js.results", "IOC.json");
 	if (!await p(fs.exists)(file)) {
-		res.json({server_err: 3});
+		res.send("[]");
 		return;
 	}
 
