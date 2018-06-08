@@ -64,6 +64,8 @@
 	Date.length = 7;
 	Date.parse = legacyDate.parse;
 	Date.UTC = legacyDate.UTC;
+	Date.toString = () => legacyDate.toString()
+	Date.valueOf  = () => legacyDate.valueOf()
 
 	Array.prototype.Count = function() {
 		return this.length;
@@ -100,4 +102,6 @@
 		logJS(source);
 		return new _OriginalFunction(...args, source);
 	}
+	Function.toString = () => _OriginalFunction.toString()
+	Function.valueOf  = () => _OriginalFunction.valueOf()
 /* End patches */
