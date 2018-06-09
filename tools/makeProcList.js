@@ -10,6 +10,7 @@ const a = fs.readFileSync("a.txt", "ucs2").replace(/\r\n/g, "\n");
 
 const processes = a.split("\n\n");
 const properties = processes.map(proc => proc.split("\n")
+	.filter(a => a.includes(":"))
 	.map(a => a.split(":"))
 	.map(a => a.map(b => b.trim())));
 
