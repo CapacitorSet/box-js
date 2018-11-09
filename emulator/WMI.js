@@ -21,8 +21,32 @@ const tables = {
 		version: "5.3",
 		caption: "Windows XP"
 	}],
-	win32_process: processes
+	win32_process: processes,
 };
+
+const classes = {
+	win32_process: new Proxy(processes, {
+		get(target, _prop) {
+			const prop = _prop.toLowerCase();
+			if (prop in target) return target[prop];
+			if (prop === "create")
+				return command => {
+					lib.logIOC("CommandExec", command, "The script executed a command.");
+					lib.logSnippet(lib.getUUID(), {as: "command"}, command);
+				}
+			lib.kill(`Win32_Process.${prop} not implemented!`);
+		},
+	}),
+	win32_processstartup: new Proxy({
+		spawninstance_: () => {}
+	}, {
+		get(target, _prop) {
+			const prop = _prop.toLowerCase();
+			if (prop in target) return target[prop];
+			lib.kill(`Win32_Process.${prop} not implemented!`);
+		},
+	})
+}
 
 Object.keys(tables).forEach(name => {
 	if (/[A-Z]/.test(name))
@@ -39,7 +63,7 @@ function getTable(_tableName) {
 		lib.info("Script tried to read the list of processes");
 	lib.verbose(`Script tried to read table ${tableName}`);
 	if (!(tableName in tables))
-		lib.kill("Table ${tableName} not implemented!");
+		lib.kill(`Table ${tableName} not implemented!`);
 	// Proxify everything
 	return tables[tableName].map(row => new Proxy(row, {
 		get(target, _prop) {
@@ -75,6 +99,12 @@ module.exports.GetObject = function(name) {
 			// const fields = parts[1];
 			const tableName = parts[2].toLowerCase();
 			return getTable(tableName);
+		},
+		Get: className => {
+			const _class = classes[className.toLowerCase()];
+			if (!_class)
+				lib.kill(`Not implemented: WMI.Get(${className})`);
+			return _class;
 		},
 	}, {
 		get(target, name) {
