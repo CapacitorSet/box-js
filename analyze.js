@@ -531,4 +531,3 @@ function hoist(obj, scope) {
 		}
 	}
 }
-
