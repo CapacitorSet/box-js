@@ -15,7 +15,9 @@ require("./patches/prototype-plugin.js")(acorn);
 
 lib.debug("Analysis launched: " + JSON.stringify(process.argv));
 lib.verbose("Box-js version: " + require("./package.json").version);
-if (fs.existsSync(path.join(__dirname, ".git"))) {
+
+let git_path = path.join(__dirname, ".git");
+if (fs.existsSync(git_path) && fs.lstatSync(git_path).isDirectory()) {
 	lib.verbose("Commit: " + fs.readFileSync(path.join(__dirname, ".git/refs/heads/master"), "utf8").replace(/\n/, ""));
 } else {
 	lib.verbose("No git folder found.");
