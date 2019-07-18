@@ -439,6 +439,9 @@ if (argv["dangerous-vm"]) {
 		sandbox,
 	});
 
+        // Fake cscript.exe style ReferenceError messages.
+        code = "ReferenceError.prototype.toString = function() { return \"[object Foo]\";};\n\n" + code;
+
 	vm.run(code);
 }
 
