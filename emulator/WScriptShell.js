@@ -32,6 +32,7 @@ function WScriptShell() {
 	    };
 	return `(Environment variable ${x})`;
     };
+    this.environment1 = undefined;
     this.specialfolders = (x) => `(Special folder ${x})`;
     this.createshortcut = () => ({});
     this.popup = (text, wait=0, title=0, type=0) => console.log("Display popup'" + text + "'");
