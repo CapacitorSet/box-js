@@ -17,6 +17,10 @@ const tables = {
 		size: diskSize,
 		volumeserialnumber: "B55B4A40",
 	}],
+    	win32_networkadapterconfiguration: [{
+		macaddress: "00-14-22-01-23-45",
+	        dnshostname: "corpdns",
+	}],
 	win32_operatingsystem: [{
 		version: "5.3",
 		caption: "Windows XP"
