@@ -77,6 +77,7 @@ function File(contents) {
 	this.openastextstream = () => new ProxiedTextStream(contents);
 	this.shortpath = "C:\\PROGRA~1\\example-file.exe";
 	this.size = Infinity;
+        this.type = "Application";
 }
 
 function ProxiedFile(filename) {
