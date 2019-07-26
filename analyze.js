@@ -203,14 +203,16 @@ cc decoder.c -o decoder
 					);
 				} else {
 					lib.error(
-`This doesn't seem to be a JavaScript/WScript file.
-If this is a JSE file (JScript.Encode), compile
-decoder.c and run it on the file, like this:
-
-cc decoder.c -o decoder
-./decoder ${filename} ${filename}.js
-
-`
+// @@@ Emacs JS mode does not properly parse this block.
+//`This doesn't seem to be a JavaScript/WScript file.
+//If this is a JSE file (JScript.Encode), compile
+//decoder.c and run it on the file, like this:
+//
+//cc decoder.c -o decoder
+//./decoder ${filename} ${filename}.js
+//
+//`
+                                            "Decode JSE. 'cc decoder.c -o decoder'. './decoder ${filename} ${filename}.js'"
 					);
 				}
 				process.exit(4);

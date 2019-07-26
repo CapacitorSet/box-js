@@ -56,7 +56,10 @@ function Folder(path, autospawned) {
 	this.name = (path.replace(/\w:/i, "").match(/\\(\w*)(?:\\)?$/i) || [null, ""])[1],
 	this.path = path;
 	this.subfolders = autospawned ? [] : [new ProxiedFolder(path + "\\RandomFolder", true)];
-	this.type = "folder";
+        this.type = "folder";
+        this.subfolders = {
+            "Count": 12,
+        };
 }
 
 function ProxiedFolder(path, name, autospawned = false) {
