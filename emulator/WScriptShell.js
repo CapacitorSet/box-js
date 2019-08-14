@@ -17,10 +17,12 @@ function WScriptShell() {
 	processor_architecture: "x86",
 	programdata: "C:\\ProgramData",
 	systemroot: "C:\\WINDOWS",
-	tmp: "C:\\DOCUME~1\\User\\LOCALS~1\\Temp",
-	temp: "C:\\DOCUME~1\\User\\LOCALS~1\\Temp",
+	//tmp: "C:\\DOCUME~1\\User\\LOCALS~1\\Temp",
+        tmp: "C:\\Users\\SYSOP1~1\\AppData\\Local\\Temp",
+	//temp: "C:\\DOCUME~1\\User\\LOCALS~1\\Temp",
+        temp: "C:\\Users\\SYSOP1~1\\AppData\\Local\\Temp",
 	username: "User",
-	userprofile: "C:\\Users\\User",
+	userprofile: "C:\\Users\\Sysop12\\",
 	windir: "C:\\WINDOWS"
     };
     this.environment = (x) => {

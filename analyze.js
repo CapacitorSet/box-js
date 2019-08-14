@@ -381,8 +381,10 @@ const sandbox = {
 		interactive: true,
 		name: "wscript.exe",
 		path: "C:\\TestFolder\\",
-		scriptfullname: "C:\\Documents and Settings\\User\\Desktop\\sample.js",
-		scriptname: "sample.js",
+	        //scriptfullname: "C:\\Documents and Settings\\User\\Desktop\\sample.js",
+                //scriptfullname: "C:\\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\ons.jse",
+                scriptfullname: "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\0.2638666.jse",
+		scriptname: "0.2638666.jse",
 		get stderr() {
 			lib.error("WScript.StdErr not implemented");
 		},
@@ -442,7 +444,7 @@ if (argv["dangerous-vm"]) {
 	});
 
         // Fake cscript.exe style ReferenceError messages.
-        code = "ReferenceError.prototype.toString = function() { return \"[object Foo]\";};\n\n" + code;
+        code = "ReferenceError.prototype.toString = function() { return \"[object Error]\";};\n\n" + code;
 
 	vm.run(code);
 }
