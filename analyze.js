@@ -445,7 +445,9 @@ if (argv["dangerous-vm"]) {
 
         // Fake cscript.exe style ReferenceError messages.
         code = "ReferenceError.prototype.toString = function() { return \"[object Error]\";};\n\n" + code;
-
+        // Fake up Object.toString not being defined in cscript.exe.
+        code = "Object.prototype.toString = undefined;\n\n" + code;
+    
 	vm.run(code);
 }
 
