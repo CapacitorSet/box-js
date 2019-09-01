@@ -19,6 +19,9 @@ function XMLHTTP() {
 	this.headers[key] = val;
 	lib.info(`Header set for ${this.url}:`, key, val);
     };
+    this.settimeouts = function() {
+        // Stubbed out.
+    };
     this.send = function(data) {
 	if (data)
 	    lib.info(`Data sent to ${this.url}:`, data);
