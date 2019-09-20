@@ -32,6 +32,14 @@ function WScriptShell() {
 		if (argument in vars) return vars[argument];
 		lib.kill(`Unknown parameter ${argument} for WScriptShell.Environment.System`);
 	    };
+        if (x.toLowerCase() === "process")
+            return {
+                Item: function(x) {
+                    if (x.toLowerCase() === "programdata")
+                        return "C:\\ProgramData";
+                    return "Unknown process item " + x;
+                }
+            };
 	return `(Environment variable ${x})`;
     };
     this.environment1 = undefined;
