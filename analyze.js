@@ -469,7 +469,9 @@ function ActiveXObject(name) {
 		case "adodb.stream":
 			return require("./emulator/ADODBStream")();
 		case "adodb.recordset":
-			return require("./emulator/ADODBRecordSet")();
+	                return require("./emulator/ADODBRecordSet")();
+                case "adodb.connection":
+			return require("./emulator/ADODBConnection")();
 		case "scriptcontrol":
 			return require("./emulator/ScriptControl");
 		case "scripting.filesystemobject":
@@ -540,3 +542,4 @@ function hoist(obj, scope) {
 		}
 	}
 }
+
