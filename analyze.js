@@ -315,7 +315,7 @@ Array.prototype.Count = function() {
 
 const sandbox = {
 	logJS: lib.logJS,
-
+	logIOC: lib.logIOC,
 	ActiveXObject,
 	alert: (x) => {},
 	console: {

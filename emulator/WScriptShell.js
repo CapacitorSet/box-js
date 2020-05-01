@@ -84,11 +84,12 @@ function WScriptShell() {
 		};
 	};
 	
-	if (!this._reg_entries)
+	if (!this._reg_entries) {
 		this._reg_entries = require("system-registry");
 
 		// lacks the HKEY_CURRENT_USER reg key by default (y tho?)
 		this._reg_entries["HKEY_CURRENT_USER"] = {}
+	}
 
 	// expand registry acronyms and make lowercase
     function normalizeRegKey(key) {
