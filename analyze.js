@@ -7,6 +7,8 @@ const path = require("path");
 const {VM} = require("vm2");
 const child_process = require("child_process");
 const argv = require("./argv.js").run;
+const jsdom = require("jsdom").JSDOM;
+const dom = new jsdom(`<html><head></head><body></body></html>`);
 
 const filename = process.argv[2];
 
@@ -231,7 +233,6 @@ cc decoder.c -o decoder
 				});
 			}
 
-
 			if (!argv["no-hoist-prototype"]) {
 				lib.verbose("    Hoisting `function A.prototype.B()` (use --no-hoist-prototype to skip)...", false);
 				hoist(tree);
@@ -317,6 +318,7 @@ const sandbox = {
 	logJS: lib.logJS,
 	logIOC: lib.logIOC,
 	ActiveXObject,
+	dom,
 	alert: (x) => {},
 	console: {
 //		log: console.log.bind(console),
@@ -421,6 +423,7 @@ const sandbox = {
 		}
 	}),
 	WSH: "Windows Script Host",
+	self: {}
 };
 
 // See https://github.com/nodejs/node/issues/8071#issuecomment-240259088
