@@ -7,6 +7,8 @@ const path = require("path");
 const {VM} = require("vm2");
 const child_process = require("child_process");
 const argv = require("./argv.js").run;
+const jsdom = require("jsdom").JSDOM;
+const dom = new jsdom(`<html><head></head><body></body></html>`);
 
 const filename = process.argv[2];
 
@@ -203,14 +205,16 @@ cc decoder.c -o decoder
 					);
 				} else {
 					lib.error(
-`This doesn't seem to be a JavaScript/WScript file.
-If this is a JSE file (JScript.Encode), compile
-decoder.c and run it on the file, like this:
-
-cc decoder.c -o decoder
-./decoder ${filename} ${filename}.js
-
-`
+// @@@ Emacs JS mode does not properly parse this block.
+//`This doesn't seem to be a JavaScript/WScript file.
+//If this is a JSE file (JScript.Encode), compile
+//decoder.c and run it on the file, like this:
+//
+//cc decoder.c -o decoder
+//./decoder ${filename} ${filename}.js
+//
+//`
+                                            "Decode JSE. 'cc decoder.c -o decoder'. './decoder ${filename} ${filename}.js'"
 					);
 				}
 				process.exit(4);
@@ -228,7 +232,6 @@ cc decoder.c -o decoder
 					return require("./patches/prototype.js")(val);
 				});
 			}
-
 
 			if (!argv["no-hoist-prototype"]) {
 				lib.verbose("    Hoisting `function A.prototype.B()` (use --no-hoist-prototype to skip)...", false);
@@ -313,8 +316,9 @@ Array.prototype.Count = function() {
 
 const sandbox = {
 	logJS: lib.logJS,
-
+	logIOC: lib.logIOC,
 	ActiveXObject,
+	dom,
 	alert: (x) => {},
 	console: {
 //		log: console.log.bind(console),
@@ -379,8 +383,10 @@ const sandbox = {
 		interactive: true,
 		name: "wscript.exe",
 		path: "C:\\TestFolder\\",
-		scriptfullname: "C:\\Documents and Settings\\User\\Desktop\\sample.js",
-		scriptname: "sample.js",
+	        //scriptfullname: "C:\\Documents and Settings\\User\\Desktop\\sample.js",
+                //scriptfullname: "C:\\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\ons.jse",
+                scriptfullname: "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\0.2638666.jse",
+		scriptname: "0.2638666.jse",
 		get stderr() {
 			lib.error("WScript.StdErr not implemented");
 		},
@@ -417,6 +423,7 @@ const sandbox = {
 		}
 	}),
 	WSH: "Windows Script Host",
+	self: {}
 };
 
 // See https://github.com/nodejs/node/issues/8071#issuecomment-240259088
@@ -439,6 +446,11 @@ if (argv["dangerous-vm"]) {
 		sandbox,
 	});
 
+        // Fake cscript.exe style ReferenceError messages.
+        code = "ReferenceError.prototype.toString = function() { return \"[object Error]\";};\n\n" + code;
+        // Fake up Object.toString not being defined in cscript.exe.
+        //code = "Object.prototype.toString = undefined;\n\n" + code;
+    
 	vm.run(code);
 }
 
@@ -460,7 +472,9 @@ function ActiveXObject(name) {
 		case "adodb.stream":
 			return require("./emulator/ADODBStream")();
 		case "adodb.recordset":
-			return require("./emulator/ADODBRecordSet")();
+	                return require("./emulator/ADODBRecordSet")();
+                case "adodb.connection":
+			return require("./emulator/ADODBConnection")();
 		case "scriptcontrol":
 			return require("./emulator/ScriptControl");
 		case "scripting.filesystemobject":
@@ -531,3 +545,4 @@ function hoist(obj, scope) {
 		}
 	}
 }
+

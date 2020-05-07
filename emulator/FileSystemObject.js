@@ -56,7 +56,10 @@ function Folder(path, autospawned) {
 	this.name = (path.replace(/\w:/i, "").match(/\\(\w*)(?:\\)?$/i) || [null, ""])[1],
 	this.path = path;
 	this.subfolders = autospawned ? [] : [new ProxiedFolder(path + "\\RandomFolder", true)];
-	this.type = "folder";
+        this.type = "folder";
+        this.subfolders = {
+            "Count": 12,
+        };
 }
 
 function ProxiedFolder(path, name, autospawned = false) {
@@ -74,6 +77,7 @@ function File(contents) {
 	this.openastextstream = () => new ProxiedTextStream(contents);
 	this.shortpath = "C:\\PROGRA~1\\example-file.exe";
 	this.size = Infinity;
+        this.type = "Application";
 }
 
 function ProxiedFile(filename) {
