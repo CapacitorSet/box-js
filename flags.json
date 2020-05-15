@@ -63,6 +63,11 @@
             "description": "More aggressive preprocessing. Often results in better code, but can break on some edge cases (eg. redefining prototypes)"
         },
         {
+            "name": "prepended-code",
+            "type": "String",
+            "description": "Input file or directory containing code that should be prepended to the JS file(s) we're analyzing. If directory is given,  prepends contents of all files in the directory in "
+        },
+        {
             "name": "no-kill",
             "type": "Boolean",
             "description": "Do not kill the application when runtime errors occur"

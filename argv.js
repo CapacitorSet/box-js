@@ -41,7 +41,6 @@ if (argv._unknown != null && argv._unknown.some(isFlag)) {
 
 module.exports = {
 	flags,
-
 	run: getArgs(flags.run),
 	export: getArgs(flags.export),
 };

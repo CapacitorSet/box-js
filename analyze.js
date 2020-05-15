@@ -307,6 +307,35 @@ cc decoder.c -o decoder
 }
 
 code = rewrite(code);
+
+// prepend extra JS containing mock objects in the given file(s) onto the code
+if (argv["prepended-code"]) {
+
+	var prependedCode = ""
+	var files = []
+
+	// get all the files in the directory and sort them alphebetically
+	if (fs.lstatSync(argv["prepended-code"]).isDirectory()) {
+
+		dir_files = fs.readdirSync(argv["prepended-code"]); 
+		for (var i = 0; i < dir_files.length; i++) {
+			files.push(path.join(argv["prepended-code"], dir_files[i]))
+		}
+
+		// make sure we're adding mock code in the right order
+		files.sort()
+	}
+	else {
+		files.push(argv["prepended-code"])
+	}
+
+	for (var i = 0; i < files.length; i++) {
+		prependedCode += fs.readFileSync(files[i], 'utf-8') + "\n\n"
+	}
+
+	code = prependedCode + "\n\n" + code
+}
+
 lib.logJS(code);
 code = fs.readFileSync(path.join(__dirname, "patch.js"), "utf8") + code;
 
