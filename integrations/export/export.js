@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const argv = require("../../argv.js").export;
 const child_process = require("child_process");
 const fs = require("fs");
