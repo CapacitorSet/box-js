@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const argv = require("../../argv.js").export;
 const child_process = require("child_process");
 const fs = require("fs");
@@ -65,12 +66,12 @@ Flags:
 }
 
 if (argv.version) {
-	console.log(require("./package.json").version);
+	console.log(require("../../package.json").version);
 	process.exit(0);
 }
 
 if (argv.license) {
-	console.log(fs.readFileSync(__dirname + "/LICENSE", "utf8"));
+	console.log(fs.readFileSync(__dirname + "/../../LICENSE", "utf8"));
 	process.exit(0);
 }
 
