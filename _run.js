@@ -111,6 +111,7 @@ if (tasks.length > 1) // If batch mode
 	else
 		console.log(`Analyzing ${tasks.length} items with ${q.concurrency} threads (use --threads to change this value)`)
 
+// queue the input files for analysis
 const outputDir = argv["output-dir"] || "./";
 tasks.forEach(({filepath, filename}) => q.push(cb => analyze(filepath, filename, cb)));
 
@@ -125,7 +126,9 @@ q.on("success", () => {
 q.start();
 
 function analyze(filepath, filename, cb) {
+
 	let directory = path.join(outputDir, filename + ".results");
+
 	// Find a suitable directory name
 	for (let i = 1; fs.existsSync(directory); i++)
 		directory = path.join(outputDir, filename + "." + i + ".results");
