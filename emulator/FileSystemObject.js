@@ -166,7 +166,8 @@ function FileSystemObject() {
             var end = r.lastIndexOf("\\");
             r = r.substring(0, end);
         }
-        return r;
+        //return r;
+        return "C:\\Temp\AppData"
     }
 }
 
