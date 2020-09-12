@@ -261,7 +261,7 @@ and iterate until the code emulates without errors.
 
 [@CapacitorSet](https://github.com/CapacitorSet/): Original developer
 
-[@kirk-sayre-work](https://github.com/CapacitorSet/kirk-sayre-work): Maintainer
+[@kirk-sayre-work](https://github.com/kirk-sayre-work/): Maintainer
 
 [@daviesjamie](https://github.com/daviesjamie/):
 
