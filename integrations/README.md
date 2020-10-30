@@ -4,11 +4,9 @@
 
 You can automatically submit the results of an analysis to a Cuckoo sandbox, Malwr or VirusTotal. Run `box-export --help` (or `node integrations/export/export.js --help`) for more information.
 
-## Running in Cuckoo
+## Running in Cuckoo/CAPE
 
->This section is a work-in-progress.
-
-Start the REST API server (see below), and use `integrations/cuckoo/cuckoo.py` as a processing module.
+Start the REST API server (see below), and see [CAPE documentation](https://capev2.readthedocs.io/en/latest/integrations/box-js.html).
 
 ## Running in Docker
 
