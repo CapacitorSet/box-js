@@ -1,3 +1,4 @@
+const Blob = require("cross-blob");
 const lib = require("./lib");
 const escodegen = require("escodegen");
 const acorn = require("acorn");
@@ -346,7 +347,80 @@ Array.prototype.Count = function() {
     return this.length;
 };
 
+var wscript_proxy = new Proxy({
+    arguments: new Proxy((n) => `${n}th argument`, {
+        get: function(target, name) {
+            switch (name) {
+            case "Unnamed":
+                return [];
+            case "length":
+                return 0;
+            case "ShowUsage":
+                return {
+                    typeof: "unknown",
+                };
+            case "Named":
+                return [];
+            default:
+                return new Proxy(
+                    target[name], {
+                        get: (target, name) => name.toLowerCase() === "typeof" ? "unknown" : target[name],
+                    }
+                );
+            }
+        },
+    }),
+    buildversion: "1234",
+    fullname: "C:\\WINDOWS\\system32\\wscript.exe",
+    interactive: true,
+    name: "wscript.exe",
+    path: "C:\\TestFolder\\",
+    //scriptfullname: "C:\\Documents and Settings\\User\\Desktop\\sample.js",
+    //scriptfullname: "C:\\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\ons.jse",
+    scriptfullname: "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\0.2638666.jse",
+    scriptname: "0.2638666.jse",
+    get stderr() {
+        lib.error("WScript.StdErr not implemented");
+    },
+    get stdin() {
+        lib.error("WScript.StdIn not implemented");
+    },
+    get stdout() {
+        lib.error("WScript.StdOut not implemented");
+    },
+    version: "5.8",
+    get connectobject() {
+        lib.error("WScript.ConnectObject not implemented");
+    },
+    createobject: ActiveXObject,
+    get disconnectobject() {
+        lib.error("WScript.DisconnectObject not implemented");
+    },
+    echo() {},
+    get getobject() {
+        lib.error("WScript.GetObject not implemented");
+    },
+    quit() {},
+    // Note that Sleep() is implemented in patch.js because it requires
+    // access to the variable _globalTimeOffset, which belongs to the script
+    // and not to the emulator.
+    [Symbol.toPrimitive]: () => "Windows Script Host",
+    tostring: "Windows Script Host",
+}, {
+    get(target, prop) {
+        // For whatever reasons, WScript.* properties are case insensitive.
+        if (typeof prop === "string")
+            prop = prop.toLowerCase();
+        return target[prop];
+    }
+});
+
 const sandbox = {
+    saveAs : function(data, fname) {
+        // TODO: If Blob need to extract the data.
+        lib.writeFile(fname, data);
+    },
+    Blob : Blob,
     logJS: lib.logJS,
     logIOC: lib.logIOC,
     ActiveXObject,
@@ -386,74 +460,8 @@ const sandbox = {
         return type;
     },
     _typeof: (x) => x.typeof ? x.typeof : typeof x,
-    WScript: new Proxy({
-        arguments: new Proxy((n) => `${n}th argument`, {
-            get: function(target, name) {
-                switch (name) {
-                    case "Unnamed":
-                        return [];
-                    case "length":
-                        return 0;
-                    case "ShowUsage":
-                        return {
-                            typeof: "unknown",
-                        };
-                    case "Named":
-                        return [];
-                    default:
-                        return new Proxy(
-                            target[name], {
-                                get: (target, name) => name.toLowerCase() === "typeof" ? "unknown" : target[name],
-                            }
-                        );
-                }
-            },
-        }),
-        buildversion: "1234",
-        fullname: "C:\\WINDOWS\\system32\\wscript.exe",
-        interactive: true,
-        name: "wscript.exe",
-        path: "C:\\TestFolder\\",
-        //scriptfullname: "C:\\Documents and Settings\\User\\Desktop\\sample.js",
-        //scriptfullname: "C:\\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\ons.jse",
-        scriptfullname: "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\0.2638666.jse",
-        scriptname: "0.2638666.jse",
-        get stderr() {
-            lib.error("WScript.StdErr not implemented");
-        },
-        get stdin() {
-            lib.error("WScript.StdIn not implemented");
-        },
-        get stdout() {
-            lib.error("WScript.StdOut not implemented");
-        },
-        version: "5.8",
-        get connectobject() {
-            lib.error("WScript.ConnectObject not implemented");
-        },
-        createobject: ActiveXObject,
-        get disconnectobject() {
-            lib.error("WScript.DisconnectObject not implemented");
-        },
-        echo() {},
-        get getobject() {
-            lib.error("WScript.GetObject not implemented");
-        },
-        quit() {},
-        // Note that Sleep() is implemented in patch.js because it requires
-        // access to the variable _globalTimeOffset, which belongs to the script
-        // and not to the emulator.
-        [Symbol.toPrimitive]: () => "Windows Script Host",
-        tostring: "Windows Script Host",
-    }, {
-        get(target, prop) {
-            // For whatever reasons, WScript.* properties are case insensitive.
-            if (typeof prop === "string")
-                prop = prop.toLowerCase();
-            return target[prop];
-        }
-    }),
-    WSH: "Windows Script Host",
+    WScript: wscript_proxy,
+    WSH: wscript_proxy,
     self: {}
 };
 

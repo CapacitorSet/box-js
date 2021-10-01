@@ -168,6 +168,14 @@ function FileSystemObject() {
         }
         //return r;
         return "C:\\Temp\AppData"
+    };
+    this.getextensionname = (path) => {
+        var r = "";
+        if (path.includes(".")) {
+            var start = path.lastIndexOf(".");
+            r = path.substring(start, path.length);
+        }
+        return r;
     }
 }
 
