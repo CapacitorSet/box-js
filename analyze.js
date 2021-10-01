@@ -340,8 +340,13 @@ if (argv["prepended-code"]) {
     code = prependedCode + "\n\n" + code
 }
 
-lib.logJS(code);
+// prepend patch code
 code = fs.readFileSync(path.join(__dirname, "patch.js"), "utf8") + code;
+
+// append more code
+code += "\n\n" + fs.readFileSync(path.join(__dirname, "appended-code.js"));
+
+lib.logJS(code);
 
 Array.prototype.Count = function() {
     return this.length;
@@ -462,7 +467,8 @@ const sandbox = {
     _typeof: (x) => x.typeof ? x.typeof : typeof x,
     WScript: wscript_proxy,
     WSH: wscript_proxy,
-    self: {}
+    self: {},
+    require
 };
 
 // See https://github.com/nodejs/node/issues/8071#issuecomment-240259088
