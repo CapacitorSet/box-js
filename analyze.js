@@ -1,4 +1,4 @@
-const Blob = require("cross-blob");
+//const Blob = require("cross-blob");
 const lib = require("./lib");
 const escodegen = require("escodegen");
 const acorn = require("acorn");
@@ -425,7 +425,7 @@ const sandbox = {
         // TODO: If Blob need to extract the data.
         lib.writeFile(fname, data);
     },
-    Blob : Blob,
+    //Blob : Blob,
     logJS: lib.logJS,
     logIOC: lib.logIOC,
     ActiveXObject,
