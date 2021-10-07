@@ -431,6 +431,9 @@ const sandbox = {
     ActiveXObject,
     dom,
     alert: (x) => {},
+    InstallProduct: (x) => {
+        lib.logUrl("InstallProduct", x);
+    },
     console: {
         //		log: console.log.bind(console),
         log: (x) => lib.info("Script output: " + JSON.stringify(x)),
@@ -525,6 +528,9 @@ function ActiveXObject(name) {
     }
 
     switch (name) {
+    case "windowsinstaller.installer":
+        // Stubbed out for now.
+        return "";
     case "adodb.stream":
         return require("./emulator/ADODBStream")();
     case "adodb.recordset":
