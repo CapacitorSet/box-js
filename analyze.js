@@ -425,6 +425,8 @@ const sandbox = {
         // TODO: If Blob need to extract the data.
         lib.writeFile(fname, data);
     },
+    setInterval : function() {},
+    setTimeout : function() {},
     //Blob : Blob,
     logJS: lib.logJS,
     logIOC: lib.logIOC,
