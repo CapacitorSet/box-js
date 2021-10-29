@@ -9,7 +9,8 @@ for (varName in this) {
         try {
             const script = new vm.Script(varValue);
             logJS(varValue)
-            eval(varValue)
+            // Automatically evaling all JS can result in the program state getting polluted.
+            //eval(varValue)
         }
         catch (err) {}
     }
