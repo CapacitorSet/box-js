@@ -426,7 +426,21 @@ const sandbox = {
         lib.writeFile(fname, data);
     },
     setInterval : function() {},
-    setTimeout : function() {},
+    setTimeout : function(func, time) {
+
+        // The interval should be an int, so do a basic check for int.
+        if ((typeof(time) !== "number") || (time == null)) {
+            throw("time is not a number.");
+        }
+        
+        // Just call the function immediately, no waiting.
+        if (typeof(func) === "function") {
+            func();
+        }
+        else {
+            throw("Callback must be a function");
+        }
+    },
     //Blob : Blob,
     logJS: lib.logJS,
     logIOC: lib.logIOC,
