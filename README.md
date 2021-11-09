@@ -13,9 +13,14 @@ Simply install box-js from npm:
 npm install box-js --global
 ```
 
-# Usage
+>box-js is also available:
+> - as a Cuckoo module (see the `integrations` directory and [Nwinternights/Cuckoo_Boxjs](https://github.com/Nwinternights/Cuckoo_Boxjs));
+> - as a Dockerfile (see `integrations/README.md`);
+> - as a package in distros for security professionals ([REMnux](https://remnux.org/), [BlackArch](https://blackarch.org/));
+> - as part of open source applications ([Intel Owl](https://github.com/intelowlproject/IntelOwl));
+> - as part of commercial third-party services ([any.run](https://any.run/)).
 
->Looking to use box-js with Cuckoo? Use `cuckoo-package.py` as an analysis package.
+# Usage
 
 Let's say you have a sample called `sample.js`: to analyze it, simply run
 
@@ -254,7 +259,9 @@ and iterate until the code emulates without errors.
 
 # Contributors
 
-[@CapacitorSet](https://github.com/CapacitorSet/): Main developer
+[@CapacitorSet](https://github.com/CapacitorSet/): Original developer
+
+[@kirk-sayre-work](https://github.com/kirk-sayre-work/): Maintainer
 
 [@daviesjamie](https://github.com/daviesjamie/):
 
