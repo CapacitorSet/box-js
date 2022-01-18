@@ -60,6 +60,18 @@ function lacksBinary(name) {
 }
 
 function rewrite(code) {
+
+    // box-js is assuming that the JS will be run on Windows with cscript or wscript.
+    // Neither of these engines supports strict JS mode, so remove those calls from
+    // the code.
+    code = code.replace(/"use strict"/g, '"STRICT MODE NOT SUPPORTED"');
+
+    // Some samples (for example that use JQuery libraries as a basis to which to
+    // add malicious code) won't emulate properly for some reason if there is not
+    // an assignment line at the start of the code. Add one here (this should not
+    // change the behavior of the code).
+    code = "__bogus_var_name__ = 12;\n\n" + code;
+    
     if (code.match("@cc_on")) {
         lib.debug("Code uses conditional compilation");
         if (!argv["no-cc_on-rewrite"]) {

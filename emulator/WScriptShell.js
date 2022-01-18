@@ -82,10 +82,10 @@ function WScriptShell() {
 	    StdOut: new TextStream(`<output of ${cmd}>`),
 	};
     };
-    
+
     if (!this._reg_entries) {
 	this._reg_entries = require("system-registry");
-
+        
 	// lacks the HKEY_CURRENT_USER reg key by default (y tho?)
 	this._reg_entries["HKEY_CURRENT_USER"] = {}
     }
@@ -139,7 +139,8 @@ function WScriptShell() {
 	}
 	else {
 	    lib.warning(`Unknown registry key ${key}!`);
-	    return "";
+	    //return "";
+            throw("Registry key not found.");
 	}
     };
     
