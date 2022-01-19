@@ -87,6 +87,7 @@ cat ./*.results/active_urls.json | sort | uniq
                            current directory)                                                              
     --preprocess           Preprocess the original source code (makes reverse engineering easier, but takes
                            a few seconds)                                                                  
+    --prepended-code       Prepend the JavaScript in the given file to the sample prior to sandboxing
     --unsafe-preprocess    More aggressive preprocessing. Often results in better code, but can break on   
                            some edge cases (eg. redefining prototypes)                                     
     --no-kill              Do not kill the application when runtime errors occur                           
