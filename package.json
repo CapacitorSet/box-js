@@ -1,49 +1,50 @@
 {
-  "name": "box-js",
-  "version": "1.9.16",
-  "description": "A tool for studying JavaScript malware.",
-  "dependencies": {
-    "acorn": "^5.6.2",
-    "columnify": "*",
-    "command-line-args": "^4.0.7",
-    "escodegen": "^1.9.1",
-    "iconv-lite": "^0.4.23",
-    "jschardet": "^1.6.0",
-    "jsdom": "^16.2.2",
-    "limiter": "^1.1.3",
-    "queue": "^4.4.2",
-    "sync-request": "^6.0.0",
-    "system-registry": "^1.0.0",
-    "uglify-es": "^3.3.9",
-    "uuid": "^3.2.1",
-    "vm2": "<=3.9.2",
-    "walk-sync": "^0.3.2"
-  },
-  "devDependencies": {
-    "babel-eslint": "^8.2.3",
-    "eslint": "^4.19.1",
-    "eslint-config-google": "*",
-    "mocha": "^5.2.0"
-  },
-  "engines": {
-    "node": ">=6.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/CapacitorSet/box-js.git"
-  },
-  "author": "CapacitorSet",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/CapacitorSet/box-js/issues"
-  },
-  "homepage": "https://github.com/CapacitorSet/box-js#readme",
-  "bin": {
-    "box-js": "run.js",
-    "box-export": "integrations/export/export.js"
-  },
-  "scripts": {
-    "lint": "eslint run.js analyze.js test/ emulator/",
-    "test": "mocha test/"
-  }
+    "name": "box-js",
+    "version": "1.9.16",
+    "description": "A tool for studying JavaScript malware.",
+    "dependencies": {
+        "acorn": "^5.6.2",
+        "columnify": "*",
+        "command-line-args": "^4.0.7",
+        "escodegen": "^1.9.1",
+        "iconv-lite": "^0.4.23",
+        "jschardet": "^1.6.0",
+        "jsdom": "^16.2.2",
+        "limiter": "^1.1.3",
+        "node-html-parser": "*",
+        "queue": "^4.4.2",
+        "sync-request": "^6.0.0",
+        "system-registry": "^1.0.0",
+        "uglify-es": "^3.3.9",
+        "uuid": "^3.2.1",
+        "vm2": "<=3.9.2",
+        "walk-sync": "^0.3.2"
+    },
+    "devDependencies": {
+        "babel-eslint": "^8.2.3",
+        "eslint": "^4.19.1",
+        "eslint-config-google": "*",
+        "mocha": "^5.2.0"
+    },
+    "engines": {
+        "node": ">=6.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/CapacitorSet/box-js.git"
+    },
+    "author": "CapacitorSet",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/CapacitorSet/box-js/issues"
+    },
+    "homepage": "https://github.com/CapacitorSet/box-js#readme",
+    "bin": {
+        "box-js": "run.js",
+        "box-export": "integrations/export/export.js"
+    },
+    "scripts": {
+        "lint": "eslint run.js analyze.js test/ emulator/",
+        "test": "mocha test/"
+    }
 }
