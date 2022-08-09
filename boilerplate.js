@@ -108,7 +108,7 @@ var window = {
 
 var document = {
     documentMode: 8, // Fake running in IE8
-    referrer: '',
+    referrer: 'https://bing.com/',
     location: location,
     //parentNode: window.document.parentNode,
     getElementById : function(id) {
@@ -131,8 +131,10 @@ var document = {
             }
         }
 
-        // got nothin to return
-        return null
+        // got nothing to return
+        return {
+            innerHTML: ""
+        }
     },
     write: function (content) {
         logIOC('DOM Write', {content}, 'The script wrote to the DOM')
@@ -147,10 +149,28 @@ var document = {
         eval(extractJSFromHTA(node));
     },
     getElementsByTagName: function(tag) {
-	    //return window.document.getElementsByTagName(tag)
+        var func = function(item) {
+            logIOC('DOM Append', {item}, "The script appended (appendChild) an HTML node to the DOM");
+            return "";
+        };
+
+        // Return a dict that maps every tag name to the same fake element.
+        fake_dict = {};
+        fake_dict = new Proxy(fake_dict, {
+            get(target, phrase) { // intercept reading a property from dictionary
+                return {"appendChild" : func};
+            }
+        });
+        return fake_dict;
     },
     createElement: function(tag) {
-	    //return window.document.createElement(tag)
+        var fake_elem = {
+            set src(url) {
+                logIOC('Remote Script', {url}, "The script set a remote script source.");
+            },
+            log: []
+        };
+        return fake_elem;
     },
     createTextNode: function(text) {
 	    //return window.document.createTextNode(text)
