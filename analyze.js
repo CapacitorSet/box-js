@@ -456,6 +456,7 @@ const sandbox = {
     //Blob : Blob,
     logJS: lib.logJS,
     logIOC: lib.logIOC,
+    logUrl: lib.logUrl,
     ActiveXObject,
     dom,
     alert: (x) => {},

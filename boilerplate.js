@@ -95,6 +95,7 @@ var location = {
 
     replace: function (url) {
         logIOC('Window Location', {url}, "The script changed the window location URL.");
+	logUrl('Window Location', {url});
     }
 };
 
