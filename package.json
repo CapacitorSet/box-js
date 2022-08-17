@@ -7,6 +7,7 @@
         "columnify": "*",
         "command-line-args": "^4.0.7",
         "escodegen": "^1.9.1",
+        "global": "^4.4.0",
         "iconv-lite": "^0.4.23",
         "jschardet": "^1.6.0",
         "jsdom": "^16.2.2",
@@ -17,14 +18,14 @@
         "system-registry": "^1.0.0",
         "uglify-es": "^3.3.9",
         "uuid": "^3.2.1",
-        "vm2": "<=3.9.2",
+        "vm2": "^3.9.10",
         "walk-sync": "^0.3.2"
     },
     "devDependencies": {
         "babel-eslint": "^8.2.3",
-        "eslint": "^4.19.1",
+        "eslint": "^8.21.0",
         "eslint-config-google": "*",
-        "mocha": "^5.2.0"
+        "mocha": "^10.0.0"
     },
     "engines": {
         "node": ">=6.0.0"

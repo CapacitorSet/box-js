@@ -91,7 +91,11 @@ var location = {
        Returns a USVString containing the canonical form of the origin of
        the specific location.
     */
-    origin: 'http://mylegitdomain.com:2112'
+    origin: 'http://mylegitdomain.com:2112',
+
+    replace: function (url) {
+        logIOC('Window Location', {url}, "The script changed the window location URL.");
+    }
 };
 
 var window = {
