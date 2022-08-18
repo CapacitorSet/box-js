@@ -96,7 +96,10 @@ var location = {
     replace: function (url) {
         logIOC('Window Location', {url}, "The script changed the window location URL.");
 	logUrl('Window Location', {url});
-    }
+    },
+
+    // The location.reload() method reloads the current URL, like the Refresh button.
+    reload: function() {},
 };
 
 var window = {
