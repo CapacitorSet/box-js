@@ -109,6 +109,22 @@ var window = {
     },
     setTimeout: function(f, i) {},
     location: location,
+    localStorage: {
+        // Users and session to distinguish and generate statistics about website traffic. 
+        "___utma" : undefined,
+        // Users and session to distinguish and generate statistics about website traffic. 
+        "__utma" : undefined,
+        // Determine new sessions and visits and generate statistics about website traffic. 
+        "__utmb" : undefined,
+        // Determine new sessions and visits and generate statistics about website traffic. 
+        "__utmc" : undefined,
+        // Process user requests and generate statistics about the website traffic. 
+        "__utmt" : undefined,
+        // Store customized variable data at visitor level and generate statistics about the website traffic. 
+        "__utmv" : undefined,
+        // To record the traffic source or campaign how users ended up on the website. 
+        "__utmz" : undefined,
+    },
 };
 
 var document = {
@@ -155,7 +171,7 @@ var document = {
     },
     getElementsByTagName: function(tag) {
         var func = function(item) {
-            logIOC('DOM Append', {item}, "The script appended (appendChild) an HTML node to the DOM");
+            logIOC('DOM Append', {item}, "The script added a HTML node to the DOM");
             return "";
         };
 
@@ -163,7 +179,14 @@ var document = {
         fake_dict = {};
         fake_dict = new Proxy(fake_dict, {
             get(target, phrase) { // intercept reading a property from dictionary
-                return {"appendChild" : func};
+                return {
+                    "appendChild" : func,
+                    "insertBefore" : func,
+                    "parentNode" : {
+                        "appendChild" : func,
+                        "insertBefore" : func,
+                    },
+                };
             }
         });
         return fake_dict;
@@ -172,6 +195,7 @@ var document = {
         var fake_elem = {
             set src(url) {
                 logIOC('Remote Script', {url}, "The script set a remote script source.");
+                logUrl('Remote Script', {url});
             },
             log: []
         };
