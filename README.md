@@ -46,6 +46,10 @@ Box.js will emulate a Windows JScript environment, print a summary of the emulat
 
  >If you wish to automate the analysis, you can use the return codes - documented in `integrations/README.md` - to distinguish between different types of errors.
 
+## Analysis Fails Due to Missing 'document' Object
+
+The box-js repository from git includes a `boilerplate.js` file. This file defines some stubbed versions of common browser objects such as document. Try rerunning your analysis with the `--prepended-code=DIR/boilerplate.js` option, where `DIR` is the directory of the cloned box-js repository. The `--prepended-code` option tells box-js to prepend the JavaScript in the given file to the sample being analyzed.
+
 ## Batch usage
 
 While box.js is typically used on single files, it can also run batch analyses. You can simply pass a list of files or folders to analyse:
@@ -83,6 +87,7 @@ cat ./*.results/active_urls.json | sort | uniq
                            current directory)                                                              
     --preprocess           Preprocess the original source code (makes reverse engineering easier, but takes
                            a few seconds)                                                                  
+    --prepended-code       Prepend the JavaScript in the given file to the sample prior to sandboxing
     --unsafe-preprocess    More aggressive preprocessing. Often results in better code, but can break on   
                            some edge cases (eg. redefining prototypes)                                     
     --no-kill              Do not kill the application when runtime errors occur                           

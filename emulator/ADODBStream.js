@@ -42,9 +42,9 @@ function ADODBStream() {
         return this.buffer;
     };
     this.write = this.writetext = function(text) {
-        if (this.charset)
+        if (this.charset) {
             this.buffer = iconv.encode(text, this.charset);
-        else
+        } else
             this.buffer = text;
     };
     this.loadfromfile = function(filename) {
@@ -56,7 +56,8 @@ function ADODBStream() {
     this.tojson = function(data) {
         console.log(data);
         return "[1]";
-    }
+    };
+    this.flush = function() {};
     this.copyto = (target) => target.write(this.buffer);
 }
 
@@ -69,6 +70,7 @@ module.exports = function() {
             case "length":
                 return target.buffer.length;
             default:
+                lib.info(`Script called ADODBStream.${name}`);
                 if (name in target) return target[name];
                 lib.kill(`ADODBStream.${name} not implemented!`);
             }

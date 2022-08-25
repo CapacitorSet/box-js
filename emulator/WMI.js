@@ -360,11 +360,16 @@ module.exports.GetObject = function(name) {
 		lib.kill(`Not implemented: WMI.Get(${className})`);
 	    return _class;
 	},
+        Run: command => {
+            lib.logIOC("WMI.GetObject.Run", command, "The script executed a command.");
+	    lib.logSnippet(lib.getUUID(), {as: "command"}, command);
+	    return "";
+	},
     }, {
 	get(target, name) {
-            console.log("^^^^^^^^^^^");
-            console.log(target);
-            console.log(name);
+            //console.log("^^^^^^^^^^^");
+            //console.log(target);
+            //console.log(name);
 	    if (name in target) return target[name];
 	    lib.kill(`WMI.GetObject.${name} not implemented!`);
 	},
