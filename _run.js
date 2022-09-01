@@ -4,6 +4,9 @@ const path = require("path");
 const walk = require("walk-sync");
 const argv = require("./argv.js").run;
 
+// Track whether we should return an error shell code or not.
+var single_sample = false;
+
 // Read and format JSON flag documentation
 if (argv.help || process.argv.length === 2) {
     const columnify = require("columnify");
@@ -108,9 +111,10 @@ else                    q.concurrency = require("os").cpus().length;
 if (tasks.length > 1) // If batch mode
     if (argv.threads)
 	console.log(`Analyzing ${tasks.length} items with ${q.concurrency} threads`)
-else
+else {
     console.log(`Analyzing ${tasks.length} items with ${q.concurrency} threads (use --threads to change this value)`)
-
+}
+    
 // queue the input files for analysis
 const outputDir = argv["output-dir"] || "./";
 tasks.forEach(({filepath, filename}) => q.push(cb => analyze(filepath, filename, cb)));
@@ -123,6 +127,10 @@ q.on("success", () => {
 	console.log(`Progress: ${completed}/${tasks.length} (${(100 * completed/tasks.length).toFixed(2)}%)`);
 });
 
+// Exit with a meaningful return code if we are only analyzing 1 sample.
+single_sample = (q.length == 1);
+
+// Start analyzing samples.
 q.start();
 
 function analyze(filepath, filename, cb) {
@@ -169,9 +177,12 @@ function analyze(filepath, filename, cb) {
  * If the error is about a weird \"Unknown ActiveXObject\", try --no-kill.
  * Otherwise, report a bug at https://github.com/CapacitorSet/box-js/issues/ .`);
 	}
+        if (code != 0) {
+            final_code = code;
+        }
 	clearTimeout(killTimeout);
 	worker.kill();
-	if (argv.debug) process.exit(code);
+	if (argv.debug || single_sample) process.exit(code);
 	cb();
     });
 
