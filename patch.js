@@ -84,7 +84,8 @@
 		((m, fnName) => `\nfunction ${fnName} {\n    [native code]\n}\n`)
 	    )
             // Some obfuscators flag funcs with newlines.
-            return r.replace(/\n/g, "");
+            r = r.replace(/\n/g, "").replace(/{ +/g, "{").replace(/ +}/g, "}");
+            return r;
 	}
 
 	let _OriginalFunction = Function;
