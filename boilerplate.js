@@ -336,8 +336,8 @@ Array.prototype.reduce = function(a, b) {
     throw "CScript JScript has no Array.reduce() method."
 };
 
-Function.prototype.__toString = Function.prototype.toString;
-Function.prototype.toString = function(){
-    console.log("TOSTRING!!");
-    return (this.__toString().replace(/\n/g, ""));
-};
+// Stubbed out for now.
+function setTimeout() {};
+function clearTimeout() {};
+function setInterval() {};
+function clearInterval() {};

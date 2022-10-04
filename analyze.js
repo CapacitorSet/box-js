@@ -543,7 +543,7 @@ if (argv["dangerous-vm"]) {
         vm.run(code);
     } catch (e) {
         lib.error("Sandbox execution failed:");
-        lib.error(e);
+        lib.error(e.message);
         process.exit(1);
     }
 }
