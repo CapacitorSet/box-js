@@ -580,6 +580,8 @@ function ActiveXObject(name) {
         return require("./emulator/Dictionary");
     case "shell.application":
         return require("./emulator/ShellApplication");
+    case "internetexplorer.application":
+        return require("./emulator/InternetExplorerApplication");
     case "wscript.network":
         return require("./emulator/WScriptNetwork");
     case "wscript.shell":

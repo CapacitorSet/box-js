@@ -333,6 +333,7 @@ module.exports.GetObject = function(name) {
       }
     */
     return new Proxy({
+        UserName: "_Fake_Box-JS_User_",
 	InstancesOf: getTable,
 	ExecQuery: query => {
 	    // TODO: implement actual SQL
