@@ -236,6 +236,31 @@ var window = {
     },
 };
 
+function __getElementsByTagName(tag) {
+        var func = function(item) {
+            logIOC('DOM Append', {item}, "The script added a HTML node to the DOM");
+            return "";
+        };
+
+        // Return a dict that maps every tag name to the same fake element.
+        fake_dict = {};
+        fake_dict = new Proxy(fake_dict, {
+            get(target, phrase) { // intercept reading a property from dictionary
+                return {
+                    "appendChild" : func,
+                    "insertBefore" : func,
+                    "parentNode" : {
+                        "appendChild" : func,
+                        "insertBefore" : func,
+                    },
+                    "getElementsByTagName" : __getElementsByTagName,
+                    "title" : "My Fake Title",
+                };
+            }
+        });
+        return fake_dict;
+    }
+
 var document = {
     documentMode: 8, // Fake running in IE8
     referrer: 'https://bing.com/',
@@ -278,28 +303,7 @@ var document = {
 	logIOC('DOM Insert', {node}, "The script inserted an HTML node on the DOM")
         eval(extractJSFromHTA(node));
     },
-    getElementsByTagName: function(tag) {
-        var func = function(item) {
-            logIOC('DOM Append', {item}, "The script added a HTML node to the DOM");
-            return "";
-        };
-
-        // Return a dict that maps every tag name to the same fake element.
-        fake_dict = {};
-        fake_dict = new Proxy(fake_dict, {
-            get(target, phrase) { // intercept reading a property from dictionary
-                return {
-                    "appendChild" : func,
-                    "insertBefore" : func,
-                    "parentNode" : {
-                        "appendChild" : func,
-                        "insertBefore" : func,
-                    },
-                };
-            }
-        });
-        return fake_dict;
-    },
+    getElementsByTagName: __getElementsByTagName,
     createElement: function(tag) {
         var fake_elem = {
             set src(url) {
