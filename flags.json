@@ -146,6 +146,11 @@
             "name": "dangerous-vm",
             "type": "Boolean",
             "description": "Use the `vm` module, rather than `vm2`. This sandbox can be broken, so **don't use this** unless you're 100% sure of what you're doing. Helps with debugging by giving correct stack traces."
+        },
+        {
+            "name": "rewrite-loops",
+            "type": "Boolean",
+            "description": "Rewrite some types of loops to make analysis faster"
         }
     ],
     "export": [

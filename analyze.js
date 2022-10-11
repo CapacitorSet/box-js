@@ -1,5 +1,6 @@
 //const Blob = require("cross-blob");
 const lib = require("./lib");
+const loop_rewriter = require("./loop_rewriter");
 const escodegen = require("escodegen");
 const acorn = require("acorn");
 const fs = require("fs");
@@ -238,15 +239,24 @@ cc decoder.c -o decoder
                 return;
             }
 
+            if (argv["rewrite-loops"]) {
+                lib.verbose("    Rewriting loops...", false);
+                traverse(tree, loop_rewriter.rewriteSimpleWaitLoop);
+                traverse(tree, loop_rewriter.rewriteSimpleControlLoop);
+            }
+            
             if (!argv["no-rewrite-prototype"]) {
                 lib.verbose("    Replacing `function A.prototype.B()` (use --no-rewrite-prototype to skip)...", false);
                 traverse(tree, function(key, val) {
                     if (!val) return;
+                    //console.log("----");
+                    //console.log(JSON.stringify(val, null, 2));
                     if (val.type !== "FunctionDeclaration" &&
                         val.type !== "FunctionExpression") return;
                     if (!val.id) return;
                     if (val.id.type !== "MemberExpression") return;
-                    return require("./patches/prototype.js")(val);
+                    r = require("./patches/prototype.js")(val);
+                    return r;
                 });
             }
 
@@ -302,8 +312,9 @@ cc decoder.c -o decoder
                 });
             }
 
-            // console.log(JSON.stringify(tree, null, "\t"));
             code = escodegen.generate(tree);
+            //console.log("!!!! CODE !!!!");
+            //console.log(code);
 
             // The modifications may have resulted in more concatenations, eg. "a" + ("foo", "b") + "c" -> "a" + "b" + "c"
             if (argv["dumb-concat-simplify"]) {
