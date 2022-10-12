@@ -8,14 +8,23 @@ function rewriteSimpleWaitLoop(key, val) {
     
     // While loop?
     if (val.type != "WhileStatement") return;
+
     // Simple loop guard?
     if (val.test.type != "BinaryExpression") return;
     if (val.test.left.type != "Identifier") return;
+
+    // Skip some benign loops we have trouble rewriting by checking the
+    // loop index variable. Specifically skip loops where the loop index is
+    // cardCountIndexFinal.
+    if (val.test.left.name == "cardCountIndexFinal") return;
+    
     // Only handling "<" and "<=" for now.
     if ((val.test.operator != "<") && (val.test.operator != "<=")) return;
+
     // Single statement in the loop body?
     if (val.body.type != "BlockStatement") return;
     if (val.body.body.length != 1) return;
+
     // Loop body statement is update to loop variable?
     line = val.body.body[0];
     if (line.type != "ExpressionStatement") return;
@@ -32,12 +41,12 @@ function rewriteSimpleWaitLoop(key, val) {
         if (line.operator != "++") return;
     };
     
-    console.log("----");
+    //console.log("----");
     //console.log(JSON.stringify(val, null, 2));
     r = require("./patches/counter_while_loop.js")(val);
-    console.log("REWRITE WAIT!!");
+    //console.log("REWRITE WAIT!!");
     //console.log(JSON.stringify(r, null, 2));
-    console.log(escodegen.generate(r));
+    //console.log(escodegen.generate(r));
     return r;
 }
 
@@ -86,12 +95,12 @@ function rewriteSimpleControlLoop(key, val) {
 
     // We have a certain type of control flow loop. Rewrite it so that exceptions are not
     // repeatedly thrown.
-    console.log("----");
+    //console.log("----");
     //console.log(JSON.stringify(val, null, 2));
     r = require("./patches/except_while_loop.js")(val);
-    console.log("REWRITE CONTROL!!");
+    //console.log("REWRITE CONTROL!!");
     //console.log(JSON.stringify(r, null, 2));
-    console.log(escodegen.generate(r));
+    //console.log(escodegen.generate(r));
     return r;
 };
 
