@@ -140,6 +140,56 @@ If you run into unexpected results, try uncommenting lines that look like
                 code = code.replace(/"[ \r\n]*\+[ \r\n]*"/gm, "");
             }
 
+            let tree;
+            try {
+                tree = acorn.parse(code, {
+                    allowReturnOutsideFunction: true, // used when rewriting function bodies
+                    plugins: {
+                        // enables acorn plugin needed by prototype rewrite
+                        JScriptMemberFunctionStatement: !argv["no-rewrite-prototype"],
+                    },
+                });
+            } catch (e) {
+                lib.error("Couldn't parse with Acorn:");
+                lib.error(e);
+                lib.error("");
+                if (filename.match(/jse$/)) {
+                    lib.error(
+                        `This appears to be a JSE (JScript.Encode) file.
+Please compile the decoder and decode it first:
+
+cc decoder.c -o decoder
+./decoder ${filename} ${filename.replace(/jse$/, "js")}
+
+`
+                    );
+                } else {
+                    lib.error(
+                        // @@@ Emacs JS mode does not properly parse this block.
+                        //`This doesn't seem to be a JavaScript/WScript file.
+                        //If this is a JSE file (JScript.Encode), compile
+                        //decoder.c and run it on the file, like this:
+                        //
+                        //cc decoder.c -o decoder
+                        //./decoder ${filename} ${filename}.js
+                        //
+                        //`
+                        "Decode JSE. 'cc decoder.c -o decoder'. './decoder ${filename} ${filename}.js'"
+                    );
+                }
+                process.exit(4);
+                return;
+            }
+
+            // Loop rewriting is looking for loops in the original unmodified code so
+            // do this before any other modifications.
+            if (argv["rewrite-loops"]) {
+                lib.verbose("    Rewriting loops...", false);
+                traverse(tree, loop_rewriter.rewriteSimpleWaitLoop);
+                traverse(tree, loop_rewriter.rewriteSimpleControlLoop);
+            }
+
+            
             if (argv.preprocess) {
                 lib.verbose(`    Preprocessing with uglify-es v${require("uglify-es/package.json").version} (remove --preprocess to skip)...`, false);
                 const unsafe = !!argv["unsafe-preprocess"];
@@ -196,53 +246,6 @@ If you run into unexpected results, try uncommenting lines that look like
                 } else {
                     code = result.code;
                 }
-            }
-
-            let tree;
-            try {
-                tree = acorn.parse(code, {
-                    allowReturnOutsideFunction: true, // used when rewriting function bodies
-                    plugins: {
-                        // enables acorn plugin needed by prototype rewrite
-                        JScriptMemberFunctionStatement: !argv["no-rewrite-prototype"],
-                    },
-                });
-            } catch (e) {
-                lib.error("Couldn't parse with Acorn:");
-                lib.error(e);
-                lib.error("");
-                if (filename.match(/jse$/)) {
-                    lib.error(
-                        `This appears to be a JSE (JScript.Encode) file.
-Please compile the decoder and decode it first:
-
-cc decoder.c -o decoder
-./decoder ${filename} ${filename.replace(/jse$/, "js")}
-
-`
-                    );
-                } else {
-                    lib.error(
-                        // @@@ Emacs JS mode does not properly parse this block.
-                        //`This doesn't seem to be a JavaScript/WScript file.
-                        //If this is a JSE file (JScript.Encode), compile
-                        //decoder.c and run it on the file, like this:
-                        //
-                        //cc decoder.c -o decoder
-                        //./decoder ${filename} ${filename}.js
-                        //
-                        //`
-                        "Decode JSE. 'cc decoder.c -o decoder'. './decoder ${filename} ${filename}.js'"
-                    );
-                }
-                process.exit(4);
-                return;
-            }
-
-            if (argv["rewrite-loops"]) {
-                lib.verbose("    Rewriting loops...", false);
-                traverse(tree, loop_rewriter.rewriteSimpleWaitLoop);
-                traverse(tree, loop_rewriter.rewriteSimpleControlLoop);
             }
             
             if (!argv["no-rewrite-prototype"]) {
