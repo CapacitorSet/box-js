@@ -7,7 +7,6 @@ const fs = require("fs");
 const iconv = require("iconv-lite");
 const path = require("path");
 const {VM} = require("vm2");
-//const {NodeVM} = require('vm2');
 const child_process = require("child_process");
 const argv = require("./argv.js").run;
 const jsdom = require("jsdom").JSDOM;
@@ -557,6 +556,7 @@ if (argv["dangerous-vm"]) {
         vm.run(code);
     } catch (e) {
         lib.error("Sandbox execution failed:");
+        console.log(e.stack);
         lib.error(e.message);
         process.exit(1);
     }

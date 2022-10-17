@@ -34,6 +34,7 @@ function ADODBStream() {
     this.open = () => {};
     this.savetofile = function(filename) {
         this.virtual_filename = filename;
+        console.log(filename);
         lib.writeFile(filename, this.buffer);
         lib.logResource(lib.getUUID(), this.virtual_filename, this.buffer, true);
     };

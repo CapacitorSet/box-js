@@ -120,6 +120,7 @@ function FileSystemObject() {
 	if (value) {
 	    lib.info(`Returning true for FileSystemObject.FileExists(${path}); use --no-file-exists if nothing happens`);
 	}
+        lib.logIOC("FileExists", path, "The script checked to see if a file exists.");
 	return value;
     };
     this.folderexists = (path) => {
@@ -127,6 +128,7 @@ function FileSystemObject() {
 	if (value) {
 	    lib.info(`Returning true for FileSystemObject.FolderExists(${path}); use --no-folder-exists if nothing happens`);
 	}
+        lib.logIOC("FolderExists", path, "The script checked to see if a folder exists.");
 	return value;
     };
     this.getabsolutepathname = (path) => {
