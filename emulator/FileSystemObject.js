@@ -134,7 +134,7 @@ function FileSystemObject() {
     this.getabsolutepathname = (path) => {
 	if (!winpath.isAbsolute(path)) path = "C:\\Users\\User\\Desktop\\" + path;
 	const ret = winpath.resolve(path);
-	console.log(path, ret);
+        lib.logIOC("FileSystemObject", {"path": path, "absolute": ret}, "The script got an absolute path.");
 	return ret;
     };
     this.getdrive = (drive) => new ProxiedDrive(drive);

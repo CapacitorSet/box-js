@@ -34,7 +34,7 @@ function ADODBStream() {
     this.open = () => {};
     this.savetofile = function(filename) {
         this.virtual_filename = filename;
-        console.log(filename);
+        lib.logIOC("ADODBStream", {"name": filename}, "The script wrote a file.");
         lib.writeFile(filename, this.buffer);
         lib.logResource(lib.getUUID(), this.virtual_filename, this.buffer, true);
     };
@@ -55,7 +55,6 @@ function ADODBStream() {
             this.buffer = lib.readFile(filename);
     };
     this.tojson = function(data) {
-        console.log(data);
         return "[1]";
     };
     this.flush = function() {};

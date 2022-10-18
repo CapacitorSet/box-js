@@ -4,14 +4,11 @@ const iconv = require("iconv-lite");
 function ADODBConnection() {
 
     this.open = function(query, conn) {
-        console.log("adodb.connection open()");
-        console.log(query);
-        console.log(conn);
+        log.logIOC("ADODBConnection", {"query": query}, "The script opened an ADODB connection.");
     };
     
     this.cursorlocation1 = function(arg) {
-        console.log("adodb.connection cursorlocation()");
-        console.log(arg);
+        log.logIOC("ADODBConnection", {"arg": arg}, "The script called ADODB cursor location.");
     };
 
     this.close = () => {};

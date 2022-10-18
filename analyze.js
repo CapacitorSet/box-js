@@ -64,7 +64,7 @@ function rewrite(code) {
     // box-js is assuming that the JS will be run on Windows with cscript or wscript.
     // Neither of these engines supports strict JS mode, so remove those calls from
     // the code.
-    code = code.replace(/"use strict"/g, '"STRICT MODE NOT SUPPORTED"');
+    code = code.toString().replace(/"use strict"/g, '"STRICT MODE NOT SUPPORTED"');
 
     // Some samples (for example that use JQuery libraries as a basis to which to
     // add malicious code) won't emulate properly for some reason if there is not
