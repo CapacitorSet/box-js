@@ -364,6 +364,7 @@ class XMLHttpRequest {
         this.method = method;
         this.url = url;
         lib.logIOC("XMLHttpRequest", {method: method, url: url}, "The script opened a HTTP request.");
+        lib.logUrl("XMLHttpRequest", url);
     };
 
     send() {};
