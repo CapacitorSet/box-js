@@ -1,4 +1,5 @@
 const parse = require("node-html-parser").parse;
+const lib = require("./lib.js");
 
 // atob() taken from abab.atob.js .
 
@@ -217,6 +218,8 @@ var window = {
         return atob(s);
     },
     setTimeout: function(f, i) {},
+    addEventListener: function(){},
+    attachEvent: function(){},
     location: location,
     localStorage: {
         // Users and session to distinguish and generate statistics about website traffic. 
@@ -234,6 +237,9 @@ var window = {
         // To record the traffic source or campaign how users ended up on the website. 
         "__utmz" : undefined,
     },
+};
+
+var screen = {
 };
 
 function __getElementsByTagName(tag) {
@@ -345,3 +351,20 @@ function setTimeout() {};
 function clearTimeout() {};
 function setInterval() {};
 function clearInterval() {};
+
+class XMLHttpRequest {
+    constructor(){
+        this.method = null;
+        this.url = null;
+    };
+
+    addEventListener() {};
+
+    open(method, url) {
+        this.method = method;
+        this.url = url;
+        lib.logIOC("XMLHttpRequest", {method: method, url: url}, "The script opened a HTTP request.");
+    };
+
+    send() {};
+};
