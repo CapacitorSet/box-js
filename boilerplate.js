@@ -241,6 +241,18 @@ var window = {
 
 var screen = {
 };
+// Initial jQuery stubbing.
+var onDict = {
+    on: function(){ return onDict },
+};
+var jQuery = function(){
+    return onDict;
+};
+jQuery.jquery = "3.6.1";
+jQuery.fn = {
+    jquery: "3.6.1"
+};
+jQuery.extend = function() { return {}; };
 
 function __getElementsByTagName(tag) {
         var func = function(item) {
