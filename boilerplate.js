@@ -241,6 +241,10 @@ var window = {
 
 var screen = {
 };
+
+var ShareLink = {
+};
+
 // Initial jQuery stubbing.
 var onDict = {
     on: function(){ return onDict },
