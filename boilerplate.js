@@ -251,12 +251,18 @@ var ShareLink = {
 function define() {};
 define.amd = true;
 
+// Initial stubbed function. Add items a needed.
+function adjustIframes() {};
+
 // Initial jQuery stubbing. Add items a needed.
-var onDict = {
-    on: function(){ return onDict },
+var funcDict = {
+    on: function(){ return funcDict },
+    val: function() {},
+    scroll: function() {},
+    ready: function() {},
 };
 var jQuery = function(){
-    return onDict;
+    return funcDict;
 };
 jQuery.jquery = "2.6.1";
 jQuery.fn = {
