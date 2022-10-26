@@ -270,6 +270,10 @@ jQuery.fn = {
 };
 jQuery.extend = function() { return {}; };
 
+// Initial WebPack stubbing.
+globalThis.location = "http://mylegitdomain.com:2112/and/i/have/a/path.php";
+globalThis.importScripts = true;
+
 function __getElementsByTagName(tag) {
         var func = function(item) {
             logIOC('DOM Append', {item}, "The script added a HTML node to the DOM");
