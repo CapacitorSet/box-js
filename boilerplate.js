@@ -220,6 +220,10 @@ var window = {
     setTimeout: function(f, i) {},
     addEventListener: function(){},
     attachEvent: function(){},
+    getComputedStyle: function(){
+	return ["??",
+		"-moz-"];
+    },
     location: location,
     localStorage: {
         // Users and session to distinguish and generate statistics about website traffic. 
