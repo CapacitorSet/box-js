@@ -120,6 +120,7 @@ function FileSystemObject() {
 	if (value) {
 	    lib.info(`Returning true for FileSystemObject.FileExists(${path}); use --no-file-exists if nothing happens`);
 	}
+        lib.logIOC("FileExists", path, "The script checked to see if a file exists.");
 	return value;
     };
     this.folderexists = (path) => {
@@ -127,12 +128,13 @@ function FileSystemObject() {
 	if (value) {
 	    lib.info(`Returning true for FileSystemObject.FolderExists(${path}); use --no-folder-exists if nothing happens`);
 	}
+        lib.logIOC("FolderExists", path, "The script checked to see if a folder exists.");
 	return value;
     };
     this.getabsolutepathname = (path) => {
 	if (!winpath.isAbsolute(path)) path = "C:\\Users\\User\\Desktop\\" + path;
 	const ret = winpath.resolve(path);
-	console.log(path, ret);
+        lib.logIOC("FileSystemObject", {"path": path, "absolute": ret}, "The script got an absolute path.");
 	return ret;
     };
     this.getdrive = (drive) => new ProxiedDrive(drive);

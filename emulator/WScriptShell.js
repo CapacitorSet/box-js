@@ -47,7 +47,20 @@ function WScriptShell() {
 
     this.environment1 = undefined;
     this.specialfolders = (x) => `(Special folder ${x})`;
-    this.createshortcut = () => ({});
+    this.createshortcut = (x) => ({
+        name: x,
+        save: function() {
+            var name = "???";
+            if (typeof(this.name) !== "undefined") {
+                name = this.name;
+            };
+            var cmd = "???";
+            if ((typeof(this.targetPath) !== "undefined") && (typeof(this.arguments) !== "undefined")) {
+                cmd = "" + this.targetPath + " " + this.arguments;
+            }
+            lib.logIOC("CreateShortcut", {name: name, cmd: cmd}, "The script saved a shortcut.");
+        }
+    });
     this.expandenvironmentstrings = (path) => {
 	Object.keys(vars).forEach(key => {
 
@@ -55,7 +68,7 @@ function WScriptShell() {
 
 	    if (!regex.test(path)) return;
 
-	    lib.info(`Script read environment variable ${key}`);
+	    lib.logIOC("Environ", key, "The script read an environment variable");
 	    path = path.replace(regex, vars[key]);
 	});
 

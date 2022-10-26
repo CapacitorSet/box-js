@@ -12,7 +12,7 @@ module.exports = function(name) {
 	    switch (name) {
 	    case "nodetypedvalue":
 		if (target.dataType !== "bin.base64") return target.text;
-		return new Buffer(target.text, "base64").toString("utf8");
+		return new Buffer(target.text, "base64");
 	    default:
 		if (name in target) return target[name];
 		lib.kill(`VirtualDOMTag.${name} not implemented!`);
