@@ -264,6 +264,8 @@ var funcDict = {
     val: function() {},
     scroll: function() {},
     ready: function() {},
+    load: function() {},
+    extend: function() { return {}; },
 };
 var jQuery = function(){
     return funcDict;
@@ -271,7 +273,7 @@ var jQuery = function(){
 jQuery.jquery = "2.6.1";
 jQuery.fn = {
     jquery: "2.6.1",
-    extend: function() {},
+    extend: function() { return {}; },
 };
 jQuery.extend = function() { return {}; };
 
