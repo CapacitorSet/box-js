@@ -239,13 +239,19 @@ var window = {
     },
 };
 
+// Initial stubbed object. Add items a needed.
 var screen = {
 };
 
+// Initial stubbed object. Add items a needed.
 var ShareLink = {
 };
 
-// Initial jQuery stubbing.
+// Initial stubbed function. Add items a needed.
+function define() {};
+define.amd = true;
+
+// Initial jQuery stubbing. Add items a needed.
 var onDict = {
     on: function(){ return onDict },
 };
@@ -332,7 +338,9 @@ var document = {
                 logIOC('Remote Script', {url}, "The script set a remote script source.");
                 logUrl('Remote Script', {url});
             },
-            log: []
+            log: [],
+	    style: [],
+	    appendChild: function() {},
         };
         return fake_elem;
     },
