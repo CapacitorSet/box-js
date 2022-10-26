@@ -255,6 +255,10 @@ var ShareLink = {
 function define() {};
 define.amd = true;
 
+// This could be due to a bug in a sample, but added this to
+// get analysis to work.
+wp = {};
+
 // Initial stubbed function. Add items a needed.
 function adjustIframes() {};
 
