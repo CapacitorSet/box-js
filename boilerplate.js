@@ -325,6 +325,7 @@ var document = {
             innerHTML: ""
         }
     },
+    documentElement: {},
     write: function (content) {
         logIOC('DOM Write', {content}, 'The script wrote to the DOM')
         eval.apply(null, [extractJSFromHTA(content)]);
