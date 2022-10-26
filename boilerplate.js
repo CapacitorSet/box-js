@@ -270,7 +270,8 @@ var jQuery = function(){
 };
 jQuery.jquery = "2.6.1";
 jQuery.fn = {
-    jquery: "2.6.1"
+    jquery: "2.6.1",
+    extend: function() {},
 };
 jQuery.extend = function() { return {}; };
 
