@@ -298,6 +298,7 @@ var funcDict = {
         special: {},
     },
     each: function() {},
+    one: function() {},
 };
 var jQuery = function(){
     return funcDict;
