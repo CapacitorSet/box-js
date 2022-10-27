@@ -300,6 +300,7 @@ var funcDict = {
     each: function() {},
     one: function() {},
     mouseup: function() {},
+    isFunction: function() {},
 };
 var jQuery = function(){
     return funcDict;
@@ -337,6 +338,7 @@ jQuery.event = {
     special: {},
 };
 jQuery.each = function() {};
+jQuery.isFunction = function() {};
 
 // Initial WebPack stubbing.
 globalThis.location = "http://mylegitdomain.com:2112/and/i/have/a/path.php";
