@@ -255,14 +255,15 @@ var ShareLink = {
 function define() {};
 define.amd = true;
 
-// This could be due to a bug in a sample, but added this to
-// get analysis to work.
+// These could be due to a bug in a sample, but added this to
+// get analysis to work. Also could be missing globals from other scripts.
 wp = {};
 wprentals_map_general_start_map = function() {};
 googlecode_property_vars = {};
 wprentals_map_general_cluster = function() {};
 wprentals_map_general_spiderfy = function() {};
 wpestate_initialize_poi = function() {};
+Codevz_Plus = {};
 
 // Initial stubbed function. Add items a needed.
 function adjustIframes() {};
@@ -276,6 +277,8 @@ var funcDict = {
     load: function() {},
     extend: function() { return {}; },
     attr: function(field) { return ".attr(" + field + ")"; },
+    codevzPlus: function() {},
+    hasClass: function() { return false; },
 };
 var jQuery = function(){
     return funcDict;
@@ -319,6 +322,7 @@ function __getElementsByTagName(tag) {
 var document = {
     documentMode: 8, // Fake running in IE8
     referrer: 'https://bing.com/',
+    body: {},
     location: location,
     //parentNode: window.document.parentNode,
     getElementById : function(id) {
