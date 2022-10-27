@@ -299,6 +299,7 @@ var funcDict = {
     },
     each: function() {},
     one: function() {},
+    mouseup: function() {},
 };
 var jQuery = function(){
     return funcDict;
