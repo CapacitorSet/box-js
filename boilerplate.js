@@ -323,9 +323,7 @@ var document = {
     },
     getElementsByTagName: __getElementsByTagName,
     createDocumentFragment: function() {
-        return {
-            appendChild: function() {},
-        };
+        return __createElement("__doc_fragment__");
     },
     createElement: __createElement,
     createTextNode: function(text) {},
