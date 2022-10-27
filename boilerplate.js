@@ -307,10 +307,13 @@ var funcDict = {
     // Probably not jQuery
     avia_sc_messagebox: function() {},
     trigger: function() {},
+    width: function() {},
 };
 var jQuery = function(){
     return funcDict;
 };
+
+// Global object form of jQuery.
 jQuery.jquery = "2.6.1";
 jQuery.fn = {
     jquery: "2.6.1",
@@ -412,7 +415,10 @@ var document = {
             innerHTML: ""
         }
     },
-    documentElement: {},
+    documentElement: {
+        style: {},
+        className: "",
+    },
     write: function (content) {
         logIOC('DOM Write', {content}, 'The script wrote to the DOM')
         eval.apply(null, [extractJSFromHTA(content)]);
