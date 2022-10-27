@@ -376,6 +376,9 @@ var MediaElementPlayer = {
     prototype: {},
 };
 
+// What is this?
+var N2R = N2D = function() {};
+
 function __getElementsByTagName(tag) {
         var func = function(item) {
             logIOC('DOM Append', {item}, "The script added a HTML node to the DOM");
