@@ -209,6 +209,7 @@ var location = {
     reload: function() {},
 };
 
+// Stubbed global window object.
 var window = {
     eval: function(cmd) { eval(cmd); },
     resizeTo: function(a,b){},
@@ -270,6 +271,8 @@ Codevz_Plus = {};
 function adjustIframes() {};
 
 // Initial jQuery stubbing. Add items a needed.
+
+// Function form of jQuery().
 var funcDict = {
     on: function(){ return funcDict },
     val: function() {},
@@ -361,6 +364,17 @@ window.jQuery = jQuery
 // Initial WebPack stubbing.
 globalThis.location = "http://mylegitdomain.com:2112/and/i/have/a/path.php";
 globalThis.importScripts = true;
+
+// Mejs module stubbing.
+var mejs = {
+    plugins: {},
+    Utils: {},
+};
+
+// MediaElementPlayer module stubbing.
+var MediaElementPlayer = {
+    prototype: {},
+};
 
 function __getElementsByTagName(tag) {
         var func = function(item) {
