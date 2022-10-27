@@ -301,6 +301,12 @@ var funcDict = {
     one: function() {},
     mouseup: function() {},
     isFunction: function() {},
+    data: function() { return "12"; },
+    outerHeight: function() {},
+    css: function() {},
+    // Probably not jQuery
+    avia_sc_messagebox: function() {},
+    trigger: function() {},
 };
 var jQuery = function(){
     return funcDict;
@@ -339,6 +345,11 @@ jQuery.event = {
 };
 jQuery.each = function() {};
 jQuery.isFunction = function() {};
+jQuery.expr = {
+    pseudos: {},
+};
+
+// Looks like that can be a window field.
 window.jQuery = jQuery
 
 // Initial WebPack stubbing.
