@@ -308,6 +308,7 @@ var funcDict = {
     avia_sc_messagebox: function() {},
     trigger: function() {},
     width: function() {},
+    resize: function() {},
 };
 var jQuery = function(){
     return funcDict;
