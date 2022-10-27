@@ -279,6 +279,25 @@ var funcDict = {
     attr: function(field) { return ".attr(" + field + ")"; },
     codevzPlus: function() {},
     hasClass: function() { return false; },
+    attr: function() {},
+    attrHooks: {
+        value: {
+            get: function() {},
+            set: function() {},
+        },
+    },
+    support: {
+        boxModel: false,
+    },
+    boxModel: false,
+    ajaxSetup: function() {},
+    event: {
+        add: function() {},
+        remove: function() {},
+        trigger: function() {},
+        special: {},
+    },
+    each: function() {},
 };
 var jQuery = function(){
     return funcDict;
@@ -287,8 +306,31 @@ jQuery.jquery = "2.6.1";
 jQuery.fn = {
     jquery: "2.6.1",
     extend: function() { return {}; },
+    toggle: function() {},
+    live: function() {},
+    die: function() {},
+    load: function() {},
 };
 jQuery.extend = function() { return {}; };
+jQuery.attr = function() {};
+jQuery.attrHooks = {
+    value: {
+        get: function() {},
+        set: function() {},
+    },
+};
+jQuery.support = {
+    boxModel: false,
+};
+jQuery.boxModel = false;
+jQuery.ajaxSetup = function() {};
+jQuery.event = {
+    add: function() {},
+    remove: function() {},
+    trigger: function() {},
+    special: {},
+};
+jQuery.each = function() {};
 
 // Initial WebPack stubbing.
 globalThis.location = "http://mylegitdomain.com:2112/and/i/have/a/path.php";
