@@ -214,6 +214,7 @@ var window = {
     resizeTo: function(a,b){},
     moveTo: function(a,b){},
     close: function(){},
+    matchMedia: function(){ return {}; },
     atob: function(s){
         return atob(s);
     },
