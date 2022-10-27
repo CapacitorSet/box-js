@@ -209,6 +209,128 @@ var location = {
     reload: function() {},
 };
 
+function __getElementsByTagName(tag) {
+    var func = function(item) {
+        logIOC('DOM Append', {item}, "The script added a HTML node to the DOM");
+        return "";
+    };
+    
+    // Return a dict that maps every tag name to the same fake element.
+    fake_dict = {};
+    fake_dict = new Proxy(fake_dict, {
+        get(target, phrase) { // intercept reading a property from dictionary
+            return {
+                "appendChild" : func,
+                "insertBefore" : func,
+                "parentNode" : {
+                    "appendChild" : func,
+                    "insertBefore" : func,
+                },
+                "getElementsByTagName" : __getElementsByTagName,
+                "title" : "My Fake Title",
+                style: {},
+                getAttribute: function() { return {}; },
+            };
+        }
+    });
+    return fake_dict;
+};
+
+function __createElement(tag) {
+    var fake_elem = {
+        set src(url) {
+            logIOC('Remote Script', {url}, "The script set a remote script source.");
+            logUrl('Remote Script', {url});
+        },
+        log: [],
+	style: [],
+	appendChild: function() {
+            return __createElement("__append__");
+        },
+        attributes: {},
+        setAttribute: function(name, val) {
+            this.attributes[name] = val;
+        },
+        getAttribute: function(name) {
+            return this.attributes[name];
+        },        
+        firstChild: {
+            nodeType: 3,
+        },
+        lastChild: {
+            nodeType: 3,
+        },
+        getElementsByTagName: __getElementsByTagName,
+        cloneNode: function() {
+            return __createElement("__clone__");
+        },
+        toLowerCase: function() {
+            return "// NOPE";
+        },
+    };
+    return fake_elem;
+};
+
+// Stubbed global document object.
+var document = {
+    documentMode: 8, // Fake running in IE8
+    nodeType: 9,
+    referrer: 'https://bing.com/',
+    body: {},
+    location: location,
+    defaultView: {},
+    getElementById : function(id) {
+
+        var char_codes_to_string = function (str) {
+            var codes = ""
+            for (var i = 0; i < str.length; i++) {
+                codes += String.fromCharCode(str[i])
+            }
+            return codes
+        }
+
+        /* IDS_AND_DATA */
+
+        for (var i = 0; i < ids.length; i++) {
+            if (char_codes_to_string(ids[i]) == id) {
+                return {
+                    innerHTML: char_codes_to_string(data[i])
+                }
+            }
+        }
+
+        // got nothing to return
+        return {
+            innerHTML: ""
+        }
+    },
+    documentElement: {
+        style: {},
+        className: "",
+    },
+    write: function (content) {
+        logIOC('DOM Write', {content}, 'The script wrote to the DOM')
+        eval.apply(null, [extractJSFromHTA(content)]);
+    },
+    appendChild: function(node) {
+        logIOC('DOM Append', {node}, "The script appended an HTML node to the DOM")
+        eval(extractJSFromHTA(node));
+    },
+    insertBefore: function(node) {
+	logIOC('DOM Insert', {node}, "The script inserted an HTML node on the DOM")
+        eval(extractJSFromHTA(node));
+    },
+    getElementsByTagName: __getElementsByTagName,
+    createDocumentFragment: function() {
+        return {
+            appendChild: function() {},
+        };
+    },
+    createElement: __createElement,
+    createTextNode: function(text) {},
+    addEventListener: function(tag, func) {}
+};
+
 // Stubbed global window object.
 var window = {
     eval: function(cmd) { eval(cmd); },
@@ -226,6 +348,8 @@ var window = {
 	return ["??",
 		"-moz-"];
     },
+    createDocumentFragment: function() {},
+    createElement: __createElement,    
     location: location,
     localStorage: {
         // Users and session to distinguish and generate statistics about website traffic. 
@@ -243,6 +367,7 @@ var window = {
         // To record the traffic source or campaign how users ended up on the website. 
         "__utmz" : undefined,
     },
+    document: document,
 };
 
 // Initial stubbed object. Add items a needed.
@@ -313,6 +438,7 @@ var funcDict = {
     trigger: function() {},
     width: function() {},
     resize: function() {},
+    blur: function() {},
 };
 var jQuery = function(){
     return funcDict;
@@ -362,7 +488,7 @@ jQuery.expr = {
 window.jQuery = jQuery
 
 // Initial WebPack stubbing.
-globalThis.location = "http://mylegitdomain.com:2112/and/i/have/a/path.php";
+globalThis.location = location;
 globalThis.importScripts = true;
 
 // Mejs module stubbing.
@@ -382,97 +508,6 @@ var N2R = N2D = function() {};
 // No Element class in node-js.
 class Element {
     constructor() {};
-};
-
-function __getElementsByTagName(tag) {
-        var func = function(item) {
-            logIOC('DOM Append', {item}, "The script added a HTML node to the DOM");
-            return "";
-        };
-
-        // Return a dict that maps every tag name to the same fake element.
-        fake_dict = {};
-        fake_dict = new Proxy(fake_dict, {
-            get(target, phrase) { // intercept reading a property from dictionary
-                return {
-                    "appendChild" : func,
-                    "insertBefore" : func,
-                    "parentNode" : {
-                        "appendChild" : func,
-                        "insertBefore" : func,
-                    },
-                    "getElementsByTagName" : __getElementsByTagName,
-                    "title" : "My Fake Title",
-                };
-            }
-        });
-        return fake_dict;
-    }
-
-var document = {
-    documentMode: 8, // Fake running in IE8
-    referrer: 'https://bing.com/',
-    body: {},
-    location: location,
-    //parentNode: window.document.parentNode,
-    getElementById : function(id) {
-
-        var char_codes_to_string = function (str) {
-            var codes = ""
-            for (var i = 0; i < str.length; i++) {
-                codes += String.fromCharCode(str[i])
-            }
-            return codes
-        }
-
-        /* IDS_AND_DATA */
-
-        for (var i = 0; i < ids.length; i++) {
-            if (char_codes_to_string(ids[i]) == id) {
-                return {
-                    innerHTML: char_codes_to_string(data[i])
-                }
-            }
-        }
-
-        // got nothing to return
-        return {
-            innerHTML: ""
-        }
-    },
-    documentElement: {
-        style: {},
-        className: "",
-    },
-    write: function (content) {
-        logIOC('DOM Write', {content}, 'The script wrote to the DOM')
-        eval.apply(null, [extractJSFromHTA(content)]);
-    },
-    appendChild: function(node) {
-        logIOC('DOM Append', {node}, "The script appended an HTML node to the DOM")
-        eval(extractJSFromHTA(node));
-    },
-    insertBefore: function(node) {
-	logIOC('DOM Insert', {node}, "The script inserted an HTML node on the DOM")
-        eval(extractJSFromHTA(node));
-    },
-    getElementsByTagName: __getElementsByTagName,
-    createElement: function(tag) {
-        var fake_elem = {
-            set src(url) {
-                logIOC('Remote Script', {url}, "The script set a remote script source.");
-                logUrl('Remote Script', {url});
-            },
-            log: [],
-	    style: [],
-	    appendChild: function() {},
-        };
-        return fake_elem;
-    },
-    createTextNode: function(text) {
-	    //return window.document.createTextNode(text)
-    },
-    addEventListener: function(tag, func) {}
 };
 
 class _WidgetInfo {

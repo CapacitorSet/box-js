@@ -524,6 +524,7 @@ require("util").inspect.defaultOptions.customInspect = false;
 if (argv["dangerous-vm"]) {
     lib.verbose("Analyzing with native vm module (dangerous!)");
     const vm = require("vm");
+    console.log(code);
     vm.runInNewContext(code, sandbox, {
         displayErrors: true,
         // lineOffset: -fs.readFileSync(path.join(__dirname, "patch.js"), "utf8").split("\n").length,
