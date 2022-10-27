@@ -311,6 +311,10 @@ jQuery.fn = {
     live: function() {},
     die: function() {},
     load: function() {},
+    revolution: {
+        is_mobile: function() {},
+        is_android: function() {},
+    },
 };
 jQuery.extend = function() { return {}; };
 jQuery.attr = function() {};
