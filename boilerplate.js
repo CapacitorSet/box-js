@@ -339,6 +339,7 @@ jQuery.event = {
 };
 jQuery.each = function() {};
 jQuery.isFunction = function() {};
+window.jQuery = jQuery
 
 // Initial WebPack stubbing.
 globalThis.location = "http://mylegitdomain.com:2112/and/i/have/a/path.php";
