@@ -290,11 +290,12 @@ var document = {
         }
 
         /* IDS_AND_DATA */
-
-        for (var i = 0; i < ids.length; i++) {
-            if (char_codes_to_string(ids[i]) == id) {
-                return {
-                    innerHTML: char_codes_to_string(data[i])
+        if (typeof(ids) != "undefined") {
+            for (var i = 0; i < ids.length; i++) {
+                if (char_codes_to_string(ids[i]) == id) {
+                    return {
+                        innerHTML: char_codes_to_string(data[i])
+                    }
                 }
             }
         }
@@ -501,6 +502,13 @@ var mejs = {
 var MediaElementPlayer = {
     prototype: {},
 };
+
+// Vue module stubbing.
+class Vue {
+    constructor() {};    
+};
+Vue.directive = function() {};
+Vue.component = function() {};
 
 // What is this?
 var N2R = N2D = function() {};
