@@ -326,6 +326,7 @@ jQuery.fn = {
         is_mobile: function() {},
         is_android: function() {},
     },
+    smoothScroll: {},
 };
 jQuery.extend = function() { return {}; };
 jQuery.attr = function() {};
