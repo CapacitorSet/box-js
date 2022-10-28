@@ -271,6 +271,9 @@ function __createElement(tag) {
     return fake_elem;
 };
 
+// Stubbed global navigator object.
+var navigator = {};
+
 // Stubbed global document object.
 var document = {
     documentMode: 8, // Fake running in IE8
@@ -279,7 +282,7 @@ var document = {
     body: {},
     location: location,
     defaultView: {},
-    cookie: "test1=Hello; SameSite=None; Secure",
+    cookie: "",
     getElementById : function(id) {
 
         var char_codes_to_string = function (str) {
@@ -291,6 +294,7 @@ var document = {
         }
 
         /* IDS_AND_DATA */
+        
         if (typeof(ids) != "undefined") {
             for (var i = 0; i < ids.length; i++) {
                 if (char_codes_to_string(ids[i]) == id) {
