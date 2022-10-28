@@ -279,6 +279,7 @@ var document = {
     body: {},
     location: location,
     defaultView: {},
+    cookie: "test1=Hello; SameSite=None; Secure",
     getElementById : function(id) {
 
         var char_codes_to_string = function (str) {
