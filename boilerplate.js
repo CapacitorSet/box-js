@@ -272,14 +272,16 @@ function __createElement(tag) {
 };
 
 // Stubbed global navigator object.
-var navigator = {};
+var navigator = {
+    userAgent: 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.2; WOW64; Trident/6.0; .NET4.0E; .NET4.0C; .NET CLR 3.5.30729; .NET CLR 2.0.50727; .NET CLR 3.0.30729; Tablet PC 2.0; InfoPath.3)',
+};
 
 // Stubbed global document object.
 var document = {
     documentMode: 8, // Fake running in IE8
     nodeType: 9,
     referrer: 'https://bing.com/',
-    body: {},
+    body: __createElement("__document_body__"),
     location: location,
     defaultView: {},
     cookie: "",
@@ -372,6 +374,7 @@ var window = {
         "__utmz" : undefined,
     },
     document: document,
+    navigator: navigator,
 };
 
 // Initial stubbed object. Add items a needed.
@@ -529,10 +532,6 @@ var _WidgetManager = {
     _Init: function(a1, a2, a3) {},
     _SetDataContext: function(a1) {},
     _RegisterWidget: function(a1, a2) {},
-};
-
-var navigator = {
-    userAgent: 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.2; WOW64; Trident/6.0; .NET4.0E; .NET4.0C; .NET CLR 3.5.30729; .NET CLR 2.0.50727; .NET CLR 3.0.30729; Tablet PC 2.0; InfoPath.3)',
 };
 
 // We are acting like cscript when emulating. JS in cscript does not
