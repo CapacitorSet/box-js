@@ -375,6 +375,9 @@ var window = {
     },
     document: document,
     navigator: navigator,
+    _NavbarView: class _NavbarView {
+        constructor() {};    
+    },
 };
 
 // Initial stubbed object. Add items a needed.
