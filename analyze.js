@@ -477,8 +477,9 @@ const sandbox = {
         lib.logUrl("InstallProduct", x);
     },
     console: {
-        //		log: console.log.bind(console),
-        log: (x) => lib.info("Script output: " + JSON.stringify(x)),
+        //log: (x) => console.log(x),
+        //log: (x) => lib.info("Script output: " + JSON.stringify(x)),
+        log: (x) => lib.info("Script output: " + x),
     },
     Enumerator: require("./emulator/Enumerator"),
     GetObject: require("./emulator/WMI").GetObject,
@@ -605,6 +606,8 @@ function ActiveXObject(name) {
         return require("./emulator/WBEMScriptingSWBEMLocator");
     case "msscriptcontrol.scriptcontrol":
         return require("./emulator/MSScriptControlScriptControl");
+    case "schedule.service":
+        return require("./emulator/ScheduleService");
     default:
         lib.kill(`Unknown ActiveXObject ${name}`);
         break;
