@@ -85,8 +85,6 @@ function WScriptShell() {
     };
     
     this.exec = function(cmd) {
-        console.log("EXEC: 1");
-        console.log(cmd);
 	lib.runShellCommand(cmd);
         var r = {
 	    ExitCode: 1,
