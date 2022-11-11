@@ -186,8 +186,11 @@ cc decoder.c -o decoder
                 lib.verbose("    Rewriting loops...", false);
                 traverse(tree, loop_rewriter.rewriteSimpleWaitLoop);
                 traverse(tree, loop_rewriter.rewriteSimpleControlLoop);
-            }
+            };
 
+            if (argv["throttle-writes"]) {
+                lib.throttleFileWrites(true);
+            };
             
             if (argv.preprocess) {
                 lib.verbose(`    Preprocessing with uglify-es v${require("uglify-es/package.json").version} (remove --preprocess to skip)...`, false);
@@ -409,6 +412,10 @@ var wscript_proxy = new Proxy({
     //scriptfullname: "C:\\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\ons.jse",
     scriptfullname: "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\0.2638666.jse",
     scriptname: "0.2638666.jse",
+    quit: function() {
+        lib.info("The sample called WScript.Quit(). Exiting.");
+        process.exit(0);
+    },
     get stderr() {
         lib.error("WScript.StdErr not implemented");
     },
@@ -430,7 +437,6 @@ var wscript_proxy = new Proxy({
     get getobject() {
         lib.error("WScript.GetObject not implemented");
     },
-    quit() {},
     // Note that Sleep() is implemented in patch.js because it requires
     // access to the variable _globalTimeOffset, which belongs to the script
     // and not to the emulator.

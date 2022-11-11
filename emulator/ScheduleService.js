@@ -4,13 +4,13 @@ const lib = require("../lib");
 TaskFolderObject = {
     _tasks: {},
     GetTask: function(name) {
-        lib.info('The sample looked for scheduled task "' + name + '".');
+        lib.logIOC("Task", name, 'The sample looked for scheduled task "' + name + '".');
         if (typeof(this._tasks[name]) == "undefined") throw "task not found";
         return this._tasks[name];
     },
 
     RegisterTaskDefinition: function(name, taskObj) {
-        lib.info('The sample registered task "' + name + '".');
+        lib.logIOC("Task", name, 'The sample registered task "' + name + '".');
         this._tasks[name] = taskObj;
     },
 };
@@ -21,12 +21,12 @@ class TaskTriggerObject {
     };
 
     set ID(v) {
-        lib.info('The sample set a task trigger ID to "' + v + '".');
+        lib.logIOC("Task", v, 'The sample set a task trigger ID to "' + v + '".');
         this.id = v;
     };
 
     set UserId(v) {
-        lib.info('The sample set a task user ID to "' + v + '".');
+        lib.logIOC("Task", v, 'The sample set a task user ID to "' + v + '".');
         this.userId = v;
     };    
 };
@@ -48,17 +48,17 @@ class TaskObject {
     };
 
     set Path(v) {
-        lib.info('The sample set task path to "' + v + '".');
+        lib.logIOC("Task", v, 'The sample set task path to "' + v + '".');
         this.path = v;
     };
 
     set Arguments(v) {
-        lib.info('The sample set task arguments to "' + v + '".');
+        lib.logIOC("Task", v, 'The sample set task arguments to "' + v + '".');
         this.args = v;
     };
 
     set WorkingDirectory(v) {
-        lib.info('The sample set task working directory to "' + v + '".');
+        lib.logIOC("Task", v, 'The sample set task working directory to "' + v + '".');
         this.workingDir = v;
     };
 

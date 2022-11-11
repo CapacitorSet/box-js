@@ -151,6 +151,11 @@
             "name": "rewrite-loops",
             "type": "Boolean",
             "description": "Rewrite some types of loops to make analysis faster"
+        },
+        {
+            "name": "throttle-writes",
+            "type": "Boolean",
+            "description": "Throttle reporting and data tracking of file writes that write a LOT of data"
         }
     ],
     "export": [

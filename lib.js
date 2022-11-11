@@ -81,10 +81,21 @@ function logUrl(method, url) {
 const MAXWRITES = 10;
 fileWriteCount = {};
 
+// If needed stop writing bytes to very large files.
+const MAXBYTES = 1e+6 * 10; // 10MB
+var throttleWrites = false;
+tooBigFiles = {};
+
+// Function for enabling/disabling file write throttling.
+function throttleFileWrites(val) {
+    throttleWrites = val;
+};
+
 module.exports = {
     argv,
     kill,
     getUUID,
+    throttleFileWrites,
 
     debug: log.bind(null, "debug"),
     verbose: log.bind(null, "verb"),
@@ -152,7 +163,7 @@ module.exports = {
         // Don't spam lots of file write info to same file.
         if (typeof(fileWriteCount[filename]) == "undefined") fileWriteCount[filename] = 0;
         fileWriteCount[filename]++;
-        var doLog = (fileWriteCount[filename] <= MAXWRITES);
+        var doLog = throttleWrites && (fileWriteCount[filename] <= MAXWRITES);
 	if (doLog) logIOC("FileWrite", {file: filename, contents}, "The script wrote file '" + filename + "'.");
 	files[filename] = contents;
     },
@@ -162,13 +173,24 @@ module.exports = {
     },
     logUrl,
     logResource: function(resourceName, emulatedPath, content) {
-	const filePath = path.join(directory, resourceName);
+
+        // Has this file aready gotten too large?
+        const filePath = path.join(directory, resourceName);
+        if (throttleWrites && (content.length > MAXBYTES)) {
+            if (typeof(tooBigFiles[filePath]) == "undefined") {
+                log("warn", "File '" + filePath + "' is too big. Not writing.");
+                tooBigFiles[filePath] = true;
+            }
+            return;
+        };
+
+        // Save the new file contents.
 	fs.writeFileSync(filePath, content);
 
         // Don't spam lots of file write info to same file.
         if (typeof(fileWriteCount[filePath]) == "undefined") fileWriteCount[filePath] = 0;
         fileWriteCount[filePath]++;
-        var doLog = (fileWriteCount[filePath] <= MAXWRITES);
+        var doLog = throttleWrites && (fileWriteCount[filePath] <= MAXWRITES);
         let filetype = "";
 	if (doLog) {
             log("info", `Saved ${filePath} (${content.length} bytes)`);
@@ -177,7 +199,7 @@ module.exports = {
             log("info", `${filePath} has been detected as ${filetype}.`);
         }
         if (fileWriteCount[filePath] == (MAXWRITES + 1)) {
-            log("info", "Throttling file write reporting for " + filePath);
+            log("warn", "Throttling file write reporting for " + filePath);
         }
 
 	if (/executable/.test(filetype)) {
