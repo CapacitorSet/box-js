@@ -84,16 +84,23 @@ function WScriptShell() {
 	return 0;
     };
     
-    this.exec = cmd => {
+    this.exec = function(cmd) {
+        console.log("EXEC: 1");
+        console.log(cmd);
 	lib.runShellCommand(cmd);
-	return {
+        var r = {
 	    ExitCode: 1,
 	    ProcessID: Math.floor(Math.random() * 1000),
 	    Status: 1, // Finished			
 	    StdErr: null,
-	    StdIn: null,
+	    StdIn: {
+                writeline: function(txt) {
+                    lib.logIOC("Run", {txt}, "The script piped text to a process: '" + txt + "'.");
+                },
+            },
 	    StdOut: new TextStream(`<output of ${cmd}>`),
 	};
+        return lib.noCasePropObj(r);
     };
 
     if (!this._reg_entries) {
