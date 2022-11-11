@@ -1,6 +1,28 @@
 const parse = require("node-html-parser").parse;
 const lib = require("./lib.js");
 
+// Simple Enumerator class implementation.
+class Enumerator {
+    constructor(collection) {
+        if (typeof(collection.length) == "undefined") throw "Enumerator collection has no .length attr";
+        this.collection = collection;
+        this.currIndex = 0;
+    };
+
+    atEnd() {
+        return (this.currIndex >= this.collection.length);
+    };
+
+    moveNext() {
+        this.currIndex++;
+    };
+
+    item() {
+        if (this.atEnd()) throw "Over end of all Enumerator data";
+        return this.collection[this.currIndex];
+    };
+};
+
 // atob() taken from abab.atob.js .
 
 /**

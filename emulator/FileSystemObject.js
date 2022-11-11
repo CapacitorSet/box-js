@@ -49,17 +49,31 @@ function ProxiedTextStream(filename) {
     });
 }
 
+function makeFakeSubfolders(path) {
+
+    // Make list of fake subfolders of the given path.
+    var r = [];
+    for (var x = 0; x < 6; x++) {
+        r[x] = path + "\\_FAKE_BOXJS_FOLDER_" + x;
+    }
+
+    // Add a Count attrbute to the list to mimic ActiveX Subfolders object.
+    Object.defineProperty(r, 'Count', {
+        get: function() { return this.length }
+    });
+
+    return r;
+}
+
 function Folder(path, autospawned) {
     this.attributes = 16;
     this.datelastmodified = new Date(new Date() - 15 * 60 * 1000); // Last changed: 15 minutes ago
     this.files = [];
     this.name = (path.replace(/\w:/i, "").match(/\\(\w*)(?:\\)?$/i) || [null, ""])[1],
     this.path = path;
-    this.subfolders = autospawned ? [] : [new ProxiedFolder(path + "\\RandomFolder", true)];
+    //this.subfolders = autospawned ? [] : [new ProxiedFolder(path + "\\RandomFolder", true)];
     this.type = "folder";
-    this.subfolders = {
-        "Count": 12,
-    };
+    this.subfolders = makeFakeSubfolders(this.path);
 }
 
 function ProxiedFolder(path, name, autospawned = false) {
@@ -76,12 +90,28 @@ function File(contents) {
     this.attributes = 32;
     this.openastextstream = () => new ProxiedTextStream(contents);
     this.shortpath = "C:\\PROGRA~1\\example-file.exe";
+    this._name = "example-file.exe";
     this.size = Infinity;
     this.type = "Application";
 }
 
 function ProxiedFile(filename) {
-    return lib.proxify(File, "FileSystemObject.File");
+    var r = lib.proxify(File, "FileSystemObject.File");
+    Object.defineProperty(r, 'name', {
+        set: function(v) {
+            lib.info('The sample set a file name to "' + v + '".');
+            this._name = v;
+        },
+        get: function(v) {
+            return this._name;
+        }
+    });
+    Object.defineProperty(r, 'shortname', {
+        get: function() {
+            return this._name;
+        }
+    });
+    return r;
 }
 
 function Drive(name) {
@@ -144,7 +174,10 @@ function FileSystemObject() {
 	    return "";
 	return matches[0];
     };
-    this.getfile = (filename) => new ProxiedFile(filename);
+    this.getfile = function(filename) {
+        var r = new ProxiedFile(filename);
+        return r;
+    };
     this.getfileversion = () => "";
     this.getfolder = (str) => new ProxiedFolder(str);
     this.getspecialfolder = function(id) {
