@@ -380,6 +380,15 @@ Array.prototype.Count = function() {
     return this.length;
 };
 
+// Set the fake scripting engine to report.
+var fakeEngineShort = "wscript.exe"
+console.log("ARGV!!");
+console.log(argv["fake-script-engine"]);
+if (argv["fake-script-engine"]) {
+    fakeEngineShort = argv["fake-script-engine"];
+}
+var fakeEngineFull = "C:\\WINDOWS\\system32\\" + fakeEngineShort;
+
 var wscript_proxy = new Proxy({
     arguments: new Proxy((n) => `${n}th argument`, {
         get: function(target, name) {
@@ -404,17 +413,14 @@ var wscript_proxy = new Proxy({
         },
     }),
     buildversion: "1234",
-    // TODO: Add --engine= option to set whether to fake cscript or wscript.
-    //fullname: "C:\\WINDOWS\\system32\\cscript.exe",
-    fullname: "C:\\WINDOWS\\system32\\wscript.exe",
     interactive: true,
-    //name: "cscript.exe",
-    name: "wscript.exe",
+    fullname: fakeEngineFull,
+    name: fakeEngineShort,
     path: "C:\\TestFolder\\",
     //scriptfullname: "C:\\Documents and Settings\\User\\Desktop\\sample.js",
     //scriptfullname: "C:\\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\ons.jse",
     scriptfullname: "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\CURRENT_SCRIPT_IN_FAKED_DIR.js",
-    scriptname: "0.2638666.jse",
+    scriptname: "CURRENT_SCRIPT_IN_FAKED_DIR.js",
     quit: function() {
         lib.info("The sample called WScript.Quit(). Exiting.");
         process.exit(0);

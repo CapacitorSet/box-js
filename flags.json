@@ -68,6 +68,11 @@
             "description": "Input file or directory containing code that should be prepended to the JS file(s) we're analyzing. If directory is given,  prepends contents of all files in the directory in "
         },
         {
+            "name": "fake-script-engine",
+            "type": "String",
+            "description": "The script engine to report in WScript.FullName and WScript.Name (ex. 'cscript.exe' or 'wscript.exe'). Default is wscript.exe."
+        },
+        {
             "name": "no-kill",
             "type": "Boolean",
             "description": "Do not kill the application when runtime errors occur"
