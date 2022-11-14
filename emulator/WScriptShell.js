@@ -93,7 +93,7 @@ function WScriptShell() {
 	    StdErr: null,
 	    StdIn: {
                 writeline: function(txt) {
-                    lib.logIOC("Run", {txt}, "The script piped text to a process: '" + txt + "'.");
+                    lib.logIOC("Run", txt, "The script piped text to a process: '" + txt + "'.");
                 },
             },
 	    StdOut: new TextStream(`<output of ${cmd}>`),
