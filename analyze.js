@@ -382,8 +382,6 @@ Array.prototype.Count = function() {
 
 // Set the fake scripting engine to report.
 var fakeEngineShort = "wscript.exe"
-console.log("ARGV!!");
-console.log(argv["fake-script-engine"]);
 if (argv["fake-script-engine"]) {
     fakeEngineShort = argv["fake-script-engine"];
 }
