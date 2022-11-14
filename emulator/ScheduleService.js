@@ -4,13 +4,23 @@ const lib = require("../lib");
 TaskFolderObject = {
     _tasks: {},
     GetTask: function(name) {
-        lib.logIOC("Task", name, 'The sample looked for scheduled task "' + name + '".');
+        lib.info('The sample looked for scheduled task "' + name + '".');
         if (typeof(this._tasks[name]) == "undefined") throw "task not found";
         return this._tasks[name];
     },
 
     RegisterTaskDefinition: function(name, taskObj) {
-        lib.logIOC("Task", name, 'The sample registered task "' + name + '".');
+        var taskInfo = {
+            name: name,
+            path: taskObj.path,
+            args: taskObj.args,
+            workingDir: taskObj.workingDir,
+        };
+        if (typeof(taskObj.triggerObj) != "undefined") {
+            taskInfo.triggerId = taskObj.triggerObj.id;
+            taskInfo.triggerUserId = taskObj.triggerObj.userId;
+        };
+        lib.logIOC("Task", taskInfo, 'The sample registered task "' + name + '".');
         this._tasks[name] = taskObj;
     },
 };
@@ -21,44 +31,53 @@ class TaskTriggerObject {
     };
 
     set ID(v) {
-        lib.logIOC("Task", v, 'The sample set a task trigger ID to "' + v + '".');
+        lib.info('The sample set a task trigger ID to "' + v + '".');
         this.id = v;
     };
 
     set UserId(v) {
-        lib.logIOC("Task", v, 'The sample set a task user ID to "' + v + '".');
+        lib.info('The sample set a task user ID to "' + v + '".');
         this.userId = v;
     };    
 };
 
+//debug
+var num = 0;
 class TaskObject {
 
     constructor() {
         this.settings = {};
         this.triggers = {
             Create: function() {
-                return new TaskTriggerObject();
+                var r = new TaskTriggerObject();
+                this.taskObj.triggerObj = r;
+                return r;
             },
         };
         this.Actions = {
             Create: function() {
-                return new TaskObject();
+                return this.taskObj;
             },
-        };        
+        };
+        this.Actions.Create.taskObj = this;
+        this.Actions.Create = this.Actions.Create.bind(this.Actions.Create);
+        this.triggers.Create.taskObj = this;
+        this.triggers.Create = this.triggers.Create.bind(this.triggers.Create);
+        this.debug = "DEBUG_" + (num++);
     };
 
     set Path(v) {
-        lib.logIOC("Task", v, 'The sample set task path to "' + v + '".');
+        lib.info('The sample set task path to "' + v + '".');
         this.path = v;
     };
 
     set Arguments(v) {
-        lib.logIOC("Task", v, 'The sample set task arguments to "' + v + '".');
+        lib.info('The sample set task arguments to "' + v + '".');
         this.args = v;
     };
 
     set WorkingDirectory(v) {
-        lib.logIOC("Task", v, 'The sample set task working directory to "' + v + '".');
+        lib.info('The sample set task working directory to "' + v + '".');
         this.workingDir = v;
     };
 

@@ -404,13 +404,16 @@ var wscript_proxy = new Proxy({
         },
     }),
     buildversion: "1234",
-    fullname: "C:\\WINDOWS\\system32\\cscript.exe",
+    // TODO: Add --engine= option to set whether to fake cscript or wscript.
+    //fullname: "C:\\WINDOWS\\system32\\cscript.exe",
+    fullname: "C:\\WINDOWS\\system32\\wscript.exe",
     interactive: true,
-    name: "cscript.exe",
+    //name: "cscript.exe",
+    name: "wscript.exe",
     path: "C:\\TestFolder\\",
     //scriptfullname: "C:\\Documents and Settings\\User\\Desktop\\sample.js",
     //scriptfullname: "C:\\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\ons.jse",
-    scriptfullname: "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\0.2638666.jse",
+    scriptfullname: "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\CURRENT_SCRIPT_IN_FAKED_DIR.js",
     scriptname: "0.2638666.jse",
     quit: function() {
         lib.info("The sample called WScript.Quit(). Exiting.");
