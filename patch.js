@@ -1,4 +1,5 @@
-/* Patches from box-js */
+/* !!!! Patches from box-js !!!! */
+let __PATCH_CODE_ADDED__ = true;
 window = this;
 
 _globalTimeOffset = 0;

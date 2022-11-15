@@ -368,8 +368,13 @@ if (argv["prepended-code"]) {
     code = prependedCode + "\n\n" + code
 }
 
-// prepend patch code
-code = fs.readFileSync(path.join(__dirname, "patch.js"), "utf8") + code;
+// prepend patch code, unless it is already there.
+if (!code.includes("let __PATCH_CODE_ADDED__ = true;")) {
+    code = fs.readFileSync(path.join(__dirname, "patch.js"), "utf8") + code;
+}
+else {
+    console.log("Patch code already added.");
+}
 
 // append more code
 code += "\n\n" + fs.readFileSync(path.join(__dirname, "appended-code.js"));
