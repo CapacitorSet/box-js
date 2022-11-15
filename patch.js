@@ -6,14 +6,14 @@ WScript.sleep = function(delay) {
     _globalTimeOffset += delay;
 }
 
-let fullYearGetter007 = Date.prototype.getFullYear;
+let fullYearGetter = Date.prototype.getFullYear;
 Date.prototype.getFullYear = function() {
     console.log("Warning: the script tried to read the current date.");
     console.log("If it doesn't work correctly (eg. fails to decrypt a string,");
     console.log("try editing patch.js with a different year.");
 
     // return 2017;
-    return fullYearGetter007.call(this);
+    return fullYearGetter.call(this);
 };
 Date.prototype.getYear = function() {
     return this.getFullYear();
