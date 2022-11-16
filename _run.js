@@ -4,6 +4,17 @@ const path = require("path");
 const walk = require("walk-sync");
 const argv = require("./argv.js").run;
 
+function list_delete(arr, item) {
+    for( var i = 0; i < arr.length; i++){ 
+        
+        if ( arr[i] === item) { 
+            arr.splice(i, 1); 
+            i--; 
+        }
+    }
+    return arr;
+}
+
 // Track whether we should return an error shell code or not.
 var single_sample = false;
 
@@ -75,7 +86,13 @@ const [targets, options] = args.functionalSplit(fs.existsSync);
 // Array of {filepath, filename}
 const tasks = [];
 
-const [folders, files] = targets.functionalSplit(path => fs.statSync(path).isDirectory());
+var [folders, files] = targets.functionalSplit(path => fs.statSync(path).isDirectory());
+
+// The output dir does not have samples to analyze.
+const outputDir = argv["output-dir"] || "./";
+if (outputDir != "./") {
+    folders = list_delete(folders, outputDir);
+}
 
 files
     .map(filepath => ({
@@ -108,15 +125,16 @@ if (argv.threads === 0) q.concurrency = Infinity;
 else if (argv.threads)  q.concurrency = argv.threads;
 else                    q.concurrency = require("os").cpus().length;
 
-if (tasks.length > 1) // If batch mode
-    if (argv.threads)
+if (tasks.length > 1) { // If batch mode
+    if (argv.threads) {
 	console.log(`Analyzing ${tasks.length} items with ${q.concurrency} threads`)
-else {
-    console.log(`Analyzing ${tasks.length} items with ${q.concurrency} threads (use --threads to change this value)`)
+    }
+    else {
+	console.log(`Analyzing ${tasks.length} items with ${q.concurrency} threads (use --threads to change this value)`)
+    }
 }
     
 // queue the input files for analysis
-const outputDir = argv["output-dir"] || "./";
 tasks.forEach(({filepath, filename}) => q.push(cb => analyze(filepath, filename, cb)));
 
 let completed = 0;
