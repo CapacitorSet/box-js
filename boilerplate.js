@@ -588,3 +588,8 @@ class XMLHttpRequest {
 
     send() {};
 };
+
+// Some JS checks to see if these are defined. Do very basic stubbing
+// until better stubbing is needed.
+exports = {};
+module = {};
