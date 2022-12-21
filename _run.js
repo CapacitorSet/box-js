@@ -169,7 +169,7 @@ function analyze(filepath, filename, cb) {
 	    console.log("Hint: if the script is heavily obfuscated, --preprocess --unsafe-preprocess can speed up the emulation.");
 	worker.kill();
         // Useful analysis may have occurred.
-	if (argv.debug) process.exit(0);
+	process.exit(0);
 	cb();
     }, timeout * 1000);
 
