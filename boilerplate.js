@@ -305,8 +305,17 @@ var document = {
     referrer: 'https://bing.com/',
     body: __createElement("__document_body__"),
     location: location,
+    head: {
+        innerHTML: "",
+        append: function(x) {
+            console.log(x);
+        },
+    },
     defaultView: {},
     cookie: "",
+    ready: function(func) {
+        func();
+    },
     getElementById : function(id) {
 
         var char_codes_to_string = function (str) {
@@ -411,7 +420,10 @@ var ShareLink = {
 };
 
 // Initial stubbed function. Add items a needed.
-function define() {};
+function define(path, func) {
+    // Run the function.
+    func({}, {}, {}, {}, {});
+};
 define.amd = true;
 
 // These could be due to a bug in a sample, but added this to
@@ -435,6 +447,7 @@ var funcDict = {
     val: function() {},
     scroll: function() {},
     ready: function() {},
+    document: function() {},
     load: function() {},
     extend: function() { return {}; },
     attr: function(field) { return ".attr(" + field + ")"; },
@@ -472,11 +485,15 @@ var funcDict = {
     resize: function() {},
     blur: function() {},
 };
-var jQuery = function(){
+var jQuery = function(field){
+    if (typeof(field) != "undefined") {
+        return field;
+    };
     return funcDict;
 };
 
 // Global object form of jQuery.
+$ = jQuery; // Ugh, shorthand name.
 jQuery.jquery = "2.6.1";
 jQuery.fn = {
     jquery: "2.6.1",
