@@ -31,13 +31,25 @@ function GenSimpleLoop(fexpr) {
     
     // Do function calls only for defined entries in an array.
     var tryBody = oldBody.body[0].block.body;
-    var arrayAcc = tryBody[0].expression.callee;
+    if (Array.isArray(tryBody)) {
+        tryBody = tryBody[0];
+    }
+    if ((tryBody.type == "ExpressionStatement") && (tryBody.expression.type == "AssignmentExpression")) {
+        tryBody = tryBody.expression.right;
+    }    
+    var arrayAcc = "";
+    if (typeof(tryBody.expression) != "undefined") {
+        arrayAcc = tryBody.expression.callee;
+    }
+    else {
+        arrayAcc = tryBody.callee;
+    }
     var undef = {
         type: "Identifier",
         name: "undefined"
     };
     var ifTest = MakeBinaryExpression(arrayAcc, undef, "!=");
-    var funcCall = tryBody[0];
+    var funcCall = tryBody;
     var newIf = MakeIfThen(ifTest, funcCall);
 
     // In new loop body do guarded call followed by existing var update.

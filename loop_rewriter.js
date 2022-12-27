@@ -72,6 +72,9 @@ function rewriteSimpleControlLoop(key, val) {
     // Possible calling funtion from array in try block?
     if (line1.type != "ExpressionStatement") return;
     line1 = line1.expression;
+    if (line1.type == "AssignmentExpression") {
+        line1 = line1.right;
+    }
     if (line1.type != "CallExpression") return;
     if (line1.callee.type != "MemberExpression") return;
 
