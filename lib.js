@@ -83,6 +83,7 @@ fileWriteCount = {};
 
 // If needed stop writing bytes to very large files.
 const MAXBYTES = 1e+6 * 10; // 10MB
+resourceWriteCount = {};
 var throttleWrites = false;
 tooBigFiles = {};
 
@@ -254,8 +255,21 @@ module.exports = {
     logUrl,
     logResource: function(resourceName, emulatedPath, content) {
 
-        // Has this file aready gotten too large?
+        // Throttle lots of small writes to a resource when the resource is large.
         const filePath = path.join(directory, resourceName);
+        if (typeof(resourceWriteCount[resourceName]) == "undefined") resourceWriteCount[resourceName] = 0;
+        resourceWriteCount[resourceName]++;
+        var throttle = (resourceWriteCount[resourceName] > MAXWRITES * 50) &&
+            (content.length > MAXBYTES/5) && throttleWrites
+        if (throttle) {
+            if (typeof(tooBigFiles[filePath]) == "undefined") {
+                log("warn", "File '" + filePath + "' is too big with too many small writes. Not writing.");
+                tooBigFiles[filePath] = true;
+            }
+            return;
+        }
+        
+        // Has this file aready gotten too large?
         if (throttleWrites && (content.length > MAXBYTES)) {
             if (typeof(tooBigFiles[filePath]) == "undefined") {
                 log("warn", "File '" + filePath + "' is too big. Not writing.");
@@ -282,9 +296,9 @@ module.exports = {
             log("warn", "Throttling file write reporting for " + filePath);
         }
 
-	if (/executable/.test(filetype)) {
-	    if (doLog) log("info", `Active URL detected: ${latestUrl}`);
+	if (doLog && (/executable/.test(filetype))) {
 	    // Log active url
+	    log("info", `Active URL detected: ${latestUrl}`);
 	    if (activeUrls.indexOf(latestUrl) === -1)
 		activeUrls.push(latestUrl);
 	    fs.writeFileSync(path.join(directory, "active_urls.json"), JSON.stringify(activeUrls, null, "\t"));
