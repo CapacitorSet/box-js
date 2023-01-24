@@ -332,6 +332,14 @@ module.exports.GetObject = function(name) {
       lib.kill(`GetObject(${name}) not implemented!`);
       }
     */
+
+    // Track URLs from 'script:...' GetObject() creations.
+    const lname = name.toLowerCase();
+    if (lname.startsWith("script:http")) {
+	lib.logUrl("GetObject()", lname.replace("script:http", "http"));
+    }
+
+    // Fake up an object.
     return new Proxy({
         UserName: "_Fake_Box-JS_User_",
 	InstancesOf: getTable,
