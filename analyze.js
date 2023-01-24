@@ -598,8 +598,7 @@ function ActiveXObject(name) {
 
     switch (name) {
     case "windowsinstaller.installer":
-        // Stubbed out for now.
-        return "";
+        return require("./emulator/WindowsInstaller");
     case "adodb.stream":
         return require("./emulator/ADODBStream")();
     case "adodb.recordset":
