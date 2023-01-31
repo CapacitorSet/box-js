@@ -332,7 +332,8 @@ var document = {
             for (var i = 0; i < ids.length; i++) {
                 if (char_codes_to_string(ids[i]) == id) {
                     return {
-                        innerHTML: char_codes_to_string(data[i])
+                        innerHTML: char_codes_to_string(data[i]),
+                        innerText: char_codes_to_string(data[i])
                     }
                 }
             }
