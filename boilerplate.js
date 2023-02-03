@@ -283,6 +283,11 @@ function __createElement(tag) {
             nodeType: 3,
         },
         getElementsByTagName: __getElementsByTagName,
+        // Probably wrong, fix this if it causes problems.
+        querySelector: function(tag) {
+            return __createElement(tag);
+        },
+        setAttribute : function() {},
         cloneNode: function() {
             return __createElement("__clone__");
         },
@@ -339,10 +344,8 @@ var document = {
             }
         }
 
-        // got nothing to return
-        return {
-            innerHTML: ""
-        }
+        // got nothing to return. Make up some fake element and hope for the best.
+        return __createElement(id);
     },
     documentElement: {
         style: {},
