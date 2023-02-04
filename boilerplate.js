@@ -321,8 +321,12 @@ var document = {
     ready: function(func) {
         func();
     },
+    elementCache : {},
     getElementById : function(id) {
 
+        // Already looked this up?
+        if (typeof(this.elementCache[id]) !== "undefined") return this.elementCache[id];
+        
         var char_codes_to_string = function (str) {
             var codes = ""
             for (var i = 0; i < str.length; i++) {
@@ -336,10 +340,20 @@ var document = {
         if (typeof(ids) != "undefined") {
             for (var i = 0; i < ids.length; i++) {
                 if (char_codes_to_string(ids[i]) == id) {
-                    return {
+                    var r = {
                         innerHTML: char_codes_to_string(data[i]),
-                        innerText: char_codes_to_string(data[i])
-                    }
+                        innerText: char_codes_to_string(data[i]),
+                        onclick: undefined,
+                        click: function() {
+                            if (typeof(this.onclick) !== "undefined") this.onclick();
+                        },
+                        getAttribute: function(attrId) {
+                            return this.attrs[attrId];
+                        }
+                    };
+                    r.attrs = attrs[i];
+                    this.elementCache[id] = r;
+                    return r;                    
                 }
             }
         }
@@ -586,8 +600,9 @@ Array.prototype.reduce = function(a, b) {
     throw "CScript JScript has no Array.reduce() method."
 };
 
-// Stubbed out for now.
-function setTimeout() {};
+function setTimeout(func, time) {
+    func();
+};
 function clearTimeout() {};
 function setInterval() {};
 function clearInterval() {};
