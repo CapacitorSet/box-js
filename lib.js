@@ -244,8 +244,8 @@ module.exports = {
         // Don't spam lots of file write info to same file.
         if (typeof(fileWriteCount[filename]) == "undefined") fileWriteCount[filename] = 0;
         fileWriteCount[filename]++;
-        var doLog = throttleWrites && (fileWriteCount[filename] <= MAXWRITES);
-	if (doLog) logIOC("FileWrite", {file: filename, contents}, "The script wrote file '" + filename + "'.");
+        var doLog = (!throttleWrites) || (fileWriteCount[filename] <= MAXWRITES);
+	if (doLog) logIOC("FileWrite", {file: filename, contents}, "The script wrote file '" + filename + "'.");        
 	files[filename] = contents;
     },
     readFile: function(filename) {
@@ -284,7 +284,7 @@ module.exports = {
         // Don't spam lots of file write info to same file.
         if (typeof(fileWriteCount[filePath]) == "undefined") fileWriteCount[filePath] = 0;
         fileWriteCount[filePath]++;
-        var doLog = throttleWrites && (fileWriteCount[filePath] <= MAXWRITES);
+        var doLog = (!throttleWrites) || (fileWriteCount[filePath] <= MAXWRITES);
         let filetype = "";
 	if (doLog) {
             log("info", `Saved ${filePath} (${content.length} bytes)`);

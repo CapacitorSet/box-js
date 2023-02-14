@@ -36,14 +36,25 @@ Date = function() {
 	_actualTime: new legacyDate(...arguments),
     }, {
 	get: (target, prop) => {
-	    const modifiedDate = new legacyDate(target._actualTime.getTime() + _globalTimeOffset);
+            // Fast forward through time to foil anti-sandboxing busy
+            // loops. The _myOffset field caches the faked time offset
+            // used when the Date object was 1st looked at and
+            // advances if so future date objects jump forward in
+            // time.
+            if (typeof(target._myOffset) == "undefined") {
+                target._myOffset = _globalTimeOffset;
+                _globalTimeOffset += 100;
+            }
+	    const modifiedDate = new legacyDate(target._actualTime.getTime() + target._myOffset);
 	    if (prop === Symbol.toPrimitive) return hint => {
 		switch (hint) {
 		case "string":
-		case "default":
+		case "default": {
 		    return modifiedDate.toString();
-		case "number":
+                }
+		case "number": {
 		    return modifiedDate.getTime();
+                }
 		default:
 		    throw new Error("Unknown hint!");
 		}

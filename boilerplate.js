@@ -1,6 +1,32 @@
 const parse = require("node-html-parser").parse;
 const lib = require("./lib.js");
 
+// Handle Blobs. All Blob methods in the real Blob class for dumping
+// the data in a Blob are asynch and box-js is all synchronous, so
+// rather than rewriting the entire tool to be asynch we are just
+// stubbing out a simple Blob class that is synchronous.
+class Blob {
+    constructor(data, type) {
+        this.raw_data = data;
+        // Convert to a data string if this is an array of bytes.
+        this.data = "";
+        var flat = [];
+        for (let i = 0; i < data.length; i++) {
+            if ((Array.isArray(data[i])) || (data[i].constructor.name == "Uint8Array")) {
+                for (let j = 0; j < data[i].length; j++) {
+                    flat.push(data[i][j]);
+                }
+            }
+        }
+        if (!flat.some(i => (!Number.isInteger(i) || (i < 0) || (i > 255)))) {
+            for (let i = 0; i < flat.length; i++) {
+                this.data += String.fromCharCode(flat[i]);
+            };
+        }
+    };
+};
+Object.prototype.Blob = Blob;
+
 // Simple Enumerator class implementation.
 class Enumerator {
     constructor(collection) {
@@ -293,6 +319,9 @@ function __createElement(tag) {
         },
         toLowerCase: function() {
             return "// NOPE";
+        },
+        click: function() {
+            lib.info("click() method called on a document element.");
         },
     };
     return fake_elem;

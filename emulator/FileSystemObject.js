@@ -1,6 +1,7 @@
 const lib = require("../lib");
 const argv = require("../argv.js").run;
 const winpath = require("path").win32;
+const crypto = require('crypto');
 
 function TextStream(filename) {
     this.buffer = lib.readFile(filename) || "";
@@ -86,13 +87,24 @@ function ProxiedFolder(path, name, autospawned = false) {
     });
 }
 
-function File(contents) {
+function File(contents, name = "example-file.exe", typ = "Application") {
+    lib.info("The sample created a file named '" + name + "'.")
+    // Handle blobs/arrays.
+    if ((contents.constructor.name == "Array") && (contents.length > 0)) {
+        contents = contents[0];
+    }
+    if (contents.constructor.name == "Blob") {
+        contents = contents.data;
+    }
+    lib.writeFile(name, contents);
+    this.uuid = crypto.randomUUID();
+    lib.logResource(this.uuid, name, contents);
     this.attributes = 32;
     this.openastextstream = () => new ProxiedTextStream(contents);
     this.shortpath = "C:\\PROGRA~1\\example-file.exe";
-    this._name = "example-file.exe";
+    this._name = name;
     this.size = Infinity;
-    this.type = "Application";
+    this.type = typ;
 }
 
 function ProxiedFile(filename) {
@@ -211,7 +223,8 @@ function FileSystemObject() {
             r = path.substring(start, path.length);
         }
         return r;
-    }
+    };
+    this.file = File;
 }
 
 module.exports = lib.proxify(FileSystemObject, "FileSystemObject");

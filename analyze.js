@@ -1,4 +1,3 @@
-//const Blob = require("cross-blob");
 const lib = require("./lib");
 const loop_rewriter = require("./loop_rewriter");
 const escodegen = require("escodegen");
@@ -484,7 +483,6 @@ const sandbox = {
             throw("Callback must be a function");
         }
     },
-    //Blob : Blob,
     logJS: lib.logJS,
     logIOC: lib.logIOC,
     logUrl: lib.logUrl,
@@ -556,16 +554,6 @@ if (argv["dangerous-vm"]) {
         timeout: (argv.timeout || 10) * 1000,
         sandbox,
     });
-    /*
-    const vm = new NodeVM({
-        timeout: (argv.timeout || 10) * 1000,
-        sandbox: {},
-        require: {
-            external: ['blob'],
-            import: ['blob'],
-        },
-    });
-    */
 
     // Fake cscript.exe style ReferenceError messages.
     code = "ReferenceError.prototype.toString = function() { return \"[object Error]\";};\n\n" + code;
