@@ -1,0 +1,17 @@
+Version 1.19.20, 2/15/2023
+--------------------------
+
+* Added anti-emulation loop rewriting functionality.
+* Added functionality for faking being run with cscript.exe or wscript.exe.
+* Added functionality for throttling lots of small file writes.
+* Added support for WMI.GetObject.Run().
+* Added support for ADODBStream.flush().
+* Added support for InternetExplorer.Application.
+* Added support for XMLHttpRequest.
+* Added some stubbed JQuery functionality.
+* Added support for ScheduleService.
+* Track IOCs being passed through the '|' operator in analyzed JS code.
+* Added support for WindowsInstaller.installer.
+
+
+
