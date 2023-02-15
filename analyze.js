@@ -1,12 +1,11 @@
-//const Blob = require("cross-blob");
 const lib = require("./lib");
+const loop_rewriter = require("./loop_rewriter");
 const escodegen = require("escodegen");
 const acorn = require("acorn");
 const fs = require("fs");
 const iconv = require("iconv-lite");
 const path = require("path");
 const {VM} = require("vm2");
-//const {NodeVM} = require('vm2');
 const child_process = require("child_process");
 const argv = require("./argv.js").run;
 const jsdom = require("jsdom").JSDOM;
@@ -64,7 +63,7 @@ function rewrite(code) {
     // box-js is assuming that the JS will be run on Windows with cscript or wscript.
     // Neither of these engines supports strict JS mode, so remove those calls from
     // the code.
-    code = code.replace(/"use strict"/g, '"STRICT MODE NOT SUPPORTED"');
+    code = code.toString().replace(/("|')use strict("|')/g, '"STRICT MODE NOT SUPPORTED"');
 
     // Some samples (for example that use JQuery libraries as a basis to which to
     // add malicious code) won't emulate properly for some reason if there is not
@@ -139,6 +138,59 @@ If you run into unexpected results, try uncommenting lines that look like
                 code = code.replace(/"[ \r\n]*\+[ \r\n]*"/gm, "");
             }
 
+            let tree;
+            try {
+                tree = acorn.parse(code, {
+                    allowReturnOutsideFunction: true, // used when rewriting function bodies
+                    plugins: {
+                        // enables acorn plugin needed by prototype rewrite
+                        JScriptMemberFunctionStatement: !argv["no-rewrite-prototype"],
+                    },
+                });
+            } catch (e) {
+                lib.error("Couldn't parse with Acorn:");
+                lib.error(e);
+                lib.error("");
+                if (filename.match(/jse$/)) {
+                    lib.error(
+                        `This appears to be a JSE (JScript.Encode) file.
+Please compile the decoder and decode it first:
+
+cc decoder.c -o decoder
+./decoder ${filename} ${filename.replace(/jse$/, "js")}
+
+`
+                    );
+                } else {
+                    lib.error(
+                        // @@@ Emacs JS mode does not properly parse this block.
+                        //`This doesn't seem to be a JavaScript/WScript file.
+                        //If this is a JSE file (JScript.Encode), compile
+                        //decoder.c and run it on the file, like this:
+                        //
+                        //cc decoder.c -o decoder
+                        //./decoder ${filename} ${filename}.js
+                        //
+                        //`
+                        "Decode JSE. 'cc decoder.c -o decoder'. './decoder ${filename} ${filename}.js'"
+                    );
+                }
+                process.exit(4);
+                return;
+            }
+
+            // Loop rewriting is looking for loops in the original unmodified code so
+            // do this before any other modifications.
+            if (argv["rewrite-loops"]) {
+                lib.verbose("    Rewriting loops...", false);
+                traverse(tree, loop_rewriter.rewriteSimpleWaitLoop);
+                traverse(tree, loop_rewriter.rewriteSimpleControlLoop);
+            };
+
+            if (argv["throttle-writes"]) {
+                lib.throttleFileWrites(true);
+            };
+            
             if (argv.preprocess) {
                 lib.verbose(`    Preprocessing with uglify-es v${require("uglify-es/package.json").version} (remove --preprocess to skip)...`, false);
                 const unsafe = !!argv["unsafe-preprocess"];
@@ -196,57 +248,19 @@ If you run into unexpected results, try uncommenting lines that look like
                     code = result.code;
                 }
             }
-
-            let tree;
-            try {
-                tree = acorn.parse(code, {
-                    allowReturnOutsideFunction: true, // used when rewriting function bodies
-                    plugins: {
-                        // enables acorn plugin needed by prototype rewrite
-                        JScriptMemberFunctionStatement: !argv["no-rewrite-prototype"],
-                    },
-                });
-            } catch (e) {
-                lib.error("Couldn't parse with Acorn:");
-                lib.error(e);
-                lib.error("");
-                if (filename.match(/jse$/)) {
-                    lib.error(
-                        `This appears to be a JSE (JScript.Encode) file.
-Please compile the decoder and decode it first:
-
-cc decoder.c -o decoder
-./decoder ${filename} ${filename.replace(/jse$/, "js")}
-
-`
-                    );
-                } else {
-                    lib.error(
-                        // @@@ Emacs JS mode does not properly parse this block.
-                        //`This doesn't seem to be a JavaScript/WScript file.
-                        //If this is a JSE file (JScript.Encode), compile
-                        //decoder.c and run it on the file, like this:
-                        //
-                        //cc decoder.c -o decoder
-                        //./decoder ${filename} ${filename}.js
-                        //
-                        //`
-                        "Decode JSE. 'cc decoder.c -o decoder'. './decoder ${filename} ${filename}.js'"
-                    );
-                }
-                process.exit(4);
-                return;
-            }
-
+            
             if (!argv["no-rewrite-prototype"]) {
                 lib.verbose("    Replacing `function A.prototype.B()` (use --no-rewrite-prototype to skip)...", false);
                 traverse(tree, function(key, val) {
                     if (!val) return;
+                    //console.log("----");
+                    //console.log(JSON.stringify(val, null, 2));
                     if (val.type !== "FunctionDeclaration" &&
                         val.type !== "FunctionExpression") return;
                     if (!val.id) return;
                     if (val.id.type !== "MemberExpression") return;
-                    return require("./patches/prototype.js")(val);
+                    r = require("./patches/prototype.js")(val);
+                    return r;
                 });
             }
 
@@ -302,8 +316,9 @@ cc decoder.c -o decoder
                 });
             }
 
-            // console.log(JSON.stringify(tree, null, "\t"));
             code = escodegen.generate(tree);
+            //console.log("!!!! CODE !!!!");
+            //console.log(code);
 
             // The modifications may have resulted in more concatenations, eg. "a" + ("foo", "b") + "c" -> "a" + "b" + "c"
             if (argv["dumb-concat-simplify"]) {
@@ -352,8 +367,13 @@ if (argv["prepended-code"]) {
     code = prependedCode + "\n\n" + code
 }
 
-// prepend patch code
-code = fs.readFileSync(path.join(__dirname, "patch.js"), "utf8") + code;
+// prepend patch code, unless it is already there.
+if (!code.includes("let __PATCH_CODE_ADDED__ = true;")) {
+    code = fs.readFileSync(path.join(__dirname, "patch.js"), "utf8") + code;
+}
+else {
+    console.log("Patch code already added.");
+}
 
 // append more code
 code += "\n\n" + fs.readFileSync(path.join(__dirname, "appended-code.js"));
@@ -363,6 +383,13 @@ lib.logJS(code);
 Array.prototype.Count = function() {
     return this.length;
 };
+
+// Set the fake scripting engine to report.
+var fakeEngineShort = "wscript.exe"
+if (argv["fake-script-engine"]) {
+    fakeEngineShort = argv["fake-script-engine"];
+}
+var fakeEngineFull = "C:\\WINDOWS\\system32\\" + fakeEngineShort;
 
 var wscript_proxy = new Proxy({
     arguments: new Proxy((n) => `${n}th argument`, {
@@ -388,14 +415,18 @@ var wscript_proxy = new Proxy({
         },
     }),
     buildversion: "1234",
-    fullname: "C:\\WINDOWS\\system32\\wscript.exe",
     interactive: true,
-    name: "wscript.exe",
+    fullname: fakeEngineFull,
+    name: fakeEngineShort,
     path: "C:\\TestFolder\\",
     //scriptfullname: "C:\\Documents and Settings\\User\\Desktop\\sample.js",
     //scriptfullname: "C:\\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\ons.jse",
-    scriptfullname: "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\0.2638666.jse",
-    scriptname: "0.2638666.jse",
+    scriptfullname: "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\CURRENT_SCRIPT_IN_FAKED_DIR.js",
+    scriptname: "CURRENT_SCRIPT_IN_FAKED_DIR.js",
+    quit: function() {
+        lib.info("The sample called WScript.Quit(). Exiting.");
+        process.exit(0);
+    },
     get stderr() {
         lib.error("WScript.StdErr not implemented");
     },
@@ -417,7 +448,6 @@ var wscript_proxy = new Proxy({
     get getobject() {
         lib.error("WScript.GetObject not implemented");
     },
-    quit() {},
     // Note that Sleep() is implemented in patch.js because it requires
     // access to the variable _globalTimeOffset, which belongs to the script
     // and not to the emulator.
@@ -453,7 +483,6 @@ const sandbox = {
             throw("Callback must be a function");
         }
     },
-    //Blob : Blob,
     logJS: lib.logJS,
     logIOC: lib.logIOC,
     logUrl: lib.logUrl,
@@ -464,8 +493,9 @@ const sandbox = {
         lib.logUrl("InstallProduct", x);
     },
     console: {
-        //		log: console.log.bind(console),
-        log: (x) => lib.info("Script output: " + JSON.stringify(x)),
+        //log: (x) => console.log(x),
+        //log: (x) => lib.info("Script output: " + JSON.stringify(x)),
+        log: (x) => lib.info("Script output: " + x),
     },
     Enumerator: require("./emulator/Enumerator"),
     GetObject: require("./emulator/WMI").GetObject,
@@ -511,6 +541,7 @@ require("util").inspect.defaultOptions.customInspect = false;
 if (argv["dangerous-vm"]) {
     lib.verbose("Analyzing with native vm module (dangerous!)");
     const vm = require("vm");
+    //console.log(code);
     vm.runInNewContext(code, sandbox, {
         displayErrors: true,
         // lineOffset: -fs.readFileSync(path.join(__dirname, "patch.js"), "utf8").split("\n").length,
@@ -523,23 +554,20 @@ if (argv["dangerous-vm"]) {
         timeout: (argv.timeout || 10) * 1000,
         sandbox,
     });
-    /*
-    const vm = new NodeVM({
-        timeout: (argv.timeout || 10) * 1000,
-        sandbox: {},
-        require: {
-            external: ['blob'],
-            import: ['blob'],
-        },
-    });
-    */
 
     // Fake cscript.exe style ReferenceError messages.
     code = "ReferenceError.prototype.toString = function() { return \"[object Error]\";};\n\n" + code;
     // Fake up Object.toString not being defined in cscript.exe.
     //code = "Object.prototype.toString = undefined;\n\n" + code;
 
-    vm.run(code);
+    try{
+        vm.run(code);
+    } catch (e) {
+        lib.error("Sandbox execution failed:");
+        console.log(e.stack);
+        lib.error(e.message);
+        process.exit(1);
+    }
 }
 
 function ActiveXObject(name) {
@@ -558,8 +586,7 @@ function ActiveXObject(name) {
 
     switch (name) {
     case "windowsinstaller.installer":
-        // Stubbed out for now.
-        return "";
+        return require("./emulator/WindowsInstaller");
     case "adodb.stream":
         return require("./emulator/ADODBStream")();
     case "adodb.recordset":
@@ -574,6 +601,8 @@ function ActiveXObject(name) {
         return require("./emulator/Dictionary");
     case "shell.application":
         return require("./emulator/ShellApplication");
+    case "internetexplorer.application":
+        return require("./emulator/InternetExplorerApplication");
     case "wscript.network":
         return require("./emulator/WScriptNetwork");
     case "wscript.shell":
@@ -582,6 +611,8 @@ function ActiveXObject(name) {
         return require("./emulator/WBEMScriptingSWBEMLocator");
     case "msscriptcontrol.scriptcontrol":
         return require("./emulator/MSScriptControlScriptControl");
+    case "schedule.service":
+        return require("./emulator/ScheduleService");
     default:
         lib.kill(`Unknown ActiveXObject ${name}`);
         break;

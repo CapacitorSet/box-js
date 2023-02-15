@@ -68,6 +68,11 @@
             "description": "Input file or directory containing code that should be prepended to the JS file(s) we're analyzing. If directory is given,  prepends contents of all files in the directory in "
         },
         {
+            "name": "fake-script-engine",
+            "type": "String",
+            "description": "The script engine to report in WScript.FullName and WScript.Name (ex. 'cscript.exe' or 'wscript.exe'). Default is wscript.exe."
+        },
+        {
             "name": "no-kill",
             "type": "Boolean",
             "description": "Do not kill the application when runtime errors occur"
@@ -146,6 +151,16 @@
             "name": "dangerous-vm",
             "type": "Boolean",
             "description": "Use the `vm` module, rather than `vm2`. This sandbox can be broken, so **don't use this** unless you're 100% sure of what you're doing. Helps with debugging by giving correct stack traces."
+        },
+        {
+            "name": "rewrite-loops",
+            "type": "Boolean",
+            "description": "Rewrite some types of loops to make analysis faster"
+        },
+        {
+            "name": "throttle-writes",
+            "type": "Boolean",
+            "description": "Throttle reporting and data tracking of file writes that write a LOT of data"
         }
     ],
     "export": [

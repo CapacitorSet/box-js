@@ -4,6 +4,20 @@ const path = require("path");
 const walk = require("walk-sync");
 const argv = require("./argv.js").run;
 
+function list_delete(arr, item) {
+    for( var i = 0; i < arr.length; i++){ 
+        
+        if ( arr[i] === item) { 
+            arr.splice(i, 1); 
+            i--; 
+        }
+    }
+    return arr;
+}
+
+// Track whether we should return an error shell code or not.
+var single_sample = false;
+
 // Read and format JSON flag documentation
 if (argv.help || process.argv.length === 2) {
     const columnify = require("columnify");
@@ -72,7 +86,13 @@ const [targets, options] = args.functionalSplit(fs.existsSync);
 // Array of {filepath, filename}
 const tasks = [];
 
-const [folders, files] = targets.functionalSplit(path => fs.statSync(path).isDirectory());
+var [folders, files] = targets.functionalSplit(path => fs.statSync(path).isDirectory());
+
+// The output dir does not have samples to analyze.
+const outputDir = argv["output-dir"] || "./";
+if (outputDir != "./") {
+    folders = list_delete(folders, outputDir);
+}
 
 files
     .map(filepath => ({
@@ -105,14 +125,16 @@ if (argv.threads === 0) q.concurrency = Infinity;
 else if (argv.threads)  q.concurrency = argv.threads;
 else                    q.concurrency = require("os").cpus().length;
 
-if (tasks.length > 1) // If batch mode
-    if (argv.threads)
+if (tasks.length > 1) { // If batch mode
+    if (argv.threads) {
 	console.log(`Analyzing ${tasks.length} items with ${q.concurrency} threads`)
-else
-    console.log(`Analyzing ${tasks.length} items with ${q.concurrency} threads (use --threads to change this value)`)
-
+    }
+    else {
+	console.log(`Analyzing ${tasks.length} items with ${q.concurrency} threads (use --threads to change this value)`)
+    }
+}
+    
 // queue the input files for analysis
-const outputDir = argv["output-dir"] || "./";
 tasks.forEach(({filepath, filename}) => q.push(cb => analyze(filepath, filename, cb)));
 
 let completed = 0;
@@ -123,6 +145,10 @@ q.on("success", () => {
 	console.log(`Progress: ${completed}/${tasks.length} (${(100 * completed/tasks.length).toFixed(2)}%)`);
 });
 
+// Exit with a meaningful return code if we are only analyzing 1 sample.
+single_sample = (q.length == 1);
+
+// Start analyzing samples.
 q.start();
 
 function analyze(filepath, filename, cb) {
@@ -142,7 +168,8 @@ function analyze(filepath, filename, cb) {
 	if (!argv.preprocess)
 	    console.log("Hint: if the script is heavily obfuscated, --preprocess --unsafe-preprocess can speed up the emulation.");
 	worker.kill();
-	if (argv.debug) process.exit(2);
+        // Useful analysis may have occurred.
+	process.exit(0);
 	cb();
     }, timeout * 1000);
 
@@ -169,9 +196,12 @@ function analyze(filepath, filename, cb) {
  * If the error is about a weird \"Unknown ActiveXObject\", try --no-kill.
  * Otherwise, report a bug at https://github.com/CapacitorSet/box-js/issues/ .`);
 	}
+        if (code != 0) {
+            final_code = code;
+        }
 	clearTimeout(killTimeout);
 	worker.kill();
-	if (argv.debug) process.exit(code);
+	if (argv.debug || single_sample) process.exit(code);
 	cb();
     });
 

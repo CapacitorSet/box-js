@@ -1,6 +1,7 @@
 const lib = require("../lib");
 const argv = require("../argv.js").run;
 const winpath = require("path").win32;
+const crypto = require('crypto');
 
 function TextStream(filename) {
     this.buffer = lib.readFile(filename) || "";
@@ -49,17 +50,31 @@ function ProxiedTextStream(filename) {
     });
 }
 
+function makeFakeSubfolders(path) {
+
+    // Make list of fake subfolders of the given path.
+    var r = [];
+    for (var x = 0; x < 6; x++) {
+        r[x] = path + "\\_FAKE_BOXJS_FOLDER_" + x;
+    }
+
+    // Add a Count attrbute to the list to mimic ActiveX Subfolders object.
+    Object.defineProperty(r, 'Count', {
+        get: function() { return this.length }
+    });
+
+    return r;
+}
+
 function Folder(path, autospawned) {
     this.attributes = 16;
     this.datelastmodified = new Date(new Date() - 15 * 60 * 1000); // Last changed: 15 minutes ago
     this.files = [];
     this.name = (path.replace(/\w:/i, "").match(/\\(\w*)(?:\\)?$/i) || [null, ""])[1],
     this.path = path;
-    this.subfolders = autospawned ? [] : [new ProxiedFolder(path + "\\RandomFolder", true)];
+    //this.subfolders = autospawned ? [] : [new ProxiedFolder(path + "\\RandomFolder", true)];
     this.type = "folder";
-    this.subfolders = {
-        "Count": 12,
-    };
+    this.subfolders = makeFakeSubfolders(this.path);
 }
 
 function ProxiedFolder(path, name, autospawned = false) {
@@ -72,16 +87,43 @@ function ProxiedFolder(path, name, autospawned = false) {
     });
 }
 
-function File(contents) {
+function File(contents, name = "example-file.exe", typ = "Application") {
+    lib.info("The sample created a file named '" + name + "'.")
+    // Handle blobs/arrays.
+    if ((contents.constructor.name == "Array") && (contents.length > 0)) {
+        contents = contents[0];
+    }
+    if (contents.constructor.name == "Blob") {
+        contents = contents.data;
+    }
+    lib.writeFile(name, contents);
+    this.uuid = crypto.randomUUID();
+    lib.logResource(this.uuid, name, contents);
     this.attributes = 32;
     this.openastextstream = () => new ProxiedTextStream(contents);
     this.shortpath = "C:\\PROGRA~1\\example-file.exe";
+    this._name = name;
     this.size = Infinity;
-    this.type = "Application";
+    this.type = typ;
 }
 
 function ProxiedFile(filename) {
-    return lib.proxify(File, "FileSystemObject.File");
+    var r = lib.proxify(File, "FileSystemObject.File");
+    Object.defineProperty(r, 'name', {
+        set: function(v) {
+            lib.info('The sample set a file name to "' + v + '".');
+            this._name = v;
+        },
+        get: function(v) {
+            return this._name;
+        }
+    });
+    Object.defineProperty(r, 'shortname', {
+        get: function() {
+            return this._name;
+        }
+    });
+    return r;
 }
 
 function Drive(name) {
@@ -120,6 +162,7 @@ function FileSystemObject() {
 	if (value) {
 	    lib.info(`Returning true for FileSystemObject.FileExists(${path}); use --no-file-exists if nothing happens`);
 	}
+        lib.logIOC("FileExists", path, "The script checked to see if a file exists.");
 	return value;
     };
     this.folderexists = (path) => {
@@ -127,12 +170,13 @@ function FileSystemObject() {
 	if (value) {
 	    lib.info(`Returning true for FileSystemObject.FolderExists(${path}); use --no-folder-exists if nothing happens`);
 	}
+        lib.logIOC("FolderExists", path, "The script checked to see if a folder exists.");
 	return value;
     };
     this.getabsolutepathname = (path) => {
 	if (!winpath.isAbsolute(path)) path = "C:\\Users\\User\\Desktop\\" + path;
 	const ret = winpath.resolve(path);
-	console.log(path, ret);
+        lib.logIOC("FileSystemObject", {"path": path, "absolute": ret}, "The script got an absolute path.");
 	return ret;
     };
     this.getdrive = (drive) => new ProxiedDrive(drive);
@@ -142,7 +186,10 @@ function FileSystemObject() {
 	    return "";
 	return matches[0];
     };
-    this.getfile = (filename) => new ProxiedFile(filename);
+    this.getfile = function(filename) {
+        var r = new ProxiedFile(filename);
+        return r;
+    };
     this.getfileversion = () => "";
     this.getfolder = (str) => new ProxiedFolder(str);
     this.getspecialfolder = function(id) {
@@ -176,7 +223,8 @@ function FileSystemObject() {
             r = path.substring(start, path.length);
         }
         return r;
-    }
+    };
+    this.file = File;
 }
 
 module.exports = lib.proxify(FileSystemObject, "FileSystemObject");
