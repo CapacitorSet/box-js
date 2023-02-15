@@ -78,12 +78,12 @@ function rewriteSimpleControlLoop(key, val) {
     if (line1.type != "CallExpression") return;
     if (line1.callee.type != "MemberExpression") return;
 
-    // 1 statement in catch block.
+    // 1 or 2 statement in catch block.
     var catch_line = val.body.body[0].handler;
     if ((catch_line == undefined) || (catch_line.type != "CatchClause")) return;
     var catch_body = catch_line.body;
     if (catch_body.type != "BlockStatement") return;
-    if (catch_body.body.length != 1) return;
+    if ((catch_body.body.length != 1) && (catch_body.body.length != 2)) return;
     catch_body = catch_body.body[0];
 
     // Catch statement should be an assignment.
