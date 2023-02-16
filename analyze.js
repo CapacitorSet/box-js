@@ -185,6 +185,7 @@ cc decoder.c -o decoder
                 lib.verbose("    Rewriting loops...", false);
                 traverse(tree, loop_rewriter.rewriteSimpleWaitLoop);
                 traverse(tree, loop_rewriter.rewriteSimpleControlLoop);
+                traverse(tree, loop_rewriter.rewriteLongWhileLoop);
             };
 
             if (argv["throttle-writes"]) {
@@ -253,8 +254,6 @@ cc decoder.c -o decoder
                 lib.verbose("    Replacing `function A.prototype.B()` (use --no-rewrite-prototype to skip)...", false);
                 traverse(tree, function(key, val) {
                     if (!val) return;
-                    //console.log("----");
-                    //console.log(JSON.stringify(val, null, 2));
                     if (val.type !== "FunctionDeclaration" &&
                         val.type !== "FunctionExpression") return;
                     if (!val.id) return;

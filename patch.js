@@ -101,8 +101,9 @@ Function.prototype.toString = function() {
     return r;
 }
 
-let _OriginalFunction = Function;
-Function = function(...args) {
+// Handle dynamic code executed via c("...") where c = SomeFunc.constructor.
+let _OriginalFnConstructor = Function.prototype.constructor;
+function _CreateFunc(...args) {
     let originalSource = args.pop();
     let source;
     if (typeof originalSource === "function") {
@@ -113,11 +114,19 @@ Function = function(...args) {
     } else {
 	// What the fuck JS
 	// For some reason, IIFEs result in a call to Function.
-	return new _OriginalFunction(...args, source);
+	//return new _OriginalFunction(...args, source);
+        return new _OriginalFnConstructor(...args, source);
     }
     logJS(source);
-    return new _OriginalFunction(...args, source);
+    //return new _OriginalFunction(...args, source);
+    return new _OriginalFnConstructor(...args, source);
 }
+
+Function.prototype.constructor = _CreateFunc;
+
+// Handle dynamic code executed via Function("...").
+let _OriginalFunction = Function;
+Function = _CreateFunc;
 Function.toString = () => _OriginalFunction.toString()
 Function.valueOf  = () => _OriginalFunction.valueOf()
 /* End patches */
