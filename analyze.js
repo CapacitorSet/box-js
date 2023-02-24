@@ -572,8 +572,9 @@ if (argv["dangerous-vm"]) {
 function ActiveXObject(name) {
     lib.verbose(`New ActiveXObject: ${name}`);
     name = name.toLowerCase();
-    if (name.match("xmlhttp") || name.match("winhttprequest"))
+    if (name.match("xmlhttp") || name.match("winhttprequest")) {
         return require("./emulator/XMLHTTP");
+    }
     if (name.match("dom")) {
         return {
             createElement: require("./emulator/DOM"),

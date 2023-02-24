@@ -22,6 +22,9 @@ function XMLHTTP() {
     this.settimeouts = function() {
         // Stubbed out.
     };
+    this.setproxy = function() {
+        // Stubbed out.
+    };    
     this.send = function(data) {
 	if (data)
 	    lib.info(`Data sent to ${this.url}:`, data);
