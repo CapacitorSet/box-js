@@ -65,6 +65,11 @@ function rewrite(code) {
     // the code.
     code = code.toString().replace(/("|')use strict("|')/g, '"STRICT MODE NOT SUPPORTED"');
 
+    // WinHTTP ActiveX objects let you set options like 'foo.Option(n)
+    // = 12'. Acorn parsing fails on these with a assigning to rvalue
+    // syntax error, so rewrite things like this so we can parse.
+    code = code.toString().replace(/\.Option\(.+?\) *=/g, '.Option["bogus"] =');
+    
     // Some samples (for example that use JQuery libraries as a basis to which to
     // add malicious code) won't emulate properly for some reason if there is not
     // an assignment line at the start of the code. Add one here (this should not

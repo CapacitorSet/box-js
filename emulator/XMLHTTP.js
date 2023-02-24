@@ -54,6 +54,8 @@ function XMLHTTP() {
 	this.onreadystatechange();
     };
     this.setoption = () => {};
+    // Fake up setting options.
+    this.option = {};
     this.getresponseheader = (key) => this.responseheaders[key];
 }
 
