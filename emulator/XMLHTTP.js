@@ -57,6 +57,7 @@ function XMLHTTP() {
     // Fake up setting options.
     this.option = {};
     this.getresponseheader = (key) => this.responseheaders[key];
+    this.waitforresponse = function() {};
 }
 
 module.exports = lib.proxify(XMLHTTP, "XMLHTTP");

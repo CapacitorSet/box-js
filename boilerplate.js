@@ -49,6 +49,18 @@ class Enumerator {
     };
 };
 
+// JScript VBArray class.
+class VBArray {
+
+    constructor(values) {
+        this.values = values;
+    };
+
+    getItem(index) {
+        return this.values[index];
+    };
+};
+
 // atob() taken from abab.atob.js .
 
 /**
@@ -299,8 +311,23 @@ function __createElement(tag) {
         setAttribute: function(name, val) {
             this.attributes[name] = val;
         },
+        setAttributeNode: function(name, val) {
+            if (typeof(val) !== "undefined") {
+                this.attributes[name] = val;
+            };
+            if ((typeof(name.nodeValue !== "undefined")) &&
+                (typeof(name.nodeValue.valueOf == "function"))) {
+                name.nodeValue.valueOf();
+            };
+        },
+        removeAttributeNode: function(node) {
+            // Stubbed out until needed.
+        },                
         getAttribute: function(name) {
             return this.attributes[name];
+        },
+        clearAttributes: function() {
+            this.attributes = {};
         },        
         firstChild: {
             nodeType: 3,
@@ -313,9 +340,9 @@ function __createElement(tag) {
         querySelector: function(tag) {
             return __createElement(tag);
         },
-        setAttribute : function() {},
         cloneNode: function() {
-            return __createElement("__clone__");
+            // Actually clone the element (deep copy).
+            return JSON.parse(JSON.stringify(this));
         },
         toLowerCase: function() {
             return "// NOPE";
@@ -412,7 +439,11 @@ var document = {
     },
     createElement: __createElement,
     createTextNode: function(text) {},
-    addEventListener: function(tag, func) {}
+    addEventListener: function(tag, func) {},
+    createAttribute: function(name) {
+        logIOC('Document.createAttribute()', {name}, "The script added attribute '" + name + "' to the document.");
+        return __createElement(name);
+    },
 };
 
 // Stubbed global window object.
