@@ -58,6 +58,10 @@ function lacksBinary(name) {
     return path.length === 0;
 }
 
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
 function rewrite(code) {
 
     // box-js is assuming that the JS will be run on Windows with cscript or wscript.
@@ -65,11 +69,39 @@ function rewrite(code) {
     // the code.
     code = code.toString().replace(/("|')use strict("|')/g, '"STRICT MODE NOT SUPPORTED"');
 
+    // The following 2 code rewrites should not be applied to patterns
+    // in string literals. Hide the string literals first.
+    const strPat = /"[^"]*?"/g
+    var strMap = {};
+    var counter = 1000000;
+    const strMatch = code.match(strPat);
+    if (strMatch) {
+        strMatch.forEach(function (s) {
+            const strName = "HIDE_" + counter++;
+            strMap[strName] = s;
+            code = code.replace(new RegExp(escapeRegExp(s), "g"), strName);
+        });
+    }
+    
+    // Ugh. Some JS obfuscator peppers the code with spurious /*...*/
+    // comments. Delete all /*...*/ comments.
+    const commentPat = /\/\*(.|\s)+?\*\//g;
+    code = code.toString().replace(commentPat, '');
+    
     // WinHTTP ActiveX objects let you set options like 'foo.Option(n)
     // = 12'. Acorn parsing fails on these with a assigning to rvalue
-    // syntax error, so rewrite things like this so we can parse.
-    code = code.toString().replace(/\.Option\(.+?\) *=/g, '.Option["bogus"] =');
+    // syntax error, so rewrite things like this so we can parse
+    // (replace these expressions with comments). We have to do this
+    // with regexes rather than modifying the parse tree since these
+    // expressions cannot be parsed by acorn.
+    const rvaluePat = /[\n;][^\n^;]+?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[\n;])/g;
+    code = code.toString().replace(rvaluePat, ';/* ASSIGNING TO RVALUE */');
     
+    // Now unhide the string literals.
+    Object.keys(strMap).forEach(function (strName) {
+        code = code.replace(new RegExp(strName, "g"), strMap[strName]);
+    });
+
     // Some samples (for example that use JQuery libraries as a basis to which to
     // add malicious code) won't emulate properly for some reason if there is not
     // an assignment line at the start of the code. Add one here (this should not
