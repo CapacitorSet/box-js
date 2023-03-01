@@ -62,6 +62,57 @@ function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
+function findStrs(s) {
+    var inStrSingle = false;
+    var inStrDouble = false;
+    var currStr = undefined;
+    var prevChar = "";
+    var allStrs = [];
+    for (let i = 0; i < s.length; i++) {
+
+	// Start/end single quoted string?
+	var currChar = s[i];
+	if ((currChar == "'") && (prevChar != "\\") && !inStrDouble) {
+
+	    // Switch being in/out of string.
+	    inStrSingle = !inStrSingle;
+
+	    // Finished up a string we were tracking?
+	    if (!inStrSingle) {
+		currStr += "'";
+		allStrs.push(currStr);
+	    }
+	    else {
+		currStr = "";
+	    }
+	};
+
+	// Start/end double quoted string?
+	if ((currChar == '"') && (prevChar != "\\") && !inStrSingle) {
+
+	    // Switch being in/out of string.
+	    inStrDouble = !inStrDouble;
+
+	    // Finished up a string we were tracking?
+	    if (!inStrDouble) {
+		currStr += '"';
+		allStrs.push(currStr);
+	    }
+	    else {
+		currStr = "";
+	    }
+	};
+
+	// Save the current character if we are tracking a string.
+	if (inStrDouble || inStrSingle) currStr += currChar;
+
+	// Track what is now the previous character so we can handle
+	// escaped quotes in strings.
+	prevChar = currChar;
+    }
+    return allStrs;
+}
+
 function rewrite(code) {
 
     // box-js is assuming that the JS will be run on Windows with cscript or wscript.
@@ -71,10 +122,9 @@ function rewrite(code) {
 
     // The following 2 code rewrites should not be applied to patterns
     // in string literals. Hide the string literals first.
-    const strPat = /"[^"]*?"/g
     var strMap = {};
     var counter = 1000000;
-    const strMatch = code.match(strPat);
+    const strMatch = findStrs(code);
     if (strMatch) {
         strMatch.forEach(function (s) {
             const strName = "HIDE_" + counter++;
@@ -82,7 +132,7 @@ function rewrite(code) {
             code = code.replace(new RegExp(escapeRegExp(s), "g"), strName);
         });
     }
-    
+
     // Ugh. Some JS obfuscator peppers the code with spurious /*...*/
     // comments. Delete all /*...*/ comments.
     const commentPat = /\/\*(.|\s)+?\*\//g;
@@ -99,8 +149,13 @@ function rewrite(code) {
     
     // Now unhide the string literals.
     Object.keys(strMap).forEach(function (strName) {
-        code = code.replace(new RegExp(strName, "g"), strMap[strName]);
+	// '$' in the replacement string (!!) somehow seem to
+	// sometimes get handled as regex special characters. Hide
+	// them when doing the unhiding of string literals.
+	var origStr = strMap[strName].replace(/\$/g, "__DOLLAR__");
+        code = code.replace(new RegExp(strName, "g"), origStr);
     });
+    code = code.replace(/__DOLLAR__/g, "$");
 
     // Some samples (for example that use JQuery libraries as a basis to which to
     // add malicious code) won't emulate properly for some reason if there is not
