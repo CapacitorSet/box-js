@@ -19,7 +19,7 @@ let latestUrl = "";
 
 const logSnippet = function(filename, logContent, content) {
     snippets[filename] = logContent;
-    fs.writeFileSync(path.join(directory, filename), content);
+    fs.writeFileSync(path.join(directory, filename), "" + content);
     fs.writeFileSync(path.join(directory, "snippets.json"), JSON.stringify(snippets, null, "\t"));
 };
 
