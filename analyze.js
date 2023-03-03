@@ -113,6 +113,21 @@ function findStrs(s) {
     return allStrs;
 }
 
+// JScript lets you stick the actual code to run in a conditional
+// comment like '/*@if(@_jscript_version >= 4)....*/'. If there,
+// extract that code out.
+function extractCode(code) {
+
+    // See if we can pull code out from conditional comments.
+    // /*@if(@_jscript_version >= 4) ... @else @*/
+    const commentPat = /\/\*@if\s*\([^\)]+\)(.+?)@else\s*@\s*\*\//
+    const codeMatch = code.match(commentPat);
+    if (!codeMatch) return code;
+    var r = codeMatch[1];
+    lib.info("Extracted code to analyze from conditional JScript comment.");
+    return r;
+}
+
 function rewrite(code) {
 
     // box-js is assuming that the JS will be run on Windows with cscript or wscript.
@@ -429,6 +444,13 @@ cc decoder.c -o decoder
     return code;
 }
 
+// Extract the actual code to analyze from conditional JScript
+// comments if needed.
+if (argv["extract-conditional-code"]) {
+    code = extractCode(code);
+}
+    
+// Rewrite the code if needed.
 code = rewrite(code);
 
 // prepend extra JS containing mock objects in the given file(s) onto the code
