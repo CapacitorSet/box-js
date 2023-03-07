@@ -1,5 +1,6 @@
 const lib = require("./lib");
 const loop_rewriter = require("./loop_rewriter");
+const equality_rewriter = require("./equality_rewriter");
 const escodegen = require("escodegen");
 const acorn = require("acorn");
 const fs = require("fs");
@@ -295,9 +296,12 @@ cc decoder.c -o decoder
                 traverse(tree, loop_rewriter.rewriteLongWhileLoop);
             };
 
-            if (argv["throttle-writes"]) {
-                lib.throttleFileWrites(true);
-            };
+            // Rewrite == checks so that comparisons of the current script name to
+            // a hard coded script name always return true.
+            if (argv["loose-script-name"] && code.includes("==")) {
+                lib.verbose("    Rewriting == checks...", false);
+                traverse(tree, equality_rewriter.rewriteScriptCheck);
+            }
             
             if (argv.preprocess) {
                 lib.verbose(`    Preprocessing with uglify-es v${require("uglify-es/package.json").version} (remove --preprocess to skip)...`, false);
@@ -449,7 +453,12 @@ cc decoder.c -o decoder
 if (argv["extract-conditional-code"]) {
     code = extractCode(code);
 }
-    
+
+// Track if we are throttling large/frequent file writes.
+if (argv["throttle-writes"]) {
+    lib.throttleFileWrites(true);
+};
+
 // Rewrite the code if needed.
 code = rewrite(code);
 
@@ -532,8 +541,6 @@ var wscript_proxy = new Proxy({
     fullname: fakeEngineFull,
     name: fakeEngineShort,
     path: "C:\\TestFolder\\",
-    //scriptfullname: "C:\\Documents and Settings\\User\\Desktop\\sample.js",
-    //scriptfullname: "C:\\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\ons.jse",
     scriptfullname: "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\CURRENT_SCRIPT_IN_FAKED_DIR.js",
     scriptname: "CURRENT_SCRIPT_IN_FAKED_DIR.js",
     quit: function() {
