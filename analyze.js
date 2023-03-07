@@ -151,7 +151,7 @@ function rewrite(code) {
 
     // Ugh. Some JS obfuscator peppers the code with spurious /*...*/
     // comments. Delete all /*...*/ comments.
-    const commentPat = /\/\*(.|\s)+?\*\//g;
+    const commentPat = /\/\*(.|\s){1,150}?\*\//g;
     code = code.toString().replace(commentPat, '');
     
     // WinHTTP ActiveX objects let you set options like 'foo.Option(n)
@@ -172,7 +172,7 @@ function rewrite(code) {
         code = code.replace(new RegExp(strName, "g"), origStr);
     });
     code = code.replace(/__DOLLAR__/g, "$");
-
+    
     // Some samples (for example that use JQuery libraries as a basis to which to
     // add malicious code) won't emulate properly for some reason if there is not
     // an assignment line at the start of the code. Add one here (this should not
