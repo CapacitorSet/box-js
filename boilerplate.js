@@ -359,6 +359,11 @@ var navigator = {
     userAgent: 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.2; WOW64; Trident/6.0; .NET4.0E; .NET4.0C; .NET CLR 3.5.30729; .NET CLR 2.0.50727; .NET CLR 3.0.30729; Tablet PC 2.0; InfoPath.3)',
 };
 
+var _generic_append_func = function(item) {
+    logIOC('DOM Append', {item}, "The script added a HTML node to the DOM");
+    return "";
+};
+
 // Stubbed global document object.
 var document = {
     documentMode: 8, // Fake running in IE8
@@ -368,9 +373,8 @@ var document = {
     location: location,
     head: {
         innerHTML: "",
-        append: function(x) {
-            console.log(x);
-        },
+        append: _generic_append_func,
+        appendChild: _generic_append_func,
     },
     defaultView: {},
     cookie: "",
