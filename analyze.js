@@ -68,12 +68,19 @@ function findStrs(s) {
     var inStrDouble = false;
     var currStr = undefined;
     var prevChar = "";
+    var prevPrevChar = "";
     var allStrs = [];
+    var escapedSlash = false;
     for (let i = 0; i < s.length; i++) {
 
+        // Looking at an escaped back slash (1 char back)?
+        escapedSlash = (prevChar == "\\" && prevPrevChar == "\\");
+        
 	// Start/end single quoted string?
 	var currChar = s[i];
-	if ((currChar == "'") && (prevChar != "\\") && !inStrDouble) {
+	if ((currChar == "'") &&
+            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash)) &&
+            !inStrDouble) {
 
 	    // Switch being in/out of string.
 	    inStrSingle = !inStrSingle;
@@ -89,7 +96,9 @@ function findStrs(s) {
 	};
 
 	// Start/end double quoted string?
-	if ((currChar == '"') && (prevChar != "\\") && !inStrSingle) {
+	if ((currChar == '"') &&
+            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash)) &&
+            !inStrSingle) {
 
 	    // Switch being in/out of string.
 	    inStrDouble = !inStrDouble;
@@ -109,6 +118,7 @@ function findStrs(s) {
 
 	// Track what is now the previous character so we can handle
 	// escaped quotes in strings.
+        prevPrevChar = prevChar;
 	prevChar = currChar;
     }
     return allStrs;
@@ -160,7 +170,7 @@ function rewrite(code) {
     // (replace these expressions with comments). We have to do this
     // with regexes rather than modifying the parse tree since these
     // expressions cannot be parsed by acorn.
-    const rvaluePat = /[\n;][^\n^;]+?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[\n;])/g;
+    const rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[\n;])/g;
     code = code.toString().replace(rvaluePat, ';/* ASSIGNING TO RVALUE */');
     
     // Now unhide the string literals.
