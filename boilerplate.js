@@ -350,6 +350,7 @@ function __createElement(tag) {
         click: function() {
             lib.info("click() method called on a document element.");
         },
+	removeChild: function() {},
     };
     return fake_elem;
 };
@@ -450,6 +451,32 @@ var document = {
     },
 };
 
+// Stubbed out URL class.
+class URL {
+
+    constructor(url, base="") {
+	this.url = url + base;
+	lib.logIOC("URL()", {method: "URL()", url: this.url}, "The script created a URL object.");
+        lib.logUrl("URL()", this.url);
+    };
+
+    static _blobCount = 0;
+    
+    static createObjectURL(urlObject) {
+
+	// If we have a Blob this is probably creating a file download
+	// link. Save the "file".
+	if (urlObject.constructor.name == "Blob") {
+	    const fname = "URL_Blob_file_" + URL._blobCount++;
+	    const uuid = lib.getUUID();
+	    lib.writeFile(fname, urlObject.data);
+	    lib.logResource(uuid, fname, urlObject.data);
+	}
+    };
+
+    static revokeObjectURL() {};
+};
+
 // Stubbed global window object.
 var window = {
     eval: function(cmd) { eval(cmd); },
@@ -491,6 +518,7 @@ var window = {
     _NavbarView: class _NavbarView {
         constructor() {};    
     },
+    URL: URL,
 };
 
 // Initial stubbed object. Add items a needed.

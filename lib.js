@@ -255,6 +255,13 @@ module.exports = {
     logUrl,
     logResource: function(resourceName, emulatedPath, content) {
 
+	// Writing a Blob?
+	if (content.constructor.name == "Blob") {
+
+	    // Grab the actual contents as a byte string.
+	    content = content.data;
+	};
+	
         // Throttle lots of small writes to a resource when the resource is large.
         const filePath = path.join(directory, resourceName);
         if (typeof(resourceWriteCount[resourceName]) == "undefined") resourceWriteCount[resourceName] = 0;
