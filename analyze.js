@@ -161,7 +161,7 @@ function rewrite(code) {
 
     // Ugh. Some JS obfuscator peppers the code with spurious /*...*/
     // comments. Delete all /*...*/ comments.
-    const commentPat = /\/\*(.|\s){1,150}?\*\//g;
+    const commentPat = /\/\*(.|\s){0,150}?\*\//g;
     code = code.toString().replace(commentPat, '');
     
     // WinHTTP ActiveX objects let you set options like 'foo.Option(n)
