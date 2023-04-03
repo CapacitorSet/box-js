@@ -71,6 +71,7 @@ function findStrs(s) {
     var prevPrevChar = "";
     var allStrs = [];
     var escapedSlash = false;
+    var prevEscapedSlash = false;
     for (let i = 0; i < s.length; i++) {
 
         // Looking at an escaped back slash (1 char back)?
@@ -79,7 +80,7 @@ function findStrs(s) {
 	// Start/end single quoted string?
 	var currChar = s[i];
 	if ((currChar == "'") &&
-            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash)) &&
+            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash)) &&
             !inStrDouble) {
 
 	    // Switch being in/out of string.
@@ -97,7 +98,7 @@ function findStrs(s) {
 
 	// Start/end double quoted string?
 	if ((currChar == '"') &&
-            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash)) &&
+            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash)) &&
             !inStrSingle) {
 
 	    // Switch being in/out of string.
@@ -120,6 +121,7 @@ function findStrs(s) {
 	// escaped quotes in strings.
         prevPrevChar = prevChar;
 	prevChar = currChar;
+        prevEscapedSlash = escapedSlash;
     }
     return allStrs;
 }
