@@ -709,6 +709,11 @@ class XMLHttpRequest {
 
     open(method, url) {
         this.method = method;
+	// Maybe you can skip the http part of the URL and XMLHTTP
+	// still handles it?
+	if (url.startsWith("//")) {
+	    url = "http:" + url;
+	}
         this.url = url;
         lib.logIOC("XMLHttpRequest", {method: method, url: url}, "The script opened a HTTP request.");
         lib.logUrl("XMLHttpRequest", url);

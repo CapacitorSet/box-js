@@ -9,6 +9,11 @@ function XMLHTTP() {
     this.status = undefined;
     
     this.open = function(method, url) {
+	// Maybe you can skip the http part of the URL and XMLHTTP
+	// still handles it?
+	if (url.startsWith("//")) {
+	    url = "http:" + url;
+	}
 	this.url = url;
 	this.method = method;
 	this.readystate = 1;
