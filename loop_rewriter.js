@@ -59,11 +59,26 @@ function rewriteSimpleControlLoop(key, val) {
     // 2 statements in the loop body?
     if (val.body.type != "BlockStatement") return;
     if (val.body.body.length != 2) return;
-
-    // 1st loop body statement is a try/catch?
+    
+    // Should have 1 increment statement and 1 try catch in the loop
+    // body. Figure out which is which.
     var line1 = val.body.body[0];
-    if (line1.type != "TryStatement") return;
-
+    var line2 = val.body.body[1];
+    
+    // Any loop body statement is a try/catch?
+    if ((line1.type != "TryStatement") && (line2.type != "TryStatement")) return;
+    // Any loop body statement an expression?
+    if ((line1.type != "ExpressionStatement") && (line2.type != "ExpressionStatement")) return;
+    
+    // Carve out the try/catch and the expression.
+    if (line1.type != "TryStatement") {
+        const tmp = line1;
+        line1 = line2;
+        line2 = tmp;
+    }
+    const exceptBlock = line1;
+    const updateStmt = line2;
+    
     // 1 statement in try block?
     if (line1.block.type != "BlockStatement") return;
     if (line1.block.body.length != 1) return;
@@ -77,9 +92,9 @@ function rewriteSimpleControlLoop(key, val) {
     }
     if (line1.type != "CallExpression") return;
     if (line1.callee.type != "MemberExpression") return;
-
+    
     // 1 or 2 statement in catch block.
-    var catch_line = val.body.body[0].handler;
+    var catch_line = exceptBlock.handler;
     if ((catch_line == undefined) || (catch_line.type != "CatchClause")) return;
     var catch_body = catch_line.body;
     if (catch_body.type != "BlockStatement") return;
@@ -91,16 +106,19 @@ function rewriteSimpleControlLoop(key, val) {
     if (catch_body.expression.type != "AssignmentExpression") return;
     
     // 2nd loop body statement an assignment?
-    var line2 = val.body.body[1];
     if (line2.type != "ExpressionStatement") return;
     line2 = line2.expression;
     if ((line2.type != "AssignmentExpression") && (line2.type != "UpdateExpression")) return;
-
+    
+    // Is the expression statement in the loop body an update expression?
+    if (typeof(line2.expression) !== "undefined") line2 = line2.expression;
+    if ((line2.type != "AssignmentExpression") && (line2.type != "UpdateExpression")) return;
+    
     // We have a certain type of control flow loop. Rewrite it so that exceptions are not
     // repeatedly thrown.
     //console.log("----");
     //console.log(JSON.stringify(val, null, 2));
-    r = require("./patches/except_while_loop.js")(val);
+    r = require("./patches/except_while_loop.js")(val, exceptBlock, updateStmt);
     //console.log("REWRITE CONTROL!!");
     //console.log(JSON.stringify(r, null, 2));
     //console.log(escodegen.generate(r));

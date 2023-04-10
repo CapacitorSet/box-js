@@ -23,14 +23,13 @@ function MakeIfThen(test, body) {
     };
 };
 
-function GenSimpleLoop(fexpr) {
+function GenSimpleLoop(fexpr, tryStmt, updateStmt) {
 
     // First just run the loop once to trigger the exception.
     var oldBody = fexpr.body;
-    var tryStmt = oldBody.body[0];
     
     // Do function calls only for defined entries in an array.
-    var tryBody = oldBody.body[0].block.body;
+    var tryBody = tryStmt.block.body;
     if (Array.isArray(tryBody)) {
         tryBody = tryBody[0];
     }
@@ -55,7 +54,7 @@ function GenSimpleLoop(fexpr) {
     // In new loop body do guarded call followed by existing var update.
     var loopBody = {
         type: "BlockStatement",
-        body: [newIf, oldBody.body[1]]
+        body: [newIf, updateStmt]
     };
     var newLoop = {
         type: "WhileStatement",
@@ -71,4 +70,4 @@ function GenSimpleLoop(fexpr) {
     return r;
 };
 
-module.exports = (fexpr) => (GenSimpleLoop(fexpr));
+module.exports = (fexpr, tryStmt, updateStmt) => (GenSimpleLoop(fexpr, tryStmt, updateStmt));

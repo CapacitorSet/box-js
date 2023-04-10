@@ -22,8 +22,14 @@ class Blob {
             for (let i = 0; i < flat.length; i++) {
                 this.data += String.fromCharCode(flat[i]);
             };
-        }
+        };
     };
+
+    toString() { return this.data };
+
+    charAt(x) { return this.toString().charAt(x); };
+
+    static charAt() { return ""; };
 };
 Object.prototype.Blob = Blob;
 
@@ -732,3 +738,4 @@ function fetch(url) {
     lib.logIOC("fetch", {url: url}, "The script fetch()ed a URL.");
     lib.logUrl("fetch", url);
 };
+
