@@ -1,5 +1,6 @@
 const lib = require("./lib");
 const loop_rewriter = require("./loop_rewriter");
+const equality_rewriter = require("./equality_rewriter");
 const escodegen = require("escodegen");
 const acorn = require("acorn");
 const fs = require("fs");
@@ -58,6 +59,88 @@ function lacksBinary(name) {
     return path.length === 0;
 }
 
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
+function findStrs(s) {
+    var inStrSingle = false;
+    var inStrDouble = false;
+    var currStr = undefined;
+    var prevChar = "";
+    var prevPrevChar = "";
+    var allStrs = [];
+    var escapedSlash = false;
+    var prevEscapedSlash = false;
+    for (let i = 0; i < s.length; i++) {
+
+        // Looking at an escaped back slash (1 char back)?
+        escapedSlash = (prevChar == "\\" && prevPrevChar == "\\");
+        
+	// Start/end single quoted string?
+	var currChar = s[i];
+	if ((currChar == "'") &&
+            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash)) &&
+            !inStrDouble) {
+
+	    // Switch being in/out of string.
+	    inStrSingle = !inStrSingle;
+
+	    // Finished up a string we were tracking?
+	    if (!inStrSingle) {
+		currStr += "'";
+		allStrs.push(currStr);
+	    }
+	    else {
+		currStr = "";
+	    }
+	};
+
+	// Start/end double quoted string?
+	if ((currChar == '"') &&
+            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash)) &&
+            !inStrSingle) {
+
+	    // Switch being in/out of string.
+	    inStrDouble = !inStrDouble;
+
+	    // Finished up a string we were tracking?
+	    if (!inStrDouble) {
+		currStr += '"';
+		allStrs.push(currStr);
+	    }
+	    else {
+		currStr = "";
+	    }
+	};
+
+	// Save the current character if we are tracking a string.
+	if (inStrDouble || inStrSingle) currStr += currChar;
+
+	// Track what is now the previous character so we can handle
+	// escaped quotes in strings.
+        prevPrevChar = prevChar;
+	prevChar = currChar;
+        prevEscapedSlash = escapedSlash;
+    }
+    return allStrs;
+}
+
+// JScript lets you stick the actual code to run in a conditional
+// comment like '/*@if(@_jscript_version >= 4)....*/'. If there,
+// extract that code out.
+function extractCode(code) {
+
+    // See if we can pull code out from conditional comments.
+    // /*@if(@_jscript_version >= 4) ... @else @*/
+    const commentPat = /\/\*@if\s*\([^\)]+\)(.+?)@else\s*@\s*\*\//
+    const codeMatch = code.match(commentPat);
+    if (!codeMatch) return code;
+    var r = codeMatch[1];
+    lib.info("Extracted code to analyze from conditional JScript comment.");
+    return r;
+}
+
 function rewrite(code) {
 
     // box-js is assuming that the JS will be run on Windows with cscript or wscript.
@@ -65,6 +148,43 @@ function rewrite(code) {
     // the code.
     code = code.toString().replace(/("|')use strict("|')/g, '"STRICT MODE NOT SUPPORTED"');
 
+    // The following 2 code rewrites should not be applied to patterns
+    // in string literals. Hide the string literals first.
+    var strMap = {};
+    var counter = 1000000;
+    const strMatch = findStrs(code);
+    if (strMatch) {
+        strMatch.forEach(function (s) {
+            const strName = "HIDE_" + counter++;
+            strMap[strName] = s;
+            code = code.replace(new RegExp(escapeRegExp(s), "g"), strName);
+        });
+    }
+
+    // Ugh. Some JS obfuscator peppers the code with spurious /*...*/
+    // comments. Delete all /*...*/ comments.
+    const commentPat = /\/\*(.|\s){0,150}?\*\//g;
+    code = code.toString().replace(commentPat, '');
+    
+    // WinHTTP ActiveX objects let you set options like 'foo.Option(n)
+    // = 12'. Acorn parsing fails on these with a assigning to rvalue
+    // syntax error, so rewrite things like this so we can parse
+    // (replace these expressions with comments). We have to do this
+    // with regexes rather than modifying the parse tree since these
+    // expressions cannot be parsed by acorn.
+    const rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[\n;])/g;
+    code = code.toString().replace(rvaluePat, ';/* ASSIGNING TO RVALUE */');
+    
+    // Now unhide the string literals.
+    Object.keys(strMap).forEach(function (strName) {
+	// '$' in the replacement string (!!) somehow seem to
+	// sometimes get handled as regex special characters. Hide
+	// them when doing the unhiding of string literals.
+	var origStr = strMap[strName].replace(/\$/g, "__DOLLAR__");
+        code = code.replace(new RegExp(strName, "g"), origStr);
+    });
+    code = code.replace(/__DOLLAR__/g, "$");
+    
     // Some samples (for example that use JQuery libraries as a basis to which to
     // add malicious code) won't emulate properly for some reason if there is not
     // an assignment line at the start of the code. Add one here (this should not
@@ -185,11 +305,15 @@ cc decoder.c -o decoder
                 lib.verbose("    Rewriting loops...", false);
                 traverse(tree, loop_rewriter.rewriteSimpleWaitLoop);
                 traverse(tree, loop_rewriter.rewriteSimpleControlLoop);
+                traverse(tree, loop_rewriter.rewriteLongWhileLoop);
             };
 
-            if (argv["throttle-writes"]) {
-                lib.throttleFileWrites(true);
-            };
+            // Rewrite == checks so that comparisons of the current script name to
+            // a hard coded script name always return true.
+            if (argv["loose-script-name"] && code.includes("==")) {
+                lib.verbose("    Rewriting == checks...", false);
+                traverse(tree, equality_rewriter.rewriteScriptCheck);
+            }
             
             if (argv.preprocess) {
                 lib.verbose(`    Preprocessing with uglify-es v${require("uglify-es/package.json").version} (remove --preprocess to skip)...`, false);
@@ -253,8 +377,6 @@ cc decoder.c -o decoder
                 lib.verbose("    Replacing `function A.prototype.B()` (use --no-rewrite-prototype to skip)...", false);
                 traverse(tree, function(key, val) {
                     if (!val) return;
-                    //console.log("----");
-                    //console.log(JSON.stringify(val, null, 2));
                     if (val.type !== "FunctionDeclaration" &&
                         val.type !== "FunctionExpression") return;
                     if (!val.id) return;
@@ -338,6 +460,18 @@ cc decoder.c -o decoder
     return code;
 }
 
+// Extract the actual code to analyze from conditional JScript
+// comments if needed.
+if (argv["extract-conditional-code"]) {
+    code = extractCode(code);
+}
+
+// Track if we are throttling large/frequent file writes.
+if (argv["throttle-writes"]) {
+    lib.throttleFileWrites(true);
+};
+
+// Rewrite the code if needed.
 code = rewrite(code);
 
 // prepend extra JS containing mock objects in the given file(s) onto the code
@@ -419,8 +553,6 @@ var wscript_proxy = new Proxy({
     fullname: fakeEngineFull,
     name: fakeEngineShort,
     path: "C:\\TestFolder\\",
-    //scriptfullname: "C:\\Documents and Settings\\User\\Desktop\\sample.js",
-    //scriptfullname: "C:\\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\ons.jse",
     scriptfullname: "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\CURRENT_SCRIPT_IN_FAKED_DIR.js",
     scriptname: "CURRENT_SCRIPT_IN_FAKED_DIR.js",
     quit: function() {
@@ -573,8 +705,9 @@ if (argv["dangerous-vm"]) {
 function ActiveXObject(name) {
     lib.verbose(`New ActiveXObject: ${name}`);
     name = name.toLowerCase();
-    if (name.match("xmlhttp") || name.match("winhttprequest"))
+    if (name.match("xmlhttp") || name.match("winhttprequest")) {
         return require("./emulator/XMLHTTP");
+    }
     if (name.match("dom")) {
         return {
             createElement: require("./emulator/DOM"),

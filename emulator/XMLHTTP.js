@@ -9,6 +9,11 @@ function XMLHTTP() {
     this.status = undefined;
     
     this.open = function(method, url) {
+	// Maybe you can skip the http part of the URL and XMLHTTP
+	// still handles it?
+	if (url.startsWith("//")) {
+	    url = "http:" + url;
+	}
 	this.url = url;
 	this.method = method;
 	this.readystate = 1;
@@ -22,6 +27,9 @@ function XMLHTTP() {
     this.settimeouts = function() {
         // Stubbed out.
     };
+    this.setproxy = function() {
+        // Stubbed out.
+    };    
     this.send = function(data) {
 	if (data)
 	    lib.info(`Data sent to ${this.url}:`, data);
@@ -51,7 +59,10 @@ function XMLHTTP() {
 	this.onreadystatechange();
     };
     this.setoption = () => {};
+    // Fake up setting options.
+    this.option = {};
     this.getresponseheader = (key) => this.responseheaders[key];
+    this.waitforresponse = function() {};
 }
 
 module.exports = lib.proxify(XMLHTTP, "XMLHTTP");

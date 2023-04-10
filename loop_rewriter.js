@@ -107,7 +107,77 @@ function rewriteSimpleControlLoop(key, val) {
     return r;
 };
 
+function rewriteLongWhileLoop(key, val) {
+    if (!val) return;
+
+    // TODO: Currently only rewriting while() loops like
+    // 'while(true) { ...; if (val > BIG_NUMBER) break; }'.
+    
+    // While loop?
+    if (val.type != "WhileStatement") return;
+
+    // while(true) guard?
+    if (escodegen.generate(val.test) !== "true") return;
+
+    // Multiple statements in loop body?
+    if (val.body.type != "BlockStatement") return;
+    const body = val.body.body;
+    
+    // Look through each statement in the loop body for a if statement
+    // like 'if (val > BIG_NUMBER) break;'.
+    var newBody = [];
+    var changed = false;
+    for (i in body) {
+        var currStatement = body[i];
+
+        // Break if statement?
+        if ((currStatement.type == "IfStatement") &&
+            (currStatement.test.type == "BinaryExpression") &&
+            (currStatement.test.operator == "==") &&
+            (currStatement.consequent.type == "BreakStatement")) {
+            
+            // Checking to see if a variable is equal to a literal?
+            left = currStatement.test.left
+            right = currStatement.test.right
+            var theVar;
+            if (left.type == "Identifier") theVar = left;
+            if (right.type == "Identifier") theVar = right;
+            var theVal;
+            if (left.type == "Literal") theVal = left;
+            if (right.type == "Literal") theVal = right;
+
+            // Is the value a big number?
+            if ((typeof(theVar) !== "undefined") &&
+                (typeof(theVal) !== "undefined") &&
+                (theVal.value > 10000000)) {
+
+                // Change the value being checked to a smaller number.
+                currStatement = require("./patches/index_break_statement.js")(theVar, 1000000);
+                changed = true;
+            }
+        }
+
+        // How can nulls and functions show up??
+        if ((!currStatement) || (typeof(currStatement) !== "object")) continue;
+
+        // Save the (maybe) modified statement for the loop body.
+        newBody.push(currStatement);
+    }
+
+    // Did we modify the loop body?
+    if (!changed) return;
+
+    // Set up the new loop body.
+    val.body.body = newBody;
+    //console.log("----");
+    //console.log("REWRITE INDEX CHECK LOOP!!");
+    //console.log(JSON.stringify(val, null, 2));
+    //console.log(escodegen.generate(val));
+    return val
+}
+
 module.exports = {
     rewriteSimpleWaitLoop,
     rewriteSimpleControlLoop,
+    rewriteLongWhileLoop,
 };

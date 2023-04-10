@@ -19,7 +19,7 @@ let latestUrl = "";
 
 const logSnippet = function(filename, logContent, content) {
     snippets[filename] = logContent;
-    fs.writeFileSync(path.join(directory, filename), content);
+    fs.writeFileSync(path.join(directory, filename), "" + content);
     fs.writeFileSync(path.join(directory, "snippets.json"), JSON.stringify(snippets, null, "\t"));
 };
 
@@ -255,6 +255,13 @@ module.exports = {
     logUrl,
     logResource: function(resourceName, emulatedPath, content) {
 
+	// Writing a Blob?
+	if (content.constructor.name == "Blob") {
+
+	    // Grab the actual contents as a byte string.
+	    content = content.data;
+	};
+	
         // Throttle lots of small writes to a resource when the resource is large.
         const filePath = path.join(directory, resourceName);
         if (typeof(resourceWriteCount[resourceName]) == "undefined") resourceWriteCount[resourceName] = 0;

@@ -161,6 +161,16 @@
             "name": "throttle-writes",
             "type": "Boolean",
             "description": "Throttle reporting and data tracking of file writes that write a LOT of data"
+        },
+        {
+            "name": "extract-conditional-code",
+            "type": "Boolean",
+            "description": "Pull the actual code to analyze from JScript conditional comments (/*@if(...)."
+        },
+        {
+            "name": "loose-script-name",
+            "type": "Boolean",
+            "description": "Rewrite == checks so that comparisons of the current script name to a hard coded script name always return true."
         }
     ],
     "export": [

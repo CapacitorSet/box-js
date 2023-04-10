@@ -49,6 +49,18 @@ class Enumerator {
     };
 };
 
+// JScript VBArray class.
+class VBArray {
+
+    constructor(values) {
+        this.values = values;
+    };
+
+    getItem(index) {
+        return this.values[index];
+    };
+};
+
 // atob() taken from abab.atob.js .
 
 /**
@@ -299,8 +311,23 @@ function __createElement(tag) {
         setAttribute: function(name, val) {
             this.attributes[name] = val;
         },
+        setAttributeNode: function(name, val) {
+            if (typeof(val) !== "undefined") {
+                this.attributes[name] = val;
+            };
+            if ((typeof(name.nodeValue !== "undefined")) &&
+                (typeof(name.nodeValue.valueOf == "function"))) {
+                name.nodeValue.valueOf();
+            };
+        },
+        removeAttributeNode: function(node) {
+            // Stubbed out until needed.
+        },                
         getAttribute: function(name) {
             return this.attributes[name];
+        },
+        clearAttributes: function() {
+            this.attributes = {};
         },        
         firstChild: {
             nodeType: 3,
@@ -313,9 +340,9 @@ function __createElement(tag) {
         querySelector: function(tag) {
             return __createElement(tag);
         },
-        setAttribute : function() {},
         cloneNode: function() {
-            return __createElement("__clone__");
+            // Actually clone the element (deep copy).
+            return JSON.parse(JSON.stringify(this));
         },
         toLowerCase: function() {
             return "// NOPE";
@@ -323,6 +350,7 @@ function __createElement(tag) {
         click: function() {
             lib.info("click() method called on a document element.");
         },
+	removeChild: function() {},
     };
     return fake_elem;
 };
@@ -330,6 +358,11 @@ function __createElement(tag) {
 // Stubbed global navigator object.
 var navigator = {
     userAgent: 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.2; WOW64; Trident/6.0; .NET4.0E; .NET4.0C; .NET CLR 3.5.30729; .NET CLR 2.0.50727; .NET CLR 3.0.30729; Tablet PC 2.0; InfoPath.3)',
+};
+
+var _generic_append_func = function(item) {
+    logIOC('DOM Append', {item}, "The script added a HTML node to the DOM");
+    return "";
 };
 
 // Stubbed global document object.
@@ -341,9 +374,8 @@ var document = {
     location: location,
     head: {
         innerHTML: "",
-        append: function(x) {
-            console.log(x);
-        },
+        append: _generic_append_func,
+        appendChild: _generic_append_func,
     },
     defaultView: {},
     cookie: "",
@@ -412,7 +444,37 @@ var document = {
     },
     createElement: __createElement,
     createTextNode: function(text) {},
-    addEventListener: function(tag, func) {}
+    addEventListener: function(tag, func) {},
+    createAttribute: function(name) {
+        logIOC('Document.createAttribute()', {name}, "The script added attribute '" + name + "' to the document.");
+        return __createElement(name);
+    },
+};
+
+// Stubbed out URL class.
+class URL {
+
+    constructor(url, base="") {
+	this.url = url + base;
+	lib.logIOC("URL()", {method: "URL()", url: this.url}, "The script created a URL object.");
+        lib.logUrl("URL()", this.url);
+    };
+
+    static _blobCount = 0;
+    
+    static createObjectURL(urlObject) {
+
+	// If we have a Blob this is probably creating a file download
+	// link. Save the "file".
+	if (urlObject.constructor.name == "Blob") {
+	    const fname = "URL_Blob_file_" + URL._blobCount++;
+	    const uuid = lib.getUUID();
+	    lib.writeFile(fname, urlObject.data);
+	    lib.logResource(uuid, fname, urlObject.data);
+	}
+    };
+
+    static revokeObjectURL() {};
 };
 
 // Stubbed global window object.
@@ -456,6 +518,7 @@ var window = {
     _NavbarView: class _NavbarView {
         constructor() {};    
     },
+    URL: URL,
 };
 
 // Initial stubbed object. Add items a needed.
@@ -646,6 +709,11 @@ class XMLHttpRequest {
 
     open(method, url) {
         this.method = method;
+	// Maybe you can skip the http part of the URL and XMLHTTP
+	// still handles it?
+	if (url.startsWith("//")) {
+	    url = "http:" + url;
+	}
         this.url = url;
         lib.logIOC("XMLHttpRequest", {method: method, url: url}, "The script opened a HTTP request.");
         lib.logUrl("XMLHttpRequest", url);
@@ -658,3 +726,9 @@ class XMLHttpRequest {
 // until better stubbing is needed.
 exports = {};
 module = {};
+
+// fetch API emulation.
+function fetch(url) {
+    lib.logIOC("fetch", {url: url}, "The script fetch()ed a URL.");
+    lib.logUrl("fetch", url);
+};
