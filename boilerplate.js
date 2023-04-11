@@ -421,7 +421,10 @@ var document = {
                         },
                         getAttribute: function(attrId) {
                             return this.attrs[attrId];
-                        }
+                        },
+                        insertAdjacentHTML: function(position, text) {
+                            logIOC('DOM Append', {text}, "The script added a HTML node to the DOM");
+                        },
                     };
                     r.attrs = attrs[i];
                     this.elementCache[id] = r;
