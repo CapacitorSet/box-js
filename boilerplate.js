@@ -305,6 +305,8 @@ function __getElementsByTagName(tag) {
 function __createElement(tag) {
     var fake_elem = {
         set src(url) {
+            // Looks like you can leave off the http from the url.
+            if (url.startsWith("//")) url = "https:" + url;
             logIOC('Remote Script', {url}, "The script set a remote script source.");
             logUrl('Remote Script', {url});
         },
@@ -355,6 +357,9 @@ function __createElement(tag) {
         },
         click: function() {
             lib.info("click() method called on a document element.");
+        },
+        insertAdjacentHTML: function(position, text) {
+            logIOC('DOM Append', {text}, "The script added a HTML node to the DOM");
         },
 	removeChild: function() {},
     };
@@ -739,3 +744,15 @@ function fetch(url) {
     lib.logUrl("fetch", url);
 };
 
+// Image class stub.
+class Image {
+
+    set src(url) {
+
+        // Looks like you can leave off the http from the url.
+        if (url.startsWith("//")) url = "https:" + url;
+        this.url = url;
+        lib.logIOC("Image.src", {url: url}, "The script set the source of an Image.");
+        lib.logUrl("Image.src", url);
+    };
+}
