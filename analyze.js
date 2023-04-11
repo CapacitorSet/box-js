@@ -63,6 +63,17 @@ function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
+function stripSingleLineComments(s) {
+    const lines = s.split("\n");
+    var r = "";
+    for (const line of lines) {
+        var lineStrip = line.trim();
+        if (lineStrip.startsWith("//")) continue;
+        r += line + "\n";
+    }
+    return r;
+}
+
 function findStrs(s) {
     var inStrSingle = false;
     var inStrDouble = false;
@@ -72,6 +83,7 @@ function findStrs(s) {
     var allStrs = [];
     var escapedSlash = false;
     var prevEscapedSlash = false;
+    s = stripSingleLineComments(s);
     for (let i = 0; i < s.length; i++) {
 
         // Looking at an escaped back slash (1 char back)?
