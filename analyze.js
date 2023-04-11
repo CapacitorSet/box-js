@@ -63,6 +63,17 @@ function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
+function stripSingleLineComments(s) {
+    const lines = s.split("\n");
+    var r = "";
+    for (const line of lines) {
+        var lineStrip = line.trim();
+        if (lineStrip.startsWith("//")) continue;
+        r += line + "\n";
+    }
+    return r;
+}
+
 function findStrs(s) {
     var inStrSingle = false;
     var inStrDouble = false;
@@ -72,6 +83,7 @@ function findStrs(s) {
     var allStrs = [];
     var escapedSlash = false;
     var prevEscapedSlash = false;
+    s = stripSingleLineComments(s);
     for (let i = 0; i < s.length; i++) {
 
         // Looking at an escaped back slash (1 char back)?
@@ -141,6 +153,22 @@ function extractCode(code) {
     return r;
 }
 
+function _removeComments(code) {
+    var remaining = code;
+    var r = "";
+    pos = remaining.indexOf("/*");
+    while (pos >= 0) {
+        r += remaining.slice(0, pos);
+        const next = remaining.indexOf("*/");
+        remaining = remaining.slice(next + 2);
+        pos = remaining.indexOf("/*");
+        if (next < 0) break;
+    }    
+    if (pos < 0) r += remaining;
+    
+    return r;
+}
+
 function rewrite(code) {
 
     // box-js is assuming that the JS will be run on Windows with cscript or wscript.
@@ -163,8 +191,7 @@ function rewrite(code) {
 
     // Ugh. Some JS obfuscator peppers the code with spurious /*...*/
     // comments. Delete all /*...*/ comments.
-    const commentPat = /\/\*(.|\s){0,150}?\*\//g;
-    code = code.toString().replace(commentPat, '');
+    code = _removeComments(code);
     
     // WinHTTP ActiveX objects let you set options like 'foo.Option(n)
     // = 12'. Acorn parsing fails on these with a assigning to rvalue

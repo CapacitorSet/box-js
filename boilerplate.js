@@ -22,8 +22,14 @@ class Blob {
             for (let i = 0; i < flat.length; i++) {
                 this.data += String.fromCharCode(flat[i]);
             };
-        }
+        };
     };
+
+    toString() { return this.data };
+
+    charAt(x) { return this.toString().charAt(x); };
+
+    static charAt() { return ""; };
 };
 Object.prototype.Blob = Blob;
 
@@ -262,7 +268,7 @@ var location = {
 
     replace: function (url) {
         logIOC('Window Location', {url}, "The script changed the window location URL.");
-	logUrl('Window Location', {url});
+	logUrl('Window Location', url);
     },
 
     // The location.reload() method reloads the current URL, like the Refresh button.
@@ -270,8 +276,14 @@ var location = {
 };
 
 function __getElementsByTagName(tag) {
-    var func = function(item) {
-        logIOC('DOM Append', {item}, "The script added a HTML node to the DOM");
+    var func = function(content) {
+        logIOC('DOM Write', {content}, "The script added a HTML node to the DOM");
+        const urls = pullActionUrls(content);
+        if (typeof(urls) !== "undefined") {
+            for (const url of urls) {
+                logUrl('Action Attribute', url);
+            };
+        }
         return "";
     };
     
@@ -299,8 +311,10 @@ function __getElementsByTagName(tag) {
 function __createElement(tag) {
     var fake_elem = {
         set src(url) {
+            // Looks like you can leave off the http from the url.
+            if (url.startsWith("//")) url = "https:" + url;
             logIOC('Remote Script', {url}, "The script set a remote script source.");
-            logUrl('Remote Script', {url});
+            logUrl('Remote Script', url);
         },
         log: [],
 	style: [],
@@ -350,6 +364,15 @@ function __createElement(tag) {
         click: function() {
             lib.info("click() method called on a document element.");
         },
+        insertAdjacentHTML: function(position, content) {
+            logIOC('DOM Write', {content}, "The script added a HTML node to the DOM");
+            const urls = pullActionUrls(content);
+            if (typeof(urls) !== "undefined") {
+                for (const url of urls) {
+                    logUrl('Action Attribute', url);
+                };
+            }
+        },
 	removeChild: function() {},
     };
     return fake_elem;
@@ -360,8 +383,14 @@ var navigator = {
     userAgent: 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.2; WOW64; Trident/6.0; .NET4.0E; .NET4.0C; .NET CLR 3.5.30729; .NET CLR 2.0.50727; .NET CLR 3.0.30729; Tablet PC 2.0; InfoPath.3)',
 };
 
-var _generic_append_func = function(item) {
-    logIOC('DOM Append', {item}, "The script added a HTML node to the DOM");
+var _generic_append_func = function(content) {
+    logIOC('DOM Write', {content}, "The script added a HTML node to the DOM");
+    const urls = pullActionUrls(content);
+    if (typeof(urls) !== "undefined") {
+        for (const url of urls) {
+            logUrl('Action Attribute', url);
+        };
+    }
     return "";
 };
 
@@ -410,7 +439,16 @@ var document = {
                         },
                         getAttribute: function(attrId) {
                             return this.attrs[attrId];
-                        }
+                        },
+                        insertAdjacentHTML: function(position, content) {
+                            logIOC('DOM Write', {content}, "The script added a HTML node to the DOM");
+                            const urls = pullActionUrls(content);
+                            if (typeof(urls) !== "undefined") {
+                                for (const url of urls) {
+                                    logUrl('Action Attribute', url);
+                                };
+                            }
+                        },
                     };
                     r.attrs = attrs[i];
                     this.elementCache[id] = r;
@@ -428,11 +466,23 @@ var document = {
     },
     write: function (content) {
         logIOC('DOM Write', {content}, 'The script wrote to the DOM')
+        const urls = pullActionUrls(content);
+        if (typeof(urls) !== "undefined") {
+            for (const url of urls) {
+                logUrl('Action Attribute', url);
+            };
+        }
         eval.apply(null, [extractJSFromHTA(content)]);
     },
-    appendChild: function(node) {
-        logIOC('DOM Append', {node}, "The script appended an HTML node to the DOM")
-        eval(extractJSFromHTA(node));
+    appendChild: function(content) {
+        logIOC('DOM Write', {content}, "The script appended an HTML node to the DOM")
+        const urls = pullActionUrls(content);
+        if (typeof(urls) !== "undefined") {
+            for (const url of urls) {
+                logUrl('Action Attribute', url);
+            };
+        }
+        eval(extractJSFromHTA(content));
     },
     insertBefore: function(node) {
 	logIOC('DOM Insert', {node}, "The script inserted an HTML node on the DOM")
@@ -732,3 +782,38 @@ function fetch(url) {
     lib.logIOC("fetch", {url: url}, "The script fetch()ed a URL.");
     lib.logUrl("fetch", url);
 };
+
+// Image class stub.
+class Image {
+
+    set src(url) {
+
+        // Looks like you can leave off the http from the url.
+        if (url.startsWith("//")) url = "https:" + url;
+        this.url = url;
+        lib.logIOC("Image.src", url, "The script set the source of an Image.");
+        lib.logUrl("Image.src", url);
+    };
+}
+
+// Pull URLs from action attributes of HTML.
+function pullActionUrls(html) {
+
+    // Sanity check.
+    if (typeof(html.match) == "undefined") return undefined;
+    
+    // Do we have action attributes?
+    const actPat = /action\s*=\s*"([^"]*)"/g;
+    const r = [];
+    for (const match of html.matchAll(actPat)) {
+        var currAct = match[1];
+        if (!currAct.startsWith("http") && !currAct.startsWith("//")) continue;
+        if (currAct.startsWith("//")) currAct = "https:" + currAct;
+        r.push(currAct);
+    }
+
+    // Do we have URLs in the action attribute values?
+    console.log(r);
+    if (r.length == 0) return undefined;
+    return r;
+}
