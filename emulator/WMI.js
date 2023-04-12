@@ -370,7 +370,12 @@ module.exports.GetObject = function(name) {
 	    return _class;
 	},
         Run: command => {
-            lib.logIOC("WMI.GetObject.Run", command, "The script executed a command.");
+            lib.logIOC("WMI.GetObject.Run", command, "The script executed a command with WMI.");
+	    lib.logSnippet(lib.getUUID(), {as: "command"}, command);
+	    return "";
+	},
+	Create: command => {
+            lib.logIOC("WMI.GetObject.Create", command, "The script created a process with WMI.");
 	    lib.logSnippet(lib.getUUID(), {as: "command"}, command);
 	    return "";
 	},
