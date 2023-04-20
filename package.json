@@ -18,7 +18,7 @@
         "system-registry": "^1.0.0",
         "uglify-es": "^3.3.9",
         "uuid": "^3.2.1",
-        "vm2": "^3.9.16",
+        "vm2": "^3.9.17",
         "walk-sync": "^0.3.2"
     },
     "devDependencies": {
