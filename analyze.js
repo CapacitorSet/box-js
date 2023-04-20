@@ -45,6 +45,11 @@ if (argv.encoding) {
 
 let code = iconv.decode(sampleBuffer, encoding);
 
+let rawcode;
+if (argv["activex-as-ioc"]) {
+    rawcode = iconv.decode(sampleBuffer, encoding);
+}
+
 if (code.match("<job") || code.match("<script")) { // The sample may actually be a .wsf, which is <job><script>..</script><script>..</script></job>.
     lib.debug("Sample seems to be WSF");
     code = code.replace(/<\??\/?\w+( [\w=\"\']*)*\??>/g, ""); // XML tags
@@ -729,8 +734,72 @@ if (argv["dangerous-vm"]) {
     }
 }
 
+function mapCLSID(clsid) {
+    switch (clsid) {
+    case "F935DC22-1CF0-11D0-ADB9-00C04FD58A0B":
+        return "wscript.shell";
+    case "000C1090-0000-0000-C000-000000000046":
+        return "windowsinstaller.installer";
+    case "00000566-0000-0010-8000-00AA006D2EA4":
+        return "adodb.stream";
+    case "00000535-0000-0010-8000-00AA006D2EA4":
+        return "adodb.recordset";
+    case "00000514-0000-0010-8000-00AA006D2EA4":
+        return "adodb.connection";
+    case "0E59F1D5-1FBE-11D0-8FF2-00A0D10038BC":
+        return "scriptcontrol";
+    case "0D43FE01-F093-11CF-8940-00A0C9054228":
+        return "scripting.filesystemobject";
+    case "EE09B103-97E0-11CF-978F-00A02463E06F":
+        return "scripting.dictionary";
+    case "13709620-C279-11CE-A49E-444553540000":
+        return "shell.application";
+    case "0002DF01-0000-0000-C000-000000000046":
+        return "internetexplorer.application";
+    case "F935DC26-1CF0-11D0-ADB9-00C04FD58A0B":
+        return "wscript.network";
+    case "76A64158-CB41-11D1-8B02-00600806D9B6":
+        return "wbemscripting.swbemlocator";
+    case "0E59F1D5-1FBE-11D0-8FF2-00A0D10038BC":
+        return "msscriptcontrol.scriptcontrol";
+    case "0F87369F-A4E5-4CFC-BD3E-73E6154572DD":
+        return "schedule.service";
+    default:
+        return null;
+    }
+}
+
 function ActiveXObject(name) {
+
+    // Check for use of encoded ActiveX object names.
     lib.verbose(`New ActiveXObject: ${name}`);
+    if (argv["activex-as-ioc"]) {
+        
+        // Handle ActiveX objects referred to by CLSID.
+        m = name.match(
+            /new\s*:\s*\{?([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\}?/i
+        );
+        if (m !== null) {
+            clsid = m[1].toUpperCase();
+            mappedname = mapCLSID(clsid);
+            if (mappedname !== null) {
+                name = mappedname;
+            }
+        }
+        
+        // Is the name obfuscated in the source? Note that if the name
+        // is given as a CLSID this will probably be true.
+        name_re = new RegExp(name, 'i');
+        pos = rawcode.search(name_re);
+        if (pos === -1) {
+            lib.logIOC("Obfuscated ActiveX Object",{name}, `The script created a new ActiveX object ${name}, but the string was not found in the source.`);
+        }
+        else {
+            lib.logIOC("ActiveX Object Created",{name}, `The script created a new ActiveX object ${name}`);
+        }
+    }
+
+    // Actually emulate the ActiveX object creation.
     name = name.toLowerCase();
     if (name.match("xmlhttp") || name.match("winhttprequest")) {
         return require("./emulator/XMLHTTP");
