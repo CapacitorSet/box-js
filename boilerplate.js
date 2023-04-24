@@ -769,13 +769,17 @@ class XMLHttpRequest {
         lib.logUrl("XMLHttpRequest", url);
     };
 
+    setRequestHeader(field, val) {
+        lib.logIOC("XMLHttpRequest", {field: field, value: val}, "The script set a HTTP header value.");
+    };
+    
     send() {};
 };
 
 // Some JS checks to see if these are defined. Do very basic stubbing
 // until better stubbing is needed.
-exports = {};
-module = {};
+var exports = {};
+//var module = {};
 
 // fetch API emulation.
 function fetch(url) {
