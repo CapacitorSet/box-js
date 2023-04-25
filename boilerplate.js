@@ -821,3 +821,14 @@ function pullActionUrls(html) {
     if (r.length == 0) return undefined;
     return r;
 }
+
+// Stubbing for chrome object. Currently does nothing.
+const chrome = {
+
+    extension: {
+        onMessage: {
+            addListener: function () {}
+        },            
+    },
+    
+};
