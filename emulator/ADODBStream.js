@@ -43,6 +43,7 @@ function ADODBStream() {
         return this.buffer;
     };
     this.write = this.writetext = function(text) {
+        lib.logIOC("ADODBStream", text, "The script wrote text to a stream.");
         if (this.charset) {
             this.buffer = iconv.encode(text, this.charset);
         } else
