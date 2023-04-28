@@ -79,15 +79,18 @@ function stripSingleLineComments(s) {
     return r;
 }
 
-function findStrs(s) {
+function hideStrs(s) {
     var inStrSingle = false;
     var inStrDouble = false;
     var currStr = undefined;
     var prevChar = "";
     var prevPrevChar = "";
-    var allStrs = [];
+    var allStrs = {};
     var escapedSlash = false;
     var prevEscapedSlash = false;
+    var counter = 1000000;
+    var r = "";
+    var skip = false;
     s = stripSingleLineComments(s);
     for (let i = 0; i < s.length; i++) {
 
@@ -106,7 +109,10 @@ function findStrs(s) {
 	    // Finished up a string we were tracking?
 	    if (!inStrSingle) {
 		currStr += "'";
-		allStrs.push(currStr);
+                const strName = "HIDE_" + counter++;
+                allStrs[strName] = currStr;
+                r += strName;
+                skip = true;
 	    }
 	    else {
 		currStr = "";
@@ -124,7 +130,10 @@ function findStrs(s) {
 	    // Finished up a string we were tracking?
 	    if (!inStrDouble) {
 		currStr += '"';
-		allStrs.push(currStr);
+                const strName = "HIDE_" + counter++;
+                allStrs[strName] = currStr;
+                r += strName;
+                skip = true;
 	    }
 	    else {
 		currStr = "";
@@ -132,7 +141,16 @@ function findStrs(s) {
 	};
 
 	// Save the current character if we are tracking a string.
-	if (inStrDouble || inStrSingle) currStr += currChar;
+	if (inStrDouble || inStrSingle) {
+            currStr += currChar;
+        }
+
+        // Not in a string. Just save the original character in the
+        // result string.
+        else if (!skip) {
+            r += currChar;
+        };
+        skip = false;
 
 	// Track what is now the previous character so we can handle
 	// escaped quotes in strings.
@@ -140,7 +158,43 @@ function findStrs(s) {
 	prevChar = currChar;
         prevEscapedSlash = escapedSlash;
     }
-    return allStrs;
+    return [r, allStrs];
+}
+
+function unhideStrs(s, map) {
+
+    // Replace each HIDE_NNNN with the hidden string.
+    var oldPos = 0;
+    var currPos = s.indexOf("HIDE_");
+    var r = "";
+    var done = (currPos < 0);
+    while (!done) {
+
+        // Add in the previous non-hidden string contents.
+        r += s.slice(oldPos, currPos);
+
+        // Pull out the name of the hidden string.
+        var tmpPos = currPos + "HIDE_".length + 7;
+
+        // Get the original string.
+        var hiddenName = s.slice(currPos, tmpPos);        
+        var origVal = map[hiddenName];
+        
+        // Add in the unhidden string.
+        r += origVal;
+
+        // Move to the next string to unhide.
+        oldPos = tmpPos;
+        currPos = s.slice(tmpPos).indexOf("HIDE_");
+        done = (currPos < 0);
+        currPos = tmpPos + currPos;
+    }
+
+    // Add in remaining original string that had nothing hidden.
+    r += s.slice(tmpPos);
+    
+    // Done.
+    return r;
 }
 
 // JScript lets you stick the actual code to run in a conditional
@@ -183,17 +237,10 @@ function rewrite(code) {
 
     // The following 2 code rewrites should not be applied to patterns
     // in string literals. Hide the string literals first.
-    var strMap = {};
     var counter = 1000000;
-    const strMatch = findStrs(code);
-    if (strMatch) {
-        strMatch.forEach(function (s) {
-            const strName = "HIDE_" + counter++;
-            strMap[strName] = s;
-            code = code.replace(new RegExp(escapeRegExp(s), "g"), strName);
-        });
-    }
-
+    const [newCode, strMap] = hideStrs(code);
+    code = newCode;
+    
     // Ugh. Some JS obfuscator peppers the code with spurious /*...*/
     // comments. Delete all /*...*/ comments.
     code = _removeComments(code);
@@ -208,14 +255,7 @@ function rewrite(code) {
     code = code.toString().replace(rvaluePat, ';/* ASSIGNING TO RVALUE */');
     
     // Now unhide the string literals.
-    Object.keys(strMap).forEach(function (strName) {
-	// '$' in the replacement string (!!) somehow seem to
-	// sometimes get handled as regex special characters. Hide
-	// them when doing the unhiding of string literals.
-	var origStr = strMap[strName].replace(/\$/g, "__DOLLAR__");
-        code = code.replace(new RegExp(strName, "g"), origStr);
-    });
-    code = code.replace(/__DOLLAR__/g, "$");
+    code = unhideStrs(code, strMap);
     
     // Some samples (for example that use JQuery libraries as a basis to which to
     // add malicious code) won't emulate properly for some reason if there is not
