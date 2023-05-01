@@ -11,6 +11,7 @@ const child_process = require("child_process");
 const argv = require("./argv.js").run;
 const jsdom = require("jsdom").JSDOM;
 const dom = new jsdom(`<html><head></head><body></body></html>`);
+const { DOMParser } = require('xmldom');
 
 const filename = process.argv[2];
 
@@ -845,12 +846,31 @@ function ActiveXObject(name) {
         return require("./emulator/XMLHTTP");
     }
     if (name.match("dom")) {
-        return {
-            createElement: require("./emulator/DOM"),
+        const r = {
+            createElement: function(tag) {
+                var r = this.document.createElement(tag);
+                r.text = "";
+                return r;
+            },
             load: (filename) => {
-                // console.log(`Loading ${filename} in a virtual DOM environment...`);
+                console.log(`Loading ${filename} in a virtual DOM environment...`);
+            },
+            loadXML: function(s) {
+                try {
+                    this.document = new DOMParser().parseFromString(s);
+                    this.documentElement = this.document.documentElement;
+                    this.documentElement.document = this.document;
+                    this.documentElement.createElement = function(tag) {
+                        var r = this.document.createElement(tag);
+                        r.text = "";
+                        return r;
+                    };
+                    return true;
+                }
+                catch (e) { return false; };
             },
         };
+        return r;
     }
 
     switch (name) {
