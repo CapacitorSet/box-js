@@ -628,9 +628,12 @@ var wscript_proxy = new Proxy({
     path: "C:\\TestFolder\\",
     scriptfullname: "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\CURRENT_SCRIPT_IN_FAKED_DIR.js",
     scriptname: "CURRENT_SCRIPT_IN_FAKED_DIR.js",
-    quit: function() {
-        lib.info("The sample called WScript.Quit(). Exiting.");
-        process.exit(0);
+    quit: function() {        
+        lib.logIOC("WScript", "Quit()", "The sample explcitly called WScript.Quit().");
+        //console.trace()
+        if (!argv["ignore-wscript-quit"]) {
+            process.exit(0);
+        }
     },
     get stderr() {
         lib.error("WScript.StdErr not implemented");

@@ -176,6 +176,11 @@
             "name": "activex-as-ioc",
             "type": "Boolean",
             "description": "Logs All ActiveX calls as IOC's and tries to determine if the call is obfuscated in the JS source."
+        },
+        {
+            "name": "ignore-wscript-quit",
+            "type": "Boolean",
+            "description": "Ignore calls to WSCript.Quit() and continue execution."
         }
     ],
     "export": [

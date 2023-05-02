@@ -273,6 +273,14 @@ var location = {
 
     // The location.reload() method reloads the current URL, like the Refresh button.
     reload: function() {},
+
+    // box-js specific. Used to tell when window.location is used as a string.
+    toString: function() {
+        // Should return the URL (href) but looks like some JS malware
+        // expects this to be the file URL for the sample.        
+        //return this.href;
+        return "file:///C:\Users\User\AppData\Roaming\CURRENT_SCRIPT_IN_FAKED_DIR.js"
+    },
 };
 
 function __getElementsByTagName(tag) {
@@ -532,6 +540,11 @@ var window = {
     eval: function(cmd) { eval(cmd); },
     resizeTo: function(a,b){},
     moveTo: function(a,b){},
+    open: function(url) {
+        if ((typeof(url) == "string") && (url.length > 0)){
+            logIOC('window.open()', {url}, "The script loaded a resource.");
+        }
+    },
     close: function(){},
     matchMedia: function(){ return {}; },
     atob: function(s){
@@ -570,6 +583,9 @@ var window = {
     },
     URL: URL,
 };
+window.self = window;
+window.top = window;
+self = window;
 
 // Initial stubbed object. Add items a needed.
 var screen = {
