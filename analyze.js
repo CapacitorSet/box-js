@@ -83,6 +83,7 @@ function stripSingleLineComments(s) {
 function hideStrs(s) {
     var inStrSingle = false;
     var inStrDouble = false;
+    var inComment = false;
     var currStr = undefined;
     var prevChar = "";
     var prevPrevChar = "";
@@ -95,11 +96,30 @@ function hideStrs(s) {
     s = stripSingleLineComments(s);
     for (let i = 0; i < s.length; i++) {
 
+        // Start comment?
+        var currChar = s[i];
+        inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle);
+        
+        // In /* */ comment?
+        if (inComment) {
+
+            // Save comment text unmoodified.
+            r += currChar;
+
+            // Out of comment?
+            if ((prevChar == "*") && (currChar == "/")) {
+                inComment = false;
+            }
+
+            // Keep going until we leave the comment.
+            prevChar = currChar;
+            continue;
+        }
+        
         // Looking at an escaped back slash (1 char back)?
         escapedSlash = (prevChar == "\\" && prevPrevChar == "\\");
         
 	// Start/end single quoted string?
-	var currChar = s[i];
 	if ((currChar == "'") &&
             ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash)) &&
             !inStrDouble) {
@@ -387,7 +407,7 @@ cc decoder.c -o decoder
                 lib.verbose("    Rewriting == checks...", false);
                 traverse(tree, equality_rewriter.rewriteScriptCheck);
             }
-            
+
             if (argv.preprocess) {
                 lib.verbose(`    Preprocessing with uglify-es v${require("uglify-es/package.json").version} (remove --preprocess to skip)...`, false);
                 const unsafe = !!argv["unsafe-preprocess"];
@@ -768,6 +788,10 @@ if (argv["dangerous-vm"]) {
     // Fake up Object.toString not being defined in cscript.exe.
     //code = "Object.prototype.toString = undefined;\n\n" + code;
 
+    // Run the document.body.onload() function if defined to simulate
+    // document loading.
+    code += "\nif ((typeof(document) != 'undefined') && (typeof(document.body) != 'undefined') && (typeof(document.body.onload) != 'undefined')) document.body.onload();\n"
+    
     try{
         vm.run(code);
     } catch (e) {

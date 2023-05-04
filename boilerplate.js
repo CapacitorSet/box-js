@@ -329,6 +329,9 @@ function __createElement(tag) {
 	appendChild: function() {
             return __createElement("__append__");
         },
+        append: function() {
+            return __createElement("__append__");
+        },
         attributes: {},
         setAttribute: function(name, val) {
             this.attributes[name] = val;
@@ -502,7 +505,11 @@ var document = {
     },
     createElement: __createElement,
     createTextNode: function(text) {},
-    addEventListener: function(tag, func) {},
+    addEventListener: function(tag, func) {
+        // Simulate the event happing by running the function.
+        logIOC("document.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
+        func();
+    },
     createAttribute: function(name) {
         logIOC('Document.createAttribute()', {name}, "The script added attribute '" + name + "' to the document.");
         return __createElement(name);
@@ -551,7 +558,11 @@ var window = {
         return atob(s);
     },
     setTimeout: function(f, i) {},
-    addEventListener: function(){},
+    addEventListener: function(tag, func) {
+        // Simulate the event happing by running the function.
+        logIOC("window.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
+        func();
+    },
     attachEvent: function(){},
     getComputedStyle: function(){
 	return ["??",
@@ -771,7 +782,11 @@ class XMLHttpRequest {
         this.url = null;
     };
 
-    addEventListener() {};
+    addEventListener(tag, func) {
+        // Simulate the event happing by running the function.
+        logIOC("XMLHttpRequest.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
+        func();
+    };
 
     open(method, url) {
         this.method = method;
