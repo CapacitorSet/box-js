@@ -121,7 +121,7 @@ function hideStrs(s) {
         
 	// Start/end single quoted string?
 	if ((currChar == "'") &&
-            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash)) &&
+            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash && inStrSingle)) &&
             !inStrDouble) {
 
 	    // Switch being in/out of string.
@@ -142,7 +142,7 @@ function hideStrs(s) {
 
 	// Start/end double quoted string?
 	if ((currChar == '"') &&
-            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash)) &&
+            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash && inStrDouble)) &&
             !inStrSingle) {
 
 	    // Switch being in/out of string.
