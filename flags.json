@@ -73,6 +73,11 @@
             "description": "The script engine to report in WScript.FullName and WScript.Name (ex. 'cscript.exe' or 'wscript.exe'). Default is wscript.exe."
         },
         {
+            "name": "fake-cl-args",
+            "type": "String",
+            "description": "Fake script command line arguments. In the string these should be comma separated."
+        },        
+        {
             "name": "no-kill",
             "type": "Boolean",
             "description": "Do not kill the application when runtime errors occur"

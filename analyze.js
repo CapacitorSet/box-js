@@ -617,21 +617,28 @@ if (argv["fake-script-engine"]) {
     fakeEngineShort = argv["fake-script-engine"];
 }
 var fakeEngineFull = "C:\\WINDOWS\\system32\\" + fakeEngineShort;
+// Fake command line options can be set with the --fake-cl-args option.
+var commandLineArgs = [];
+if (argv["fake-cl-args"]) {
+    commandLineArgs = argv["fake-cl-args"].split(",");
+}
 
+// Fake up the WScript object for Windows JScript.
 var wscript_proxy = new Proxy({
-    arguments: new Proxy((n) => `${n}th argument`, {
+    arguments: new Proxy((n) => commandLineArgs[n], {
         get: function(target, name) {
+            name = name.toString().toLowerCase();
             switch (name) {
-            case "Unnamed":
-                return [];
+            case "unnamed":
+                return commandLineArgs;
             case "length":
-                return 0;
-            case "ShowUsage":
+                return commandLineArgs.length;
+            case "showUsage":
                 return {
                     typeof: "unknown",
                 };
-            case "Named":
-                return [];
+            case "named":
+                return commandLineArgs;
             default:
                 return new Proxy(
                     target[name], {
