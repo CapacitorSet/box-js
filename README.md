@@ -92,6 +92,8 @@ cat ./*.results/active_urls.json | sort | uniq
     --prepended-code       Prepend the JavaScript in the given file to the sample prior to sandboxing
     --fake-script-engine   The script engine to report in WScript.FullName and WScript.Name (ex.           
                            'cscript.exe' or 'wscript.exe'). Default is wscript.exe.            
+    --fake-cl-args         Fake script command line arguments. In the string these should be comma         
+                           separated.
     --unsafe-preprocess    More aggressive preprocessing. Often results in better code, but can break on   
                            some edge cases (eg. redefining prototypes)                                     
     --no-kill              Do not kill the application when runtime errors occur                           
@@ -120,6 +122,12 @@ cat ./*.results/active_urls.json | sort | uniq
                            giving correct stack traces.                                                    
     --rewrite-loops        Rewrite some types of loops to make analysis faster                             
     --throttle-writes      Throttle reporting and data tracking of file writes that write a LOT of data
+    --extract-conditional-code Pull the actual code to analyze from JScript conditional comments (/*@if(...).  
+    --loose-script-name    Rewrite == checks so that comparisons of the current script name to a hard coded
+                           script name always return true.                                                 
+    --activex-as-ioc       Logs All ActiveX calls as IOC's and tries to determine if the call is obfuscated
+                           in the JS source.                                                               
+    --ignore-wscript-quit      Ignore calls to WSCript.Quit() and continue execution.                          
 <!--END_FLAGS-->
 
 # Analyzing the output
