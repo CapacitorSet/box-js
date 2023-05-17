@@ -11,7 +11,7 @@ function WScriptShell() {
 	appdata: argv["windows-xp"]
 	    ? "C:\\Documents and Settings\\User\\Application Data"
 	    : "C:\\Users\\User\\AppData\\Roaming",
-	computername: "USER-PC",
+	computername: "DOMAIN-CONTROLLER-1",
 	comspec: "%SystemRoot%\\system32\\cmd.exe",
 	os: "Windows_NT",
 	processor_revision: "0209",
@@ -22,7 +22,7 @@ function WScriptShell() {
 	tmp: "C:\\Users\\SYSOP1~1\\AppData\\Local\\Temp",
 	//temp: "C:\\DOCUME~1\\User\\LOCALS~1\\Temp",
 	temp: "C:\\Users\\SYSOP1~1\\AppData\\Local\\Temp",
-	username: "User",
+	username: "Sysop12",
 	userprofile: "C:\\Users\\Sysop12\\",
 	windir: "C:\\WINDOWS"
     };

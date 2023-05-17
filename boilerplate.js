@@ -273,6 +273,14 @@ var location = {
 
     // The location.reload() method reloads the current URL, like the Refresh button.
     reload: function() {},
+
+    // box-js specific. Used to tell when window.location is used as a string.
+    toString: function() {
+        // Should return the URL (href) but looks like some JS malware
+        // expects this to be the file URL for the sample.        
+        //return this.href;
+        return "file:///C:\Users\User\AppData\Roaming\CURRENT_SCRIPT_IN_FAKED_DIR.js"
+    },
 };
 
 function __getElementsByTagName(tag) {
@@ -319,6 +327,9 @@ function __createElement(tag) {
         log: [],
 	style: [],
 	appendChild: function() {
+            return __createElement("__append__");
+        },
+        append: function() {
             return __createElement("__append__");
         },
         attributes: {},
@@ -494,7 +505,11 @@ var document = {
     },
     createElement: __createElement,
     createTextNode: function(text) {},
-    addEventListener: function(tag, func) {},
+    addEventListener: function(tag, func) {
+        // Simulate the event happing by running the function.
+        logIOC("document.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
+        func();
+    },
     createAttribute: function(name) {
         logIOC('Document.createAttribute()', {name}, "The script added attribute '" + name + "' to the document.");
         return __createElement(name);
@@ -532,13 +547,22 @@ var window = {
     eval: function(cmd) { eval(cmd); },
     resizeTo: function(a,b){},
     moveTo: function(a,b){},
+    open: function(url) {
+        if ((typeof(url) == "string") && (url.length > 0)){
+            logIOC('window.open()', {url}, "The script loaded a resource.");
+        }
+    },
     close: function(){},
     matchMedia: function(){ return {}; },
     atob: function(s){
         return atob(s);
     },
     setTimeout: function(f, i) {},
-    addEventListener: function(){},
+    addEventListener: function(tag, func) {
+        // Simulate the event happing by running the function.
+        logIOC("window.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
+        func();
+    },
     attachEvent: function(){},
     getComputedStyle: function(){
 	return ["??",
@@ -570,6 +594,9 @@ var window = {
     },
     URL: URL,
 };
+window.self = window;
+window.top = window;
+self = window;
 
 // Initial stubbed object. Add items a needed.
 var screen = {
@@ -755,7 +782,11 @@ class XMLHttpRequest {
         this.url = null;
     };
 
-    addEventListener() {};
+    addEventListener(tag, func) {
+        // Simulate the event happing by running the function.
+        logIOC("XMLHttpRequest.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
+        func();
+    };
 
     open(method, url) {
         this.method = method;
@@ -769,13 +800,17 @@ class XMLHttpRequest {
         lib.logUrl("XMLHttpRequest", url);
     };
 
+    setRequestHeader(field, val) {
+        lib.logIOC("XMLHttpRequest", {field: field, value: val}, "The script set a HTTP header value.");
+    };
+    
     send() {};
 };
 
 // Some JS checks to see if these are defined. Do very basic stubbing
 // until better stubbing is needed.
-exports = {};
-module = {};
+var exports = {};
+//var module = {};
 
 // fetch API emulation.
 function fetch(url) {
@@ -817,3 +852,14 @@ function pullActionUrls(html) {
     if (r.length == 0) return undefined;
     return r;
 }
+
+// Stubbing for chrome object. Currently does nothing.
+const chrome = {
+
+    extension: {
+        onMessage: {
+            addListener: function () {}
+        },            
+    },
+    
+};

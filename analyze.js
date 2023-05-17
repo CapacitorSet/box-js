@@ -11,6 +11,7 @@ const child_process = require("child_process");
 const argv = require("./argv.js").run;
 const jsdom = require("jsdom").JSDOM;
 const dom = new jsdom(`<html><head></head><body></body></html>`);
+const { DOMParser } = require('xmldom');
 
 const filename = process.argv[2];
 
@@ -45,6 +46,11 @@ if (argv.encoding) {
 
 let code = iconv.decode(sampleBuffer, encoding);
 
+let rawcode;
+if (argv["activex-as-ioc"]) {
+    rawcode = iconv.decode(sampleBuffer, encoding);
+}
+
 if (code.match("<job") || code.match("<script")) { // The sample may actually be a .wsf, which is <job><script>..</script><script>..</script></job>.
     lib.debug("Sample seems to be WSF");
     code = code.replace(/<\??\/?\w+( [\w=\"\']*)*\??>/g, ""); // XML tags
@@ -74,25 +80,48 @@ function stripSingleLineComments(s) {
     return r;
 }
 
-function findStrs(s) {
+function hideStrs(s) {
     var inStrSingle = false;
     var inStrDouble = false;
+    var inComment = false;
     var currStr = undefined;
     var prevChar = "";
     var prevPrevChar = "";
-    var allStrs = [];
+    var allStrs = {};
     var escapedSlash = false;
     var prevEscapedSlash = false;
+    var counter = 1000000;
+    var r = "";
+    var skip = false;
     s = stripSingleLineComments(s);
     for (let i = 0; i < s.length; i++) {
 
+        // Start comment?
+        var currChar = s[i];
+        inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle);
+        
+        // In /* */ comment?
+        if (inComment) {
+
+            // Save comment text unmoodified.
+            r += currChar;
+
+            // Out of comment?
+            if ((prevChar == "*") && (currChar == "/")) {
+                inComment = false;
+            }
+
+            // Keep going until we leave the comment.
+            prevChar = currChar;
+            continue;
+        }
+        
         // Looking at an escaped back slash (1 char back)?
         escapedSlash = (prevChar == "\\" && prevPrevChar == "\\");
         
 	// Start/end single quoted string?
-	var currChar = s[i];
 	if ((currChar == "'") &&
-            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash)) &&
+            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash && inStrSingle)) &&
             !inStrDouble) {
 
 	    // Switch being in/out of string.
@@ -101,7 +130,10 @@ function findStrs(s) {
 	    // Finished up a string we were tracking?
 	    if (!inStrSingle) {
 		currStr += "'";
-		allStrs.push(currStr);
+                const strName = "HIDE_" + counter++;
+                allStrs[strName] = currStr;
+                r += strName;
+                skip = true;
 	    }
 	    else {
 		currStr = "";
@@ -110,7 +142,7 @@ function findStrs(s) {
 
 	// Start/end double quoted string?
 	if ((currChar == '"') &&
-            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash)) &&
+            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash && inStrDouble)) &&
             !inStrSingle) {
 
 	    // Switch being in/out of string.
@@ -119,7 +151,10 @@ function findStrs(s) {
 	    // Finished up a string we were tracking?
 	    if (!inStrDouble) {
 		currStr += '"';
-		allStrs.push(currStr);
+                const strName = "HIDE_" + counter++;
+                allStrs[strName] = currStr;
+                r += strName;
+                skip = true;
 	    }
 	    else {
 		currStr = "";
@@ -127,7 +162,16 @@ function findStrs(s) {
 	};
 
 	// Save the current character if we are tracking a string.
-	if (inStrDouble || inStrSingle) currStr += currChar;
+	if (inStrDouble || inStrSingle) {
+            currStr += currChar;
+        }
+
+        // Not in a string. Just save the original character in the
+        // result string.
+        else if (!skip) {
+            r += currChar;
+        };
+        skip = false;
 
 	// Track what is now the previous character so we can handle
 	// escaped quotes in strings.
@@ -135,7 +179,43 @@ function findStrs(s) {
 	prevChar = currChar;
         prevEscapedSlash = escapedSlash;
     }
-    return allStrs;
+    return [r, allStrs];
+}
+
+function unhideStrs(s, map) {
+
+    // Replace each HIDE_NNNN with the hidden string.
+    var oldPos = 0;
+    var currPos = s.indexOf("HIDE_");
+    var r = "";
+    var done = (currPos < 0);
+    while (!done) {
+
+        // Add in the previous non-hidden string contents.
+        r += s.slice(oldPos, currPos);
+
+        // Pull out the name of the hidden string.
+        var tmpPos = currPos + "HIDE_".length + 7;
+
+        // Get the original string.
+        var hiddenName = s.slice(currPos, tmpPos);        
+        var origVal = map[hiddenName];
+        
+        // Add in the unhidden string.
+        r += origVal;
+
+        // Move to the next string to unhide.
+        oldPos = tmpPos;
+        currPos = s.slice(tmpPos).indexOf("HIDE_");
+        done = (currPos < 0);
+        currPos = tmpPos + currPos;
+    }
+
+    // Add in remaining original string that had nothing hidden.
+    r += s.slice(tmpPos);
+    
+    // Done.
+    return r;
 }
 
 // JScript lets you stick the actual code to run in a conditional
@@ -178,17 +258,10 @@ function rewrite(code) {
 
     // The following 2 code rewrites should not be applied to patterns
     // in string literals. Hide the string literals first.
-    var strMap = {};
     var counter = 1000000;
-    const strMatch = findStrs(code);
-    if (strMatch) {
-        strMatch.forEach(function (s) {
-            const strName = "HIDE_" + counter++;
-            strMap[strName] = s;
-            code = code.replace(new RegExp(escapeRegExp(s), "g"), strName);
-        });
-    }
-
+    const [newCode, strMap] = hideStrs(code);
+    code = newCode;
+    
     // Ugh. Some JS obfuscator peppers the code with spurious /*...*/
     // comments. Delete all /*...*/ comments.
     code = _removeComments(code);
@@ -203,14 +276,7 @@ function rewrite(code) {
     code = code.toString().replace(rvaluePat, ';/* ASSIGNING TO RVALUE */');
     
     // Now unhide the string literals.
-    Object.keys(strMap).forEach(function (strName) {
-	// '$' in the replacement string (!!) somehow seem to
-	// sometimes get handled as regex special characters. Hide
-	// them when doing the unhiding of string literals.
-	var origStr = strMap[strName].replace(/\$/g, "__DOLLAR__");
-        code = code.replace(new RegExp(strName, "g"), origStr);
-    });
-    code = code.replace(/__DOLLAR__/g, "$");
+    code = unhideStrs(code, strMap);
     
     // Some samples (for example that use JQuery libraries as a basis to which to
     // add malicious code) won't emulate properly for some reason if there is not
@@ -341,7 +407,7 @@ cc decoder.c -o decoder
                 lib.verbose("    Rewriting == checks...", false);
                 traverse(tree, equality_rewriter.rewriteScriptCheck);
             }
-            
+
             if (argv.preprocess) {
                 lib.verbose(`    Preprocessing with uglify-es v${require("uglify-es/package.json").version} (remove --preprocess to skip)...`, false);
                 const unsafe = !!argv["unsafe-preprocess"];
@@ -551,21 +617,28 @@ if (argv["fake-script-engine"]) {
     fakeEngineShort = argv["fake-script-engine"];
 }
 var fakeEngineFull = "C:\\WINDOWS\\system32\\" + fakeEngineShort;
+// Fake command line options can be set with the --fake-cl-args option.
+var commandLineArgs = [];
+if (argv["fake-cl-args"]) {
+    commandLineArgs = argv["fake-cl-args"].split(",");
+}
 
+// Fake up the WScript object for Windows JScript.
 var wscript_proxy = new Proxy({
-    arguments: new Proxy((n) => `${n}th argument`, {
+    arguments: new Proxy((n) => commandLineArgs[n], {
         get: function(target, name) {
+            name = name.toString().toLowerCase();
             switch (name) {
-            case "Unnamed":
-                return [];
+            case "unnamed":
+                return commandLineArgs;
             case "length":
-                return 0;
-            case "ShowUsage":
+                return commandLineArgs.length;
+            case "showUsage":
                 return {
                     typeof: "unknown",
                 };
-            case "Named":
-                return [];
+            case "named":
+                return commandLineArgs;
             default:
                 return new Proxy(
                     target[name], {
@@ -582,9 +655,12 @@ var wscript_proxy = new Proxy({
     path: "C:\\TestFolder\\",
     scriptfullname: "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\CURRENT_SCRIPT_IN_FAKED_DIR.js",
     scriptname: "CURRENT_SCRIPT_IN_FAKED_DIR.js",
-    quit: function() {
-        lib.info("The sample called WScript.Quit(). Exiting.");
-        process.exit(0);
+    quit: function() {        
+        lib.logIOC("WScript", "Quit()", "The sample explcitly called WScript.Quit().");
+        //console.trace()
+        if (!argv["ignore-wscript-quit"]) {
+            process.exit(0);
+        }
     },
     get stderr() {
         lib.error("WScript.StdErr not implemented");
@@ -719,6 +795,10 @@ if (argv["dangerous-vm"]) {
     // Fake up Object.toString not being defined in cscript.exe.
     //code = "Object.prototype.toString = undefined;\n\n" + code;
 
+    // Run the document.body.onload() function if defined to simulate
+    // document loading.
+    code += "\nif ((typeof(document) != 'undefined') && (typeof(document.body) != 'undefined') && (typeof(document.body.onload) != 'undefined')) document.body.onload();\n"
+    
     try{
         vm.run(code);
     } catch (e) {
@@ -729,19 +809,102 @@ if (argv["dangerous-vm"]) {
     }
 }
 
+function mapCLSID(clsid) {
+    switch (clsid) {
+    case "F935DC22-1CF0-11D0-ADB9-00C04FD58A0B":
+        return "wscript.shell";
+    case "000C1090-0000-0000-C000-000000000046":
+        return "windowsinstaller.installer";
+    case "00000566-0000-0010-8000-00AA006D2EA4":
+        return "adodb.stream";
+    case "00000535-0000-0010-8000-00AA006D2EA4":
+        return "adodb.recordset";
+    case "00000514-0000-0010-8000-00AA006D2EA4":
+        return "adodb.connection";
+    case "0E59F1D5-1FBE-11D0-8FF2-00A0D10038BC":
+        return "scriptcontrol";
+    case "0D43FE01-F093-11CF-8940-00A0C9054228":
+        return "scripting.filesystemobject";
+    case "EE09B103-97E0-11CF-978F-00A02463E06F":
+        return "scripting.dictionary";
+    case "13709620-C279-11CE-A49E-444553540000":
+        return "shell.application";
+    case "0002DF01-0000-0000-C000-000000000046":
+        return "internetexplorer.application";
+    case "F935DC26-1CF0-11D0-ADB9-00C04FD58A0B":
+        return "wscript.network";
+    case "76A64158-CB41-11D1-8B02-00600806D9B6":
+        return "wbemscripting.swbemlocator";
+    case "0E59F1D5-1FBE-11D0-8FF2-00A0D10038BC":
+        return "msscriptcontrol.scriptcontrol";
+    case "0F87369F-A4E5-4CFC-BD3E-73E6154572DD":
+        return "schedule.service";
+    default:
+        return null;
+    }
+}
+
 function ActiveXObject(name) {
+
+    // Check for use of encoded ActiveX object names.
     lib.verbose(`New ActiveXObject: ${name}`);
+    if (argv["activex-as-ioc"]) {
+        
+        // Handle ActiveX objects referred to by CLSID.
+        m = name.match(
+            /new\s*:\s*\{?([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})\}?/i
+        );
+        if (m !== null) {
+            clsid = m[1].toUpperCase();
+            mappedname = mapCLSID(clsid);
+            if (mappedname !== null) {
+                name = mappedname;
+            }
+        }
+        
+        // Is the name obfuscated in the source? Note that if the name
+        // is given as a CLSID this will probably be true.
+        name_re = new RegExp(name, 'i');
+        pos = rawcode.search(name_re);
+        if (pos === -1) {
+            lib.logIOC("Obfuscated ActiveX Object",{name}, `The script created a new ActiveX object ${name}, but the string was not found in the source.`);
+        }
+        else {
+            lib.logIOC("ActiveX Object Created",{name}, `The script created a new ActiveX object ${name}`);
+        }
+    }
+
+    // Actually emulate the ActiveX object creation.
     name = name.toLowerCase();
     if (name.match("xmlhttp") || name.match("winhttprequest")) {
         return require("./emulator/XMLHTTP");
     }
     if (name.match("dom")) {
-        return {
-            createElement: require("./emulator/DOM"),
+        const r = {
+            createElement: function(tag) {
+                var r = this.document.createElement(tag);
+                r.text = "";
+                return r;
+            },
             load: (filename) => {
-                // console.log(`Loading ${filename} in a virtual DOM environment...`);
+                console.log(`Loading ${filename} in a virtual DOM environment...`);
+            },
+            loadXML: function(s) {
+                try {
+                    this.document = new DOMParser().parseFromString(s);
+                    this.documentElement = this.document.documentElement;
+                    this.documentElement.document = this.document;
+                    this.documentElement.createElement = function(tag) {
+                        var r = this.document.createElement(tag);
+                        r.text = "";
+                        return r;
+                    };
+                    return true;
+                }
+                catch (e) { return false; };
             },
         };
+        return r;
     }
 
     switch (name) {
