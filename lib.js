@@ -206,7 +206,7 @@ module.exports = {
 	process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 	logUrl(method, url);
 	logIOC("UrlFetch", {method, url, headers, body}, "The script fetched an URL.");
-	if (!doDownload) {
+	if (!argv.download) {
 	    lib.info("Returning HTTP 404 (Not found); use --download to try to download the payload");
 	    return {
 		body: new Buffer(""),
