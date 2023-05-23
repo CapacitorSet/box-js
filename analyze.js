@@ -617,10 +617,36 @@ if (argv["fake-script-engine"]) {
     fakeEngineShort = argv["fake-script-engine"];
 }
 var fakeEngineFull = "C:\\WINDOWS\\system32\\" + fakeEngineShort;
+
 // Fake command line options can be set with the --fake-cl-args option.
 var commandLineArgs = [];
 if (argv["fake-cl-args"]) {
     commandLineArgs = argv["fake-cl-args"].split(",");
+}
+
+// Fake sample file name can be set with the --fake-sample-name option.
+var sampleName = "CURRENT_SCRIPT_IN_FAKED_DIR.js";
+var sampleFullName = "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\" + sampleName;
+if (argv["fake-sample-name"]) {
+
+    // Sample name with full path?
+    var dirChar = undefined;
+    if (argv["fake-sample-name"].indexOf("\\") >= 0) {
+        dirChar = "\\";
+    }
+    if (argv["fake-sample-name"].indexOf("/") >= 0) {
+        dirChar = "/";
+    }
+    if (dirChar) {
+
+        // Break out the immediate sample name and full name.
+        sampleName = argv["fake-sample-name"].slice(argv["fake-sample-name"].lastIndexOf(dirChar) + 1);
+        sampleFullName = argv["fake-sample-name"];
+    }
+    else {
+        sampleName = argv["fake-sample-name"];
+        sampleFullName = "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\" + sampleName;
+    }
 }
 
 // Fake up the WScript object for Windows JScript.
@@ -653,8 +679,8 @@ var wscript_proxy = new Proxy({
     fullname: fakeEngineFull,
     name: fakeEngineShort,
     path: "C:\\TestFolder\\",
-    scriptfullname: "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\CURRENT_SCRIPT_IN_FAKED_DIR.js",
-    scriptname: "CURRENT_SCRIPT_IN_FAKED_DIR.js",
+    scriptfullname: sampleFullName,
+    scriptname: sampleName,
     quit: function() {        
         lib.logIOC("WScript", "Quit()", "The sample explcitly called WScript.Quit().");
         //console.trace()
