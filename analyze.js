@@ -647,6 +647,14 @@ if (argv["fake-sample-name"]) {
         sampleName = argv["fake-sample-name"];
         sampleFullName = "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\" + sampleName;
     }
+    lib.logIOC("Sample Name",
+               {"sample-name": sampleName, "sample-name-full": sampleFullName},
+               "Using fake sample file name " + sampleFullName + " when analyzing.");
+}
+else {
+    lib.logIOC("Sample Name",
+               {"sample-name": sampleName, "sample-name-full": sampleFullName},
+               "Using standard fake sample file name " + sampleFullName + " when analyzing.");
 }
 
 // Fake up the WScript object for Windows JScript.
