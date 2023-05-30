@@ -362,6 +362,8 @@ If you run into unexpected results, try uncommenting lines that look like
                     },
                 });
             } catch (e) {
+                //console.log("!!!! CODE !!!!");
+                //console.log(code);
                 lib.error("Couldn't parse with Acorn:");
                 lib.error(e);
                 lib.error("");

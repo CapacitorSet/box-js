@@ -5,6 +5,7 @@ const path = require("path");
 const request = require("sync-request");
 const uuid = require("uuid");
 const argv = require("./argv.js").run;
+const fakeFiles = require("./emulator/FakeFiles");
 
 const directory = path.normalize(process.argv[3]);
 
@@ -250,6 +251,11 @@ module.exports = {
     },
     readFile: function(filename) {
 	logIOC("FileRead", {file: filename}, "The script read a file.");
+        // Do we have some fake contents for this file?
+        const r = fakeFiles.ReadFakeFileContents(filename);
+        if (typeof(r) !== "undefined") {
+            return r;
+        }
 	return files[filename];
     },
     logUrl,
