@@ -35,24 +35,38 @@ function XMLHTTP() {
 	    lib.info(`Data sent to ${this.url}:`, data);
 	this.readystate = 4;
 	let response;
-	try {
-	    response = lib.fetchUrl(this.method, this.url, this.headers, data);
-	    if (argv.download) {
-		this.status = 200;
-		this.statustext = "OK";
-	    } else {
-		this.status = 404;
-		this.statustext = "Not found";
-	    }
-	} catch (e) {
-	    // If there was an error fetching the URL, pretend that the distribution site is down
-	    this.status = 404;
-	    this.statustext = "Not found";
-	    response = {
-		body: new Buffer(""),
-		headers: {},
+
+        // Track the initial request.
+	response = lib.fetchUrl(this.method, this.url, this.headers, data);
+        
+        // Fake that the request worked?
+        if (argv["fake-download"]) {
+	    this.status = 200;
+	    this.statustext = "OK";
+        }
+
+        // Not faking request.
+        else {
+	    try {
+                                
+                // Actually try the request?
+	        if (argv.download) {
+		    this.status = 200;
+		    this.statustext = "OK";
+	        } else {
+		    this.status = 404;
+		    this.statustext = "Not found";
+	        };
+	    } catch (e) {
+	        // If there was an error fetching the URL, pretend that the distribution site is down
+	        this.status = 404;
+	        this.statustext = "Not found";
+	        response = {
+		    body: new Buffer(""),
+		    headers: {},
+	        };
 	    };
-	}
+        };
 	this.responsebody = response.body;
 	this.responsetext = this.responsebody.toString("utf8");
 	this.responseheaders = response.headers;
