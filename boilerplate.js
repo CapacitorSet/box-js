@@ -310,6 +310,17 @@ function __getElementsByTagName(tag) {
                 "title" : "My Fake Title",
                 style: {},
                 getAttribute: function() { return {}; },
+                addEventListener: function(tag, func) {
+                    // Simulate the event happing by running the function.
+                    logIOC("document.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
+                    func();
+                },
+                "classList" : {
+                    add: function() {},
+                    remove: function() {},
+                    trigger: function() {},
+                    special: {},
+                },
             };
         }
     });
@@ -319,8 +330,21 @@ function __getElementsByTagName(tag) {
 function __createElement(tag) {
     var fake_elem = {
         set src(url) {
+
             // Looks like you can leave off the http from the url.
             if (url.startsWith("//")) url = "https:" + url;
+
+            // Is the script source base64 encoded?
+            if (url.startsWith("data:text/html;base64,")) {
+
+                // Strip off the HTML info.
+                url = url.slice("data:text/html;base64,".length)
+
+                // Decode the base64.
+                url = atob(url);
+            }
+
+            // Save the IOC.
             logIOC('Remote Script', {url}, "The script set a remote script source.");
             logUrl('Remote Script', url);
         },
@@ -361,6 +385,7 @@ function __createElement(tag) {
             nodeType: 3,
         },
         getElementsByTagName: __getElementsByTagName,
+        getElementsByClassName: __getElementsByTagName,
         // Probably wrong, fix this if it causes problems.
         querySelector: function(tag) {
             return __createElement(tag);
@@ -385,6 +410,12 @@ function __createElement(tag) {
             }
         },
 	removeChild: function() {},
+        "classList" : {
+            add: function() {},
+            remove: function() {},
+            trigger: function() {},
+            special: {},
+        },        
     };
     return fake_elem;
 };
@@ -500,6 +531,7 @@ var document = {
         eval(extractJSFromHTA(node));
     },
     getElementsByTagName: __getElementsByTagName,
+    getElementsByClassName: __getElementsByTagName,
     createDocumentFragment: function() {
         return __createElement("__doc_fragment__");
     },
@@ -848,7 +880,6 @@ function pullActionUrls(html) {
     }
 
     // Do we have URLs in the action attribute values?
-    console.log(r);
     if (r.length == 0) return undefined;
     return r;
 }
