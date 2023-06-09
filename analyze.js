@@ -74,6 +74,7 @@ function stripSingleLineComments(s) {
     var r = "";
     for (const line of lines) {
         var lineStrip = line.trim();
+        // Full line comment?
         if (lineStrip.startsWith("//")) continue;
         r += line + "\n";
     }
@@ -84,6 +85,7 @@ function hideStrs(s) {
     var inStrSingle = false;
     var inStrDouble = false;
     var inComment = false;
+    var inCommentSingle = false;
     var currStr = undefined;
     var prevChar = "";
     var prevPrevChar = "";
@@ -96,19 +98,38 @@ function hideStrs(s) {
     s = stripSingleLineComments(s);
     for (let i = 0; i < s.length; i++) {
 
-        // Start comment?
+        // Start /* */ comment?
         var currChar = s[i];
         inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle);
         
         // In /* */ comment?
         if (inComment) {
 
-            // Save comment text unmoodified.
+            // Save comment text unmodified.
             r += currChar;
 
             // Out of comment?
             if ((prevChar == "*") && (currChar == "/")) {
                 inComment = false;
+            }
+
+            // Keep going until we leave the comment.
+            prevChar = currChar;
+            continue;
+        }
+
+        // Start // comment?
+        inCommentSingle = inCommentSingle || ((prevChar == "/") && (currChar == "/") && !inStrDouble && !inStrSingle);
+        
+        // In // comment?
+        if (inCommentSingle) {
+
+            // Save comment text unmodified.
+            r += currChar;
+
+            // Out of comment?
+            if (currChar == "\n") {
+                inCommentSingle = false;
             }
 
             // Keep going until we leave the comment.
@@ -354,6 +375,8 @@ If you run into unexpected results, try uncommenting lines that look like
 
             let tree;
             try {
+                //console.log("!!!! CODE !!!!");
+                //console.log(code);                
                 tree = acorn.parse(code, {
                     allowReturnOutsideFunction: true, // used when rewriting function bodies
                     plugins: {
@@ -362,8 +385,6 @@ If you run into unexpected results, try uncommenting lines that look like
                     },
                 });
             } catch (e) {
-                //console.log("!!!! CODE !!!!");
-                //console.log(code);
                 lib.error("Couldn't parse with Acorn:");
                 lib.error(e);
                 lib.error("");
