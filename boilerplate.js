@@ -209,7 +209,7 @@ var location = {
        page. It can be set from a different origin than the associated
        document.
     */
-    href: 'http://mylegitdomain.com:2112/and/i/have/a/path.php',
+    href: 'http://mylegitdomain.com:2112/and/i/have/a/path.php#tag?var1=12&ref=otherlegitdomain.moe',
 
     /* 
        Location.protocol
