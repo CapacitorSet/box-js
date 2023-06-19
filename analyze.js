@@ -377,6 +377,7 @@ If you run into unexpected results, try uncommenting lines that look like
             try {
                 //console.log("!!!! CODE !!!!");
                 //console.log(code);                
+                //console.log("!!!! CODE !!!!");
                 tree = acorn.parse(code, {
                     allowReturnOutsideFunction: true, // used when rewriting function bodies
                     plugins: {
@@ -922,6 +923,7 @@ function ActiveXObject(name) {
         
         // Is the name obfuscated in the source? Note that if the name
         // is given as a CLSID this will probably be true.
+        //console.log((new Error()).stack);
         name_re = new RegExp(name, 'i');
         pos = rawcode.search(name_re);
         if (pos === -1) {

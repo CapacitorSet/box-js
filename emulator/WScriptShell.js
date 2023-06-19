@@ -47,20 +47,30 @@ function WScriptShell() {
 
     this.environment1 = undefined;
     this.specialfolders = (x) => `(Special folder ${x})`;
-    this.createshortcut = (x) => ({
-        name: x,
-        save: function() {
-            var name = "???";
-            if (typeof(this.name) !== "undefined") {
-                name = this.name;
-            };
-            var cmd = "???";
-            if ((typeof(this.targetPath) !== "undefined") && (typeof(this.arguments) !== "undefined")) {
-                cmd = "" + this.targetPath + " " + this.arguments;
+    this.createshortcut = function(shortcut) {
+
+        // Thrown error for things that don't look like MS shortcuts.
+        const shortcutS = shortcut.trim();
+        if (!shortcutS.endsWith(".lnk") &&
+            !shortcutS.endsWith(".URL") &&
+            !shortcutS.endsWith(".url")) throw "Shortcut '" + shortcutS + "' is invalid.";
+
+        // Valid shortcut file name. Return a fake shortcut object.
+        return {
+            name: shortcut,
+            Save: function() {
+                var name = "???";
+                if (typeof(this.name) !== "undefined") {
+                    name = this.name;
+                };
+                var cmd = "???";
+                if ((typeof(this.targetPath) !== "undefined") && (typeof(this.arguments) !== "undefined")) {
+                    cmd = "" + this.targetPath + " " + this.arguments;
+                }
+                lib.logIOC("CreateShortcut", {name: name, cmd: cmd}, "The script saved a shortcut.");
             }
-            lib.logIOC("CreateShortcut", {name: name, cmd: cmd}, "The script saved a shortcut.");
-        }
-    });
+        };
+    };
     this.expandenvironmentstrings = (path) => {
 	Object.keys(vars).forEach(key => {
 
