@@ -16,7 +16,8 @@ const { DOMParser } = require('xmldom');
 const filename = process.argv[2];
 
 // JScriptMemberFunctionStatement plugin registration
-require("./patches/prototype-plugin.js")(acorn);
+// Plugin system is now different in Acorn 8.*, so commenting out.
+//require("./patches/prototype-plugin.js")(acorn);
 
 lib.debug("Analysis launched: " + JSON.stringify(process.argv));
 lib.verbose("Box-js version: " + require("./package.json").version);
@@ -379,6 +380,7 @@ If you run into unexpected results, try uncommenting lines that look like
                 //console.log(code);                
                 //console.log("!!!! CODE !!!!");
                 tree = acorn.parse(code, {
+                    ecmaVersion: "latest",
                     allowReturnOutsideFunction: true, // used when rewriting function bodies
                     plugins: {
                         // enables acorn plugin needed by prototype rewrite

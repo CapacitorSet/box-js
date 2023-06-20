@@ -5,6 +5,8 @@
  * Required by prototype.js patch
  */
 
+// Needs to be revisited to work with Acorn 8.* plugin system.
+// Check to see if this is handled natively by Acorn 8.*.
 module.exports = function(acorn) {
     acorn.plugins.JScriptMemberFunctionStatement = function(parser) {
         parser.extend("parseFunction", function(base) {
