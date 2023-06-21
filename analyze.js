@@ -101,13 +101,17 @@ function hideStrs(s) {
 
         // Start /* */ comment?
         var currChar = s[i];
-        inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle);
+	var oldInComment = inComment;
+        inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle && !inCommentSingle);
         
         // In /* */ comment?
         if (inComment) {
 
-            // Save comment text unmodified.
-            r += currChar;
+	    // We are stripping /* */ comments, so drop the '/' if we
+	    // just entered the comment.
+	    if (oldInComment != inComment) r = r.slice(0, -1);
+	    
+	    // Dropping /* */ comments, so don't save current char.
 
             // Out of comment?
             if ((prevChar == "*") && (currChar == "/")) {
@@ -120,7 +124,7 @@ function hideStrs(s) {
         }
 
         // Start // comment?
-        inCommentSingle = inCommentSingle || ((prevChar == "/") && (currChar == "/") && !inStrDouble && !inStrSingle);
+        inCommentSingle = inCommentSingle || ((prevChar == "/") && (currChar == "/") && !inStrDouble && !inStrSingle && !inComment);
         
         // In // comment?
         if (inCommentSingle) {
@@ -256,22 +260,6 @@ function extractCode(code) {
     return r;
 }
 
-function _removeComments(code) {
-    var remaining = code;
-    var r = "";
-    pos = remaining.indexOf("/*");
-    while (pos >= 0) {
-        r += remaining.slice(0, pos);
-        const next = remaining.indexOf("*/");
-        remaining = remaining.slice(next + 2);
-        pos = remaining.indexOf("/*");
-        if (next < 0) break;
-    }    
-    if (pos < 0) r += remaining;
-    
-    return r;
-}
-
 function rewrite(code) {
 
     // box-js is assuming that the JS will be run on Windows with cscript or wscript.
@@ -281,14 +269,12 @@ function rewrite(code) {
 
     // The following 2 code rewrites should not be applied to patterns
     // in string literals. Hide the string literals first.
+    //
+    // This also strips all comments.
     var counter = 1000000;
     const [newCode, strMap] = hideStrs(code);
     code = newCode;
-    
-    // Ugh. Some JS obfuscator peppers the code with spurious /*...*/
-    // comments. Delete all /*...*/ comments.
-    code = _removeComments(code);
-    
+        
     // WinHTTP ActiveX objects let you set options like 'foo.Option(n)
     // = 12'. Acorn parsing fails on these with a assigning to rvalue
     // syntax error, so rewrite things like this so we can parse
