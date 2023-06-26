@@ -777,7 +777,13 @@ const sandbox = {
     console: {
         //log: (x) => console.log(x),
         //log: (x) => lib.info("Script output: " + JSON.stringify(x)),
-        log: (x) => lib.info("Script output: " + x),
+        log: function (x) {
+            lib.info("Script output: " + x);
+            // Log evals of JS downloaded from a C2 if needed.
+            if (x === "EXECUTED DOWNLOADED PAYLOAD") {
+                lib.logIOC("PayloadExec", x, "The script executed JS returned from a C2 server.");
+            }
+        },
     },
     Enumerator: require("./emulator/Enumerator"),
     GetObject: require("./emulator/WMI").GetObject,

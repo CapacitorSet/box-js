@@ -210,9 +210,9 @@ module.exports = {
 
         // Fake that the request worked?
         if (argv["fake-download"]) {
-            log("info", "Returning HTTP 200 (Success) with fake response payload 'DOWNLOADED PAYLOAD'");
+            log("info", "Returning HTTP 200 (Success) with fake response payload 'console.log(\"EXECUTED DOWNLOADED PAYLOAD\");'");
 	    return {
-		body: new Buffer("DOWNLOADED PAYLOAD"),
+		body: new Buffer("console.log(\"EXECUTED DOWNLOADED PAYLOAD\");"),
 		headers: {},
 	    };
         }        
