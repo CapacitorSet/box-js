@@ -76,7 +76,17 @@
             "name": "fake-cl-args",
             "type": "String",
             "description": "Fake script command line arguments. In the string these should be comma separated."
-        },        
+        },
+        {
+            "name": "fake-sample-name",
+            "type": "String",
+            "description": "Fake file name to use for the sample being analyzed. Can be a full path or just the file name to use. If you have '\\' in the path escape them as '\\\\' in this command line argument value (ex. --fake-sample-name=C:\\\\foo\\\\bar.js)."
+        },
+        {
+            "name": "fake-download",
+            "type": "Boolean",
+            "description": "Fake that HTTP requests work and have them return a fake payload"
+        },
         {
             "name": "no-kill",
             "type": "Boolean",

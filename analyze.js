@@ -16,7 +16,8 @@ const { DOMParser } = require('xmldom');
 const filename = process.argv[2];
 
 // JScriptMemberFunctionStatement plugin registration
-require("./patches/prototype-plugin.js")(acorn);
+// Plugin system is now different in Acorn 8.*, so commenting out.
+//require("./patches/prototype-plugin.js")(acorn);
 
 lib.debug("Analysis launched: " + JSON.stringify(process.argv));
 lib.verbose("Box-js version: " + require("./package.json").version);
@@ -74,6 +75,7 @@ function stripSingleLineComments(s) {
     var r = "";
     for (const line of lines) {
         var lineStrip = line.trim();
+        // Full line comment?
         if (lineStrip.startsWith("//")) continue;
         r += line + "\n";
     }
@@ -84,6 +86,7 @@ function hideStrs(s) {
     var inStrSingle = false;
     var inStrDouble = false;
     var inComment = false;
+    var inCommentSingle = false;
     var currStr = undefined;
     var prevChar = "";
     var prevPrevChar = "";
@@ -96,19 +99,42 @@ function hideStrs(s) {
     s = stripSingleLineComments(s);
     for (let i = 0; i < s.length; i++) {
 
-        // Start comment?
+        // Start /* */ comment?
         var currChar = s[i];
-        inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle);
+	var oldInComment = inComment;
+        inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle && !inCommentSingle);
         
         // In /* */ comment?
         if (inComment) {
 
-            // Save comment text unmoodified.
-            r += currChar;
+	    // We are stripping /* */ comments, so drop the '/' if we
+	    // just entered the comment.
+	    if (oldInComment != inComment) r = r.slice(0, -1);
+	    
+	    // Dropping /* */ comments, so don't save current char.
 
             // Out of comment?
             if ((prevChar == "*") && (currChar == "/")) {
                 inComment = false;
+            }
+
+            // Keep going until we leave the comment.
+            prevChar = currChar;
+            continue;
+        }
+
+        // Start // comment?
+        inCommentSingle = inCommentSingle || ((prevChar == "/") && (currChar == "/") && !inStrDouble && !inStrSingle && !inComment);
+        
+        // In // comment?
+        if (inCommentSingle) {
+
+            // Save comment text unmodified.
+            r += currChar;
+
+            // Out of comment?
+            if (currChar == "\n") {
+                inCommentSingle = false;
             }
 
             // Keep going until we leave the comment.
@@ -225,27 +251,12 @@ function extractCode(code) {
 
     // See if we can pull code out from conditional comments.
     // /*@if(@_jscript_version >= 4) ... @else @*/
-    const commentPat = /\/\*@if\s*\([^\)]+\)(.+?)@else\s*@\s*\*\//
+    // /*@if(1) ... @end@*/
+    const commentPat = /\/\*@if\s*\([^\)]+\)(.+?)@(else|end)\s*@\s*\*\//
     const codeMatch = code.match(commentPat);
     if (!codeMatch) return code;
     var r = codeMatch[1];
     lib.info("Extracted code to analyze from conditional JScript comment.");
-    return r;
-}
-
-function _removeComments(code) {
-    var remaining = code;
-    var r = "";
-    pos = remaining.indexOf("/*");
-    while (pos >= 0) {
-        r += remaining.slice(0, pos);
-        const next = remaining.indexOf("*/");
-        remaining = remaining.slice(next + 2);
-        pos = remaining.indexOf("/*");
-        if (next < 0) break;
-    }    
-    if (pos < 0) r += remaining;
-    
     return r;
 }
 
@@ -258,14 +269,12 @@ function rewrite(code) {
 
     // The following 2 code rewrites should not be applied to patterns
     // in string literals. Hide the string literals first.
+    //
+    // This also strips all comments.
     var counter = 1000000;
     const [newCode, strMap] = hideStrs(code);
     code = newCode;
-    
-    // Ugh. Some JS obfuscator peppers the code with spurious /*...*/
-    // comments. Delete all /*...*/ comments.
-    code = _removeComments(code);
-    
+        
     // WinHTTP ActiveX objects let you set options like 'foo.Option(n)
     // = 12'. Acorn parsing fails on these with a assigning to rvalue
     // syntax error, so rewrite things like this so we can parse
@@ -353,7 +362,11 @@ If you run into unexpected results, try uncommenting lines that look like
 
             let tree;
             try {
+                //console.log("!!!! CODE !!!!");
+                //console.log(code);                
+                //console.log("!!!! CODE !!!!");
                 tree = acorn.parse(code, {
+                    ecmaVersion: "latest",
                     allowReturnOutsideFunction: true, // used when rewriting function bodies
                     plugins: {
                         // enables acorn plugin needed by prototype rewrite
@@ -617,10 +630,44 @@ if (argv["fake-script-engine"]) {
     fakeEngineShort = argv["fake-script-engine"];
 }
 var fakeEngineFull = "C:\\WINDOWS\\system32\\" + fakeEngineShort;
+
 // Fake command line options can be set with the --fake-cl-args option.
 var commandLineArgs = [];
 if (argv["fake-cl-args"]) {
     commandLineArgs = argv["fake-cl-args"].split(",");
+}
+
+// Fake sample file name can be set with the --fake-sample-name option.
+var sampleName = "CURRENT_SCRIPT_IN_FAKED_DIR.js";
+var sampleFullName = "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\" + sampleName;
+if (argv["fake-sample-name"]) {
+
+    // Sample name with full path?
+    var dirChar = undefined;
+    if (argv["fake-sample-name"].indexOf("\\") >= 0) {
+        dirChar = "\\";
+    }
+    if (argv["fake-sample-name"].indexOf("/") >= 0) {
+        dirChar = "/";
+    }
+    if (dirChar) {
+
+        // Break out the immediate sample name and full name.
+        sampleName = argv["fake-sample-name"].slice(argv["fake-sample-name"].lastIndexOf(dirChar) + 1);
+        sampleFullName = argv["fake-sample-name"];
+    }
+    else {
+        sampleName = argv["fake-sample-name"];
+        sampleFullName = "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\" + sampleName;
+    }
+    lib.logIOC("Sample Name",
+               {"sample-name": sampleName, "sample-name-full": sampleFullName},
+               "Using fake sample file name " + sampleFullName + " when analyzing.");
+}
+else {
+    lib.logIOC("Sample Name",
+               {"sample-name": sampleName, "sample-name-full": sampleFullName},
+               "Using standard fake sample file name " + sampleFullName + " when analyzing.");
 }
 
 // Fake up the WScript object for Windows JScript.
@@ -653,8 +700,8 @@ var wscript_proxy = new Proxy({
     fullname: fakeEngineFull,
     name: fakeEngineShort,
     path: "C:\\TestFolder\\",
-    scriptfullname: "C:\Users\\Sysop12\\AppData\\Roaming\\Microsoft\\Templates\\CURRENT_SCRIPT_IN_FAKED_DIR.js",
-    scriptname: "CURRENT_SCRIPT_IN_FAKED_DIR.js",
+    scriptfullname: sampleFullName,
+    scriptname: sampleName,
     quit: function() {        
         lib.logIOC("WScript", "Quit()", "The sample explcitly called WScript.Quit().");
         //console.trace()
@@ -730,7 +777,13 @@ const sandbox = {
     console: {
         //log: (x) => console.log(x),
         //log: (x) => lib.info("Script output: " + JSON.stringify(x)),
-        log: (x) => lib.info("Script output: " + x),
+        log: function (x) {
+            lib.info("Script output: " + x);
+            // Log evals of JS downloaded from a C2 if needed.
+            if (x === "EXECUTED DOWNLOADED PAYLOAD") {
+                lib.logIOC("PayloadExec", x, "The script executed JS returned from a C2 server.");
+            }
+        },
     },
     Enumerator: require("./emulator/Enumerator"),
     GetObject: require("./emulator/WMI").GetObject,
@@ -864,6 +917,7 @@ function ActiveXObject(name) {
         
         // Is the name obfuscated in the source? Note that if the name
         // is given as a CLSID this will probably be true.
+        //console.log((new Error()).stack);
         name_re = new RegExp(name, 'i');
         pos = rawcode.search(name_re);
         if (pos === -1) {

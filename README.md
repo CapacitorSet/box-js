@@ -94,6 +94,10 @@ cat ./*.results/active_urls.json | sort | uniq
                            'cscript.exe' or 'wscript.exe'). Default is wscript.exe.            
     --fake-cl-args         Fake script command line arguments. In the string these should be comma         
                            separated.
+    --fake-sample-name     Fake file name to use for the sample being analyzed. Can be a full path or just 
+                           the file name to use. If you have '\' in the path escape them as '\\' in this   
+                           command line argument value (ex. --fake-sample-name=C:\\foo\\bar.js).           
+    --fake-download        Fake that HTTP requests work and have them return a fake payload
     --unsafe-preprocess    More aggressive preprocessing. Often results in better code, but can break on   
                            some edge cases (eg. redefining prototypes)                                     
     --no-kill              Do not kill the application when runtime errors occur                           

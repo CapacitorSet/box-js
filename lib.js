@@ -5,6 +5,7 @@ const path = require("path");
 const request = require("sync-request");
 const uuid = require("uuid");
 const argv = require("./argv.js").run;
+const fakeFiles = require("./emulator/FakeFiles");
 
 const directory = path.normalize(process.argv[3]);
 
@@ -206,8 +207,19 @@ module.exports = {
 	process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 	logUrl(method, url);
 	logIOC("UrlFetch", {method, url, headers, body}, "The script fetched an URL.");
-	if (!doDownload) {
-	    lib.info("Returning HTTP 404 (Not found); use --download to try to download the payload");
+
+        // Fake that the request worked?
+        if (argv["fake-download"]) {
+            log("info", "Returning HTTP 200 (Success) with fake response payload 'console.log(\"EXECUTED DOWNLOADED PAYLOAD\");'");
+	    return {
+		body: new Buffer("console.log(\"EXECUTED DOWNLOADED PAYLOAD\");"),
+		headers: {},
+	    };
+        }        
+
+        // Do no download, say that it failed.
+	if (!argv.download) {
+	    log("info", "Returning HTTP 404 (Not found); use --download to actually try to download the payload or --fake-download to fake the download");
 	    return {
 		body: new Buffer(""),
 		headers: {},
@@ -250,6 +262,11 @@ module.exports = {
     },
     readFile: function(filename) {
 	logIOC("FileRead", {file: filename}, "The script read a file.");
+        // Do we have some fake contents for this file?
+        const r = fakeFiles.ReadFakeFileContents(filename);
+        if (typeof(r) !== "undefined") {
+            return r;
+        }
 	return files[filename];
     },
     logUrl,

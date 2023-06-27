@@ -1,3 +1,13 @@
+Version 1.19.25, 6/27/2023
+--------------------------
+
+* Track execution of JS served out by a C2 as an IOC.
+* Track ActiveX object creations as IOCs.
+* Added a --fake-download command line flag that makes box-js fake valid HTTP responses.
+* Added a --fake-sample-name command line flag for specifying a fake file name for the analyzed sample.
+* Upgrade the Acorn JS parser package to most recent version.
+* Bug fixes in JS code rewriting.
+
 Version 1.19.24, 2/15/2023
 --------------------------
 
