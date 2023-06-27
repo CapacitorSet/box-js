@@ -8,6 +8,15 @@ Version 1.19.25, 6/27/2023
 * Upgrade the Acorn JS parser package to most recent version.
 * Bug fixes in JS code rewriting.
 
+Version 1.19.24, 2/15/2023
+--------------------------
+
+* Added --activex-as-ioc command line flag for tracking ActiveX object creations as IOCs.
+* Added --fake-cl-args command line argument for providing fake command line arguments for the executing script.
+* Added --ignore-wscript-quit command line flag for ignoring WScript.Quit() calls during emulation.
+* Code rewrite bug fixes and speed ups.
+* Track addEventListener() as IOC.
+
 Version 1.19.20, 2/15/2023
 --------------------------
 
