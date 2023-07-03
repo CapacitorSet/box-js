@@ -312,11 +312,11 @@ function __getElementsByTagName(tag) {
                 getAttribute: function() { return {}; },
                 addEventListener: function(tag, func) {
                     // Simulate the event happing by running the function.
-                    logIOC("document.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
+                    logIOC("Element.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
                     func();
                 },
-                removeEventListener: function() {
-                    lib.info("The script removed an event listener.");
+                removeEventListener: function(tag) {
+                    logIOC("Element.removeEventListener()", {event: tag}, "The script removed an event listener for the '" + tag + "' event.");
                 },                
                 "classList" : {
                     add: function() {},
@@ -542,11 +542,11 @@ var document = {
     createTextNode: function(text) {},
     addEventListener: function(tag, func) {
         // Simulate the event happing by running the function.
-        logIOC("document.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
+        logIOC("Document.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
         func();
     },
-    removeEventListener: function() {
-        lib.info("The script removed an event listener.");
+    removeEventListener: function(tag) {
+        logIOC("Document.removeEventListener()", {event: tag}, "The script removed an event listener for the '" + tag + "' event.");
     },
     createAttribute: function(name) {
         logIOC('Document.createAttribute()', {name}, "The script added attribute '" + name + "' to the document.");
@@ -598,11 +598,11 @@ var window = {
     setTimeout: function(f, i) {},
     addEventListener: function(tag, func) {
         // Simulate the event happing by running the function.
-        logIOC("window.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
+        logIOC("Window.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
         func();
     },
-    removeEventListener: function() {
-        lib.info("The script removed an event listener.");
+    removeEventListener: function(tag) {
+        logIOC("Window.removeEventListener()", {event: tag}, "The script removed an event listener for the '" + tag + "' event.");
     },
     attachEvent: function(){},
     getComputedStyle: function(){
@@ -829,8 +829,8 @@ class XMLHttpRequest {
         func();
     };
 
-    removeEventListener() {
-        lib.info("The script removed an event listener.");
+    removeEventListener(tag) {
+        logIOC("XMLHttpRequest.removeEventListener()", {event: tag}, "The script removed an event listener for the '" + tag + "' event.");
     };
     
     open(method, url) {
