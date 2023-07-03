@@ -315,6 +315,9 @@ function __getElementsByTagName(tag) {
                     logIOC("document.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
                     func();
                 },
+                removeEventListener: function() {
+                    lib.info("The script removed an event listener.");
+                },                
                 "classList" : {
                     add: function() {},
                     remove: function() {},
@@ -542,6 +545,9 @@ var document = {
         logIOC("document.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
         func();
     },
+    removeEventListener: function() {
+        lib.info("The script removed an event listener.");
+    },
     createAttribute: function(name) {
         logIOC('Document.createAttribute()', {name}, "The script added attribute '" + name + "' to the document.");
         return __createElement(name);
@@ -594,6 +600,9 @@ var window = {
         // Simulate the event happing by running the function.
         logIOC("window.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
         func();
+    },
+    removeEventListener: function() {
+        lib.info("The script removed an event listener.");
     },
     attachEvent: function(){},
     getComputedStyle: function(){
@@ -820,6 +829,10 @@ class XMLHttpRequest {
         func();
     };
 
+    removeEventListener() {
+        lib.info("The script removed an event listener.");
+    };
+    
     open(method, url) {
         this.method = method;
 	// Maybe you can skip the http part of the URL and XMLHTTP
