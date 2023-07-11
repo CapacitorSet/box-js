@@ -417,6 +417,9 @@ function __createElement(tag) {
             add: function() {},
             remove: function() {},
             trigger: function() {},
+            // Trivial stubbing. Just say nothing is in the class
+            // list. May need a flag to control this.
+            contains: function(x) { return false; },
             special: {},
         },        
     };
