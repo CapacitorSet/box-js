@@ -990,6 +990,16 @@ function ActiveXObject(name) {
         return require("./emulator/MSScriptControlScriptControl");
     case "schedule.service":
         return require("./emulator/ScheduleService");
+    case "system.text.asciiencoding":
+        return require("./emulator/AsciiEncoding");
+    case "system.security.cryptography.frombase64transform":
+        return require("./emulator/Base64Transform");
+    case "system.io.memorystream":
+        return require("./emulator/MemoryStream");
+    case "system.runtime.serialization.formatters.binary.binaryformatter":
+        return require("./emulator/BinaryFormatter");
+    case "system.collections.arraylist":
+        return require("./emulator/ArrayList");
     default:
         lib.kill(`Unknown ActiveXObject ${name}`);
         break;
