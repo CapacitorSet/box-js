@@ -12,7 +12,8 @@ function Base64Transform() {
         for (let i = 0; i < chunk.length; i++) {
             str += String.fromCharCode(chunk[i]);
         }
-        const r = atob(str);
+        const r = Buffer.from(str, 'base64').toString('binary');
+        //const r = atob(str);
         return r;
     }
     
