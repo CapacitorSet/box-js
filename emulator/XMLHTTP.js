@@ -7,6 +7,8 @@ function XMLHTTP() {
     this.readystate = 0;
     this.statustext = "UNSENT";
     this.status = undefined;
+    this.url = "URL NOT SET";
+    this.method = "METHOD NOT SET";
     
     this.open = function(method, url) {
 	// Maybe you can skip the http part of the URL and XMLHTTP
