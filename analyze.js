@@ -96,6 +96,7 @@ function hideStrs(s) {
     var counter = 1000000;
     var r = "";
     var skip = false;
+    var justExitedComment = false;
     s = stripSingleLineComments(s);
     for (let i = 0; i < s.length; i++) {
 
@@ -109,13 +110,18 @@ function hideStrs(s) {
 
 	    // We are stripping /* */ comments, so drop the '/' if we
 	    // just entered the comment.
-	    if (oldInComment != inComment) r = r.slice(0, -1);
+	    if (oldInComment != inComment) {
+                r = r.slice(0, -1);
+            }
 	    
 	    // Dropping /* */ comments, so don't save current char.
 
             // Out of comment?
             if ((prevChar == "*") && (currChar == "/")) {
                 inComment = false;
+                // Handle FP single line comment detection for things
+                // like '/* comm1 *//* comm2 */'.
+                justExitedComment = true;
             }
 
             // Keep going until we leave the comment.
@@ -124,7 +130,8 @@ function hideStrs(s) {
         }
 
         // Start // comment?
-        inCommentSingle = inCommentSingle || ((prevChar == "/") && (currChar == "/") && !inStrDouble && !inStrSingle && !inComment);
+        inCommentSingle = inCommentSingle || ((prevChar == "/") && (currChar == "/") && !inStrDouble && !inStrSingle && !inComment && !justExitedComment);
+        justExitedComment = false;
         
         // In // comment?
         if (inCommentSingle) {
@@ -863,6 +870,7 @@ if (argv["dangerous-vm"]) {
 }
 
 function mapCLSID(clsid) {
+    clsid = clsid.toUpperCase();
     switch (clsid) {
     case "F935DC22-1CF0-11D0-ADB9-00C04FD58A0B":
         return "wscript.shell";
@@ -911,6 +919,7 @@ function ActiveXObject(name) {
             clsid = m[1].toUpperCase();
             mappedname = mapCLSID(clsid);
             if (mappedname !== null) {
+                lib.logIOC("CLSID ActiveX Object Created",{name, mappedname}, `The script created a new ActiveX object ${mappedname} using CLSID ${name}`);
                 name = mappedname;
             }
         }
