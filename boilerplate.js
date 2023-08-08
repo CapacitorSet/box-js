@@ -555,6 +555,10 @@ var document = {
         logIOC('Document.createAttribute()', {name}, "The script added attribute '" + name + "' to the document.");
         return __createElement(name);
     },
+    querySelector: function(selectors) {
+        logIOC('Document.querySelector()', {selectors}, "The script queried the DOM for selectors '" + selectors + "' .");
+        return __createElement("foo");
+    },
 };
 
 // Stubbed out URL class.
