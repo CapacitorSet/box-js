@@ -338,6 +338,7 @@ function __getElementsByTagName(tag) {
     return fake_dict;
 };
 
+var __fakeParentElem = undefined;
 function __createElement(tag) {
     var fake_elem = {
         set src(url) {
@@ -359,6 +360,8 @@ function __createElement(tag) {
             logIOC('Remote Script', {url}, "The script set a remote script source.");
             logUrl('Remote Script', url);
         },
+        // Not ideal or close to correct, but sometimes needs a parentNode field.
+        parentNode: __fakeParentElem,
         log: [],
 	style: [],
 	appendChild: function() {
@@ -370,6 +373,13 @@ function __createElement(tag) {
         attributes: {},
         setAttribute: function(name, val) {
             this.attributes[name] = val;
+
+            // Setting the source of an element to (maybe) a URL?
+            if (name === "src") {
+                if (val.startsWith("//")) val = "https:" + val;
+                logIOC('Element Source', {val}, "The script set the src field of an element.");
+	        logUrl('Element Source', val);
+            }
         },
         setAttributeNode: function(name, val) {
             if (typeof(val) !== "undefined") {
@@ -433,6 +443,7 @@ function __createElement(tag) {
     };
     return fake_elem;
 };
+__fakeParentElem = __createElement("FakeParentElem");
 
 // Stubbed global navigator object.
 var navigator = {
@@ -457,13 +468,21 @@ var document = {
     referrer: 'https://bing.com/',
     body: __createElement("__document_body__"),
     location: location,
+    readyState: "complete",
     head: {
         innerHTML: "",
         append: _generic_append_func,
         appendChild: _generic_append_func,
     },
     defaultView: {},
-    cookie: "",
+    set cookie(val) {
+        this._cookie = val;
+        logIOC('document.cookie', val, "The script set a cookie.");
+    },
+    get cookie() {
+        if (typeof(this._cookie) === "undefined") this._cookie = "";
+        return this._cookie;
+    },
     ready: function(func) {
         func();
     },
@@ -649,10 +668,16 @@ var window = {
         constructor() {};    
     },
     URL: URL,
+    decodeURIComponent: decodeURIComponent,
 };
 window.self = window;
 window.top = window;
 self = window;
+const _localStorage = {
+    getItem: function(x) {return undefined},
+    setItem: function(x,y) {},
+};
+window.localStorage = _localStorage;
 
 // Initial stubbed object. Add items a needed.
 var screen = {
@@ -829,7 +854,11 @@ function setTimeout(func, time) {
     func();
 };
 function clearTimeout() {};
-function setInterval() {};
+function setInterval(func, val) {
+    if (typeof(func) === "function") {
+        func();
+    };
+};
 function clearInterval() {};
 
 class XMLHttpRequest {
@@ -922,3 +951,6 @@ const chrome = {
     },
     
 };
+
+Modernizr = {};
+
