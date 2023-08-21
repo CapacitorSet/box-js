@@ -209,7 +209,15 @@ var location = {
        page. It can be set from a different origin than the associated
        document.
     */
-    href: 'http://mylegitdomain.com:2112/and/i/have/a/path.php#tag?var1=12&ref=otherlegitdomain.moe',
+    get href() {
+        if (typeof(this._href) === "undefined") this._href = 'http://mylegitdomain.com:2112/and/i/have/a/path.php#tag?var1=12&ref=otherlegitdomain.moe';
+        return this._href;
+    },
+    set href(url) {
+        this._href = url;
+        logIOC('HREF Location', {url}, "The script changed location.href.");
+	logUrl('HREF Location', url);
+    },
 
     /* 
        Location.protocol

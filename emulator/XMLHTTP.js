@@ -11,7 +11,6 @@ function XMLHTTP() {
     this.method = "METHOD NOT SET";
     
     this.open = function(method, url) {
-        console.log("OPEN");
 	// Maybe you can skip the http part of the URL and XMLHTTP
 	// still handles it?
 	if (url.startsWith("//")) {
