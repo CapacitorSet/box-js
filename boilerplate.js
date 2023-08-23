@@ -430,6 +430,20 @@ function __createElement(tag) {
                 };
             }
         },
+        set innerHTML(content) {
+            this._innerHTML = content;
+            logIOC("Set innerHTML", {content}, "The script set the innerHTML of an element.");
+            const urls = pullActionUrls(content);
+            if (typeof(urls) !== "undefined") {
+                for (const url of urls) {
+                    logUrl('Action Attribute', url);
+                };
+            }
+        },
+        get innerHTML() {
+            if (typeof(this._innerHTML) === "undefined") this._innerHTML = "";
+            return this._innerHTML;
+        },
 	removeChild: function() {},
         "classList" : {
             add: function() {},
@@ -465,7 +479,7 @@ var _generic_append_func = function(content) {
 var document = {
     documentMode: 8, // Fake running in IE8
     nodeType: 9,
-    referrer: 'https://bing.com/',
+    referrer: 'https://www.bing.com/',
     body: __createElement("__document_body__"),
     location: location,
     readyState: "complete",
@@ -927,10 +941,11 @@ function pullActionUrls(html) {
     if (typeof(html.match) == "undefined") return undefined;
     
     // Do we have action attributes?
-    const actPat = /action\s*=\s*"([^"]*)"/g;
+    const actPat = /(?:action|src)\s*=\s*"([^"]*)"/g;
     const r = [];
     for (const match of html.matchAll(actPat)) {
         var currAct = match[1];
+        if (currAct == "//null") continue;
         if (!currAct.startsWith("http") && !currAct.startsWith("//")) continue;
         if (currAct.startsWith("//")) currAct = "https:" + currAct;
         r.push(currAct);
