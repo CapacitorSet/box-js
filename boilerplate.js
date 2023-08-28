@@ -418,8 +418,10 @@ function __createElement(tag) {
         toLowerCase: function() {
             return "// NOPE";
         },
+        onclick: undefined,
         click: function() {
             lib.info("click() method called on a document element.");
+            if (typeof(this.onclick) !== "undefined") this.onclick();
         },
         insertAdjacentHTML: function(position, content) {
             logIOC('DOM Write', {content}, "The script added a HTML node to the DOM");
@@ -519,25 +521,11 @@ var document = {
         if (typeof(ids) != "undefined") {
             for (var i = 0; i < ids.length; i++) {
                 if (char_codes_to_string(ids[i]) == id) {
-                    var r = {
-                        innerHTML: char_codes_to_string(data[i]),
-                        innerText: char_codes_to_string(data[i]),
-                        onclick: undefined,
-                        click: function() {
-                            if (typeof(this.onclick) !== "undefined") this.onclick();
-                        },
-                        getAttribute: function(attrId) {
-                            return this.attrs[attrId];
-                        },
-                        insertAdjacentHTML: function(position, content) {
-                            logIOC('DOM Write', {content}, "The script added a HTML node to the DOM");
-                            const urls = pullActionUrls(content);
-                            if (typeof(urls) !== "undefined") {
-                                for (const url of urls) {
-                                    logUrl('Action Attribute', url);
-                                };
-                            }
-                        },
+                    var r = __createElement(id);
+                    r.innerHTML = char_codes_to_string(data[i]);
+                    r.innerText = char_codes_to_string(data[i]);
+                    r.getAttribute = function(attrId) {
+                        return this.attrs[attrId];
                     };
                     r.attrs = attrs[i];
                     this.elementCache[id] = r;
