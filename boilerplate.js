@@ -680,6 +680,10 @@ const _localStorage = {
     setItem: function(x,y) {},
 };
 window.localStorage = _localStorage;
+window.String = String;
+window.RegExp = RegExp;
+window.JSON = JSON;
+window.Array = Array;
 
 // Initial stubbed object. Add items a needed.
 var screen = {

@@ -87,6 +87,8 @@ function hideStrs(s) {
     var inStrDouble = false;
     var inComment = false;
     var inCommentSingle = false;
+    var inRegex = false
+    var oldInRegex = false
     var currStr = undefined;
     var prevChar = "";
     var prevPrevChar = "";
@@ -145,6 +147,26 @@ function hideStrs(s) {
             }
 
             // Keep going until we leave the comment.
+            prevChar = currChar;
+            continue;
+        }
+
+        // Start /.../ regex expression?
+        oldInRegex = inRegex;
+        inRegex = inRegex || ((prevChar != "/") && (currChar == "/") && !inStrDouble && !inStrSingle && !inComment && !inCommentSingle);
+        
+        // In /.../ regex expression?
+        if (inRegex) {
+
+            // Save regex unmodified.
+            r += currChar;
+
+            // Out of regex?
+            if (oldInRegex && (currChar == "/")) {
+                inRegex = false;
+            }
+
+            // Keep going until we leave the regex.
             prevChar = currChar;
             continue;
         }
@@ -281,7 +303,10 @@ function rewrite(code) {
     var counter = 1000000;
     const [newCode, strMap] = hideStrs(code);
     code = newCode;
-        
+    //console.log("!!!! CODE: 1 !!!!");
+    //console.log(code);                
+    //console.log("!!!! CODE: 1 !!!!");
+    
     // WinHTTP ActiveX objects let you set options like 'foo.Option(n)
     // = 12'. Acorn parsing fails on these with a assigning to rvalue
     // syntax error, so rewrite things like this so we can parse
@@ -290,9 +315,15 @@ function rewrite(code) {
     // expressions cannot be parsed by acorn.
     const rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[\n;])/g;
     code = code.toString().replace(rvaluePat, ';/* ASSIGNING TO RVALUE */');
+    //console.log("!!!! CODE: 2 !!!!");
+    //console.log(code);                
+    //console.log("!!!! CODE: 2 !!!!");
     
     // Now unhide the string literals.
     code = unhideStrs(code, strMap);
+    //console.log("!!!! CODE: 3 !!!!");
+    //console.log(code);                
+    //console.log("!!!! CODE: 3 !!!!");
     
     // Some samples (for example that use JQuery libraries as a basis to which to
     // add malicious code) won't emulate properly for some reason if there is not
@@ -369,9 +400,9 @@ If you run into unexpected results, try uncommenting lines that look like
 
             let tree;
             try {
-                //console.log("!!!! CODE !!!!");
+                //console.log("!!!! CODE FINAL !!!!");
                 //console.log(code);                
-                //console.log("!!!! CODE !!!!");
+                //console.log("!!!! CODE FINAL !!!!");
                 tree = acorn.parse(code, {
                     ecmaVersion: "latest",
                     allowReturnOutsideFunction: true, // used when rewriting function bodies
