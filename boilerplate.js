@@ -505,6 +505,9 @@ var document = {
     elementCache : {},
     getElementById : function(id) {
 
+	// Normalize ID.
+	if (id.startsWith(".")) id = id.slice(1);
+	
         // Already looked this up?
         if (typeof(this.elementCache[id]) !== "undefined") return this.elementCache[id];
         
@@ -519,6 +522,15 @@ var document = {
         /* IDS_AND_DATA */
         
         if (typeof(ids) != "undefined") {
+
+	    // Maybe just tracked as attr?
+	    for (var i = 0; i < attrs.length; i++) {
+		if (attrs[i].class === id) {
+		    return attrs[i];
+		}
+	    }
+
+	    // Look for it in ID map.
             for (var i = 0; i < ids.length; i++) {
                 if (char_codes_to_string(ids[i]) == id) {
                     var r = __createElement(id);
@@ -586,7 +598,7 @@ var document = {
     },
     querySelector: function(selectors) {
         logIOC('Document.querySelector()', {selectors}, "The script queried the DOM for selectors '" + selectors + "' .");
-        return __createElement("foo");
+	return document.getElementById(selectors);
     },
 };
 
@@ -671,6 +683,10 @@ var window = {
     },
     URL: URL,
     decodeURIComponent: decodeURIComponent,
+    set onload(func) {
+	lib.info("Script set window.onload function.");
+	func();
+    },
 };
 window.self = window;
 window.top = window;
@@ -961,3 +977,11 @@ const chrome = {
 
 Modernizr = {};
 
+mediaContainer = {
+    Click : function () {},
+};
+
+function addEventListener(event, func) {
+    console.log(event);
+    func();
+}
