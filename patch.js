@@ -43,6 +43,8 @@ Date.prototype.toLocaleString = function(lang, opts) {
         return toLocaleStringGetter.call(this, undefined, sensibleOpts).replace(" at ", " ");
     }
 };
+Date.prototype.gethours = Date.prototype.getHours;
+Date.prototype.getminutes = Date.prototype.getMinutes;
 
 const legacyDate = Date;
 Date = function() {
