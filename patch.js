@@ -30,6 +30,20 @@ Date.prototype.toString = function() {
 	this.getFullYear()
     ].join(" ");
 }
+let toLocaleStringGetter = Date.prototype.toLocaleString;
+Date.prototype.toLocaleString = function(lang, opts) {
+
+    try {
+        // Try doing the real toLocaleDateString() with the given args.
+        return toLocaleStringGetter.call(this, lang, opts);
+    } catch (e) {
+        // Invalid args. cscript defaults to some sensible options in
+        // this case, so return that result.
+        const sensibleOpts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+        return toLocaleStringGetter.call(this, undefined, sensibleOpts).replace(" at ", " ");
+    }
+};
+
 const legacyDate = Date;
 Date = function() {
     return new Proxy({
