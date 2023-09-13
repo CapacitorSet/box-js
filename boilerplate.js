@@ -265,7 +265,7 @@ var location = {
        Is a USVString containing a '#' followed by the fragment identifier
        of the URL.
     */
-    hash: '',
+    hash: '#eyAiZW1haWwiIDogInZpY3RpbUBwbGVhc2UucGhpc2gubWUiIH0K',
 
     /* 
        Location.origin Read only
