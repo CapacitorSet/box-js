@@ -317,6 +317,7 @@ function __getElementsByTagName(tag) {
                 "getElementsByTagName" : __getElementsByTagName,
                 "title" : "My Fake Title",
                 style: {},
+                navigator: navigator,
                 getAttribute: function() { return {}; },
                 addEventListener: function(tag, func) {
                     // Simulate the event happing by running the function.
@@ -335,7 +336,7 @@ function __getElementsByTagName(tag) {
             };
         }
     });
-    return fake_dict;
+    return [fake_dict];
 };
 
 var __fakeParentElem = undefined;
@@ -462,8 +463,74 @@ function __createElement(tag) {
 __fakeParentElem = __createElement("FakeParentElem");
 
 // Stubbed global navigator object.
-var navigator = {
+const navigator = {
     userAgent: 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.2; WOW64; Trident/6.0; .NET4.0E; .NET4.0C; .NET CLR 3.5.30729; .NET CLR 2.0.50727; .NET CLR 3.0.30729; Tablet PC 2.0; InfoPath.3)',
+    clipboard: {        
+    },
+    connection: {
+    },
+    cookieEnabled: {
+    },
+    credentials: {
+    },
+    deviceMemory: {
+    },
+    geolocation: {
+    },
+    gpu: {
+    },
+    hid: {
+    },
+    hardwareConcurrency: {
+    },
+    ink: {
+    },
+    keyboard: {
+    },
+    language: {
+    },
+    languages: {
+    },
+    locks: {
+    },
+    maxTouchPoints: {
+    },
+    mediaCapabilities: {
+    },
+    mediaDevices: {
+    },
+    mediaSession: {
+    },
+    onLine: {
+    },
+    pdfViewerEnabled: {
+    },
+    permissions: {
+    },
+    presentation: {
+    },
+    serial: {
+    },
+    serviceWorker: {
+    },
+    scheduling: {
+    },
+    storage: {
+    },
+    userActivation: {
+    },
+    userAgent: {
+    },
+    userAgentData: {
+    },
+    virtualKeyboard: {
+    },
+    webdriver: {
+    },
+    windowControlsOverlay: {
+    },
+    xr: {
+    },    
 };
 
 var _generic_append_func = function(content) {

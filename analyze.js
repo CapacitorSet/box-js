@@ -106,6 +106,7 @@ function hideStrs(s) {
         var currChar = s[i];
 	var oldInComment = inComment;
         inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle && !inCommentSingle);
+        //console.log(JSON.stringify([prevChar, currChar, inStrDouble, inStrSingle, inCommentSingle, inComment, inRegex]))
         
         // In /* */ comment?
         if (inComment) {
@@ -126,8 +127,10 @@ function hideStrs(s) {
                 justExitedComment = true;
             }
 
-            // Keep going until we leave the comment.
-            prevChar = currChar;
+            // Keep going until we leave the comment. Recognizing some
+            // constructs is hard with whitespace, so strip that out
+            // when tracking previous characters.
+            if (currChar != " ") prevChar = currChar;
             continue;
         }
 
@@ -147,13 +150,13 @@ function hideStrs(s) {
             }
 
             // Keep going until we leave the comment.
-            prevChar = currChar;
+            if (currChar != " ") prevChar = currChar;
             continue;
         }
 
         // Start /.../ regex expression?
         oldInRegex = inRegex;
-        inRegex = inRegex || ((prevChar != "/") && (currChar == "/") && !inStrDouble && !inStrSingle && !inComment && !inCommentSingle);
+        inRegex = inRegex || ((prevChar != "/") && (prevChar != ")") && (currChar == "/") && !inStrDouble && !inStrSingle && !inComment && !inCommentSingle);
         
         // In /.../ regex expression?
         if (inRegex) {
@@ -167,7 +170,7 @@ function hideStrs(s) {
             }
 
             // Keep going until we leave the regex.
-            prevChar = currChar;
+            if (currChar != " ") prevChar = currChar;
             continue;
         }
         
@@ -231,7 +234,7 @@ function hideStrs(s) {
 	// Track what is now the previous character so we can handle
 	// escaped quotes in strings.
         prevPrevChar = prevChar;
-	prevChar = currChar;
+        if (currChar != " ") prevChar = currChar;
         prevEscapedSlash = escapedSlash;
     }
     return [r, allStrs];
