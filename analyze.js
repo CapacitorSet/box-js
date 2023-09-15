@@ -114,6 +114,7 @@ function hideStrs(s) {
 	    // We are stripping /* */ comments, so drop the '/' if we
 	    // just entered the comment.
 	    if (oldInComment != inComment) {
+                inRegex = false;
                 r = r.slice(0, -1);
             }
 	    
