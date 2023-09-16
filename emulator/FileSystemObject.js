@@ -90,6 +90,7 @@ function ProxiedFolder(path, name, autospawned = false) {
 function File(contents, name = "example-file.exe", typ = "Application") {
     lib.info("The sample created a file named '" + name + "'.")
     // Handle blobs/arrays.
+    if (typeof(contents) === "undefined") contents = "???";
     if ((contents.constructor.name == "Array") && (contents.length > 0)) {
         contents = contents[0];
     }
@@ -105,6 +106,11 @@ function File(contents, name = "example-file.exe", typ = "Application") {
     this._name = name;
     this.size = Infinity;
     this.type = typ;
+    this.copy = (src, dest, overwrite) => {
+	lib.logIOC("Copy", {src, dest}, "The script copied a file.");
+	lib.info(`Copying ${src} to ${dest}`);
+	lib.writeFile(dest, `(Contents of ${dest})`);
+    };
 }
 
 function ProxiedFile(filename) {
@@ -152,6 +158,7 @@ function FileSystemObject() {
 	lib.info(`Copying ${src} to ${dest}`);
 	lib.writeFile(dest, `(Contents of ${dest})`);
     };
+    this.copy = this.copyfile;
     this.drives = [new ProxiedDrive("C:")];
     this.deletefile = (path) => {
 	lib.logIOC("FileDelete", {path}, "The script deleted a file.");
