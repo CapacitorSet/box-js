@@ -759,6 +759,8 @@ var window = {
         return this._MAIL_URL;
     },
     set MAIL_URL(url) {
+	// Could be base64.
+	if (atob(url)) url = atob(url);
 	this._MAIL_URL = url;
 	logIOC('MAIL_URL Location', {url}, "The script changed window.MAIL_URL.");
 	logUrl('MAIL_URL Location', url);
