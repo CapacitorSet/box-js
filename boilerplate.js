@@ -754,6 +754,15 @@ var window = {
 	lib.info("Script set window.onload function.");
 	func();
     },
+    get MAIL_URL() {
+        if (typeof(this._MAIL_URL) === "undefined") this._href = 'http://mylegitdomain.com:2112/and/i/have/a/path.php#tag?var1=12&ref=otherlegitdomain.moe';
+        return this._MAIL_URL;
+    },
+    set MAIL_URL(url) {
+	this._MAIL_URL = url;
+	logIOC('MAIL_URL Location', {url}, "The script changed window.MAIL_URL.");
+	logUrl('MAIL_URL Location', url);
+    },
 };
 window.self = window;
 window.top = window;
