@@ -85,6 +85,7 @@ function stripSingleLineComments(s) {
 function hideStrs(s) {
     var inStrSingle = false;
     var inStrDouble = false;
+    var inStrBackTick = false;
     var inComment = false;
     var inCommentSingle = false;
     var inRegex = false
@@ -105,7 +106,7 @@ function hideStrs(s) {
         // Start /* */ comment?
         var currChar = s[i];
 	var oldInComment = inComment;
-        inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle && !inCommentSingle);
+        inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle && !inCommentSingle && !inStrBackTick);
         //console.log(JSON.stringify([prevChar, currChar, inStrDouble, inStrSingle, inCommentSingle, inComment, inRegex]))
         
         // In /* */ comment?
@@ -136,7 +137,7 @@ function hideStrs(s) {
         }
 
         // Start // comment?
-        inCommentSingle = inCommentSingle || ((prevChar == "/") && (currChar == "/") && !inStrDouble && !inStrSingle && !inComment && !justExitedComment);
+        inCommentSingle = inCommentSingle || ((prevChar == "/") && (currChar == "/") && !inStrDouble && !inStrSingle && !inComment && !justExitedComment && !inStrBackTick);
         justExitedComment = false;
         
         // In // comment?
@@ -157,7 +158,7 @@ function hideStrs(s) {
 
         // Start /.../ regex expression?
         oldInRegex = inRegex;
-        inRegex = inRegex || ((prevChar != "/") && (prevChar != ")") && (currChar == "/") && !inStrDouble && !inStrSingle && !inComment && !inCommentSingle);
+        inRegex = inRegex || ((prevChar != "/") && (prevChar != ")") && (currChar == "/") && !inStrDouble && !inStrSingle && !inComment && !inCommentSingle && !inStrBackTick);
         
         // In /.../ regex expression?
         if (inRegex) {
@@ -181,7 +182,7 @@ function hideStrs(s) {
 	// Start/end single quoted string?
 	if ((currChar == "'") &&
             ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash && inStrSingle)) &&
-            !inStrDouble) {
+            !inStrDouble && !inStrBackTick) {
 
 	    // Switch being in/out of string.
 	    inStrSingle = !inStrSingle;
@@ -202,7 +203,7 @@ function hideStrs(s) {
 	// Start/end double quoted string?
 	if ((currChar == '"') &&
             ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash && inStrDouble)) &&
-            !inStrSingle) {
+            !inStrSingle && !inStrBackTick) {
 
 	    // Switch being in/out of string.
 	    inStrDouble = !inStrDouble;
@@ -220,8 +221,29 @@ function hideStrs(s) {
 	    }
 	};
 
+	// Start/end backtick quoted string?
+	if ((currChar == '`') &&
+            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash && inStrBackTick)) &&
+            !inStrSingle && !inStrDouble) {
+
+	    // Switch being in/out of string.
+	    inStrBackTick = !inStrBackTick;
+
+	    // Finished up a string we were tracking?
+	    if (!inStrBackTick) {
+		currStr += '`';
+                const strName = "HIDE_" + counter++;
+                allStrs[strName] = currStr;
+                r += strName;
+                skip = true;
+	    }
+	    else {
+		currStr = "";
+	    }
+	};
+
 	// Save the current character if we are tracking a string.
-	if (inStrDouble || inStrSingle) {
+	if (inStrDouble || inStrSingle || inStrBackTick) {
             currStr += currChar;
         }
 
