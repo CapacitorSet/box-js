@@ -82,6 +82,19 @@ function stripSingleLineComments(s) {
     return r;
 }
 
+function isAlphaNumeric(str) {
+    var code, i;
+
+    if (str.length == 0) return false;
+    code = str.charCodeAt(0);
+    if (!(code > 47 && code < 58) && // numeric (0-9)
+        !(code > 64 && code < 91) && // upper alpha (A-Z)
+        !(code > 96 && code < 123)) { // lower alpha (a-z)
+        return false;
+    }
+    return true;
+};
+
 function hideStrs(s) {
     var inStrSingle = false;
     var inStrDouble = false;
@@ -100,14 +113,28 @@ function hideStrs(s) {
     var r = "";
     var skip = false;
     var justExitedComment = false;
+    var slashSubstr = ""
     s = stripSingleLineComments(s);
     for (let i = 0; i < s.length; i++) {
 
+        // Track consecutive backslashes. We use this to tell if the
+        // current back slash has been escaped (even # of backslashes)
+        // or is escaping the next character (odd # of slashes).
+        if (prevChar == "\\" && (slashSubstr.length == 0)) {
+            slashSubstr = "\\";
+        }
+        else if (prevChar == "\\" && (slashSubstr.length > 0)) {
+            slashSubstr += "\\";
+        }        
+        else if (prevChar != "\\") {
+            slashSubstr = "";
+        }
+        
         // Start /* */ comment?
         var currChar = s[i];
 	var oldInComment = inComment;
         inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle && !inCommentSingle && !inStrBackTick);
-        //console.log(JSON.stringify([prevChar, currChar, inStrDouble, inStrSingle, inCommentSingle, inComment, inRegex]))
+        //console.log(JSON.stringify([prevChar, currChar, inStrDouble, inStrSingle, inCommentSingle, inComment, inRegex, slashSubstr]))
         
         // In /* */ comment?
         if (inComment) {
@@ -158,7 +185,11 @@ function hideStrs(s) {
 
         // Start /.../ regex expression?
         oldInRegex = inRegex;
-        inRegex = inRegex || ((prevChar != "/") && (prevChar != ")") && (currChar == "/") && !inStrDouble && !inStrSingle && !inComment && !inCommentSingle && !inStrBackTick);
+        // Assume that regex expressions can't be preceded by ')' or
+        // an alphanumeric character. This is to try to tell divisiion
+        // from the start of a regex.
+        inRegex = inRegex || ((prevChar != "/") && (prevChar != ")") && !isAlphaNumeric(prevChar) &&
+                              (currChar == "/") && !inStrDouble && !inStrSingle && !inComment && !inCommentSingle && !inStrBackTick);
         
         // In /.../ regex expression?
         if (inRegex) {
@@ -181,7 +212,7 @@ function hideStrs(s) {
         
 	// Start/end single quoted string?
 	if ((currChar == "'") &&
-            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash && inStrSingle)) &&
+            ((prevChar != "\\") || ((prevChar == "\\") && ((slashSubstr.length % 2) == 0) && inStrSingle)) &&
             !inStrDouble && !inStrBackTick) {
 
 	    // Switch being in/out of string.
@@ -202,7 +233,7 @@ function hideStrs(s) {
 
 	// Start/end double quoted string?
 	if ((currChar == '"') &&
-            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash && inStrDouble)) &&
+            ((prevChar != "\\") || ((prevChar == "\\") && ((slashSubstr.length % 2) == 0) && inStrDouble)) &&
             !inStrSingle && !inStrBackTick) {
 
 	    // Switch being in/out of string.
