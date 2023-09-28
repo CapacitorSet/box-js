@@ -630,6 +630,9 @@ var document = {
         }
         eval.apply(null, [extractJSFromHTA(content)]);
     },
+    writeln: function (content) {
+        this.write(content);
+    },
     appendChild: function(content) {
         logIOC('DOM Write', {content}, "The script appended an HTML node to the DOM")
         const urls = pullActionUrls(content);
