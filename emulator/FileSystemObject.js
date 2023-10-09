@@ -163,7 +163,11 @@ function FileSystemObject() {
     this.deletefile = (path) => {
 	lib.logIOC("FileDelete", {path}, "The script deleted a file.");
 	return true;
-    }
+    };
+    this.deletefolder = (path) => {
+	lib.logIOC("FolderDelete", {path}, "The script deleted a folder.");
+	return true;
+    };
     this.fileexists = (path) => {
 	const value = !argv["no-file-exists"];
 	if (value) {
