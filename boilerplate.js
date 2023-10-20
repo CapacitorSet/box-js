@@ -519,8 +519,6 @@ const navigator = {
     },
     userActivation: {
     },
-    userAgent: {
-    },
     userAgentData: {
     },
     virtualKeyboard: {
@@ -698,6 +696,11 @@ class URL {
     static revokeObjectURL() {};
 };
 
+function requestAnimationFrame(func) {
+    lib.logIOC("requestAnimationFrame()", {}, "The script ran a function with requestAnimationFrame().");
+    func();
+}
+
 // Stubbed global window object.
 var window = {
     eval: function(cmd) { eval(cmd); },
@@ -709,6 +712,7 @@ var window = {
         }
     },
     close: function(){},
+    requestAnimationFrame: requestAnimationFrame,
     matchMedia: function(){ return {}; },
     atob: function(s){
         return atob(s);
@@ -954,6 +958,7 @@ Array.prototype.reduce = function(a, b) {
 };
 
 function setTimeout(func, time) {
+    if (!(typeof(func) === "function")) return;
     func();
 };
 function clearTimeout() {};
