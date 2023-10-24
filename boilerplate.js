@@ -304,11 +304,12 @@ function __getElementsByTagName(tag) {
     };
     
     // Return a dict that maps every tag name to the same fake element.
+    /*
     fake_dict = {};
     fake_dict = new Proxy(fake_dict, {
         get(target, phrase) { // intercept reading a property from dictionary
             return {
-                "appendChild" : func,
+                appendChild : func,
                 "insertBefore" : func,
                 "parentNode" : {
                     "appendChild" : func,
@@ -336,6 +337,34 @@ function __getElementsByTagName(tag) {
             };
         }
     });
+    */
+    var fake_dict = {
+        "appendChild" : func,
+        "insertBefore" : func,
+        "parentNode" : {
+            "appendChild" : func,
+            "insertBefore" : func,
+        },
+        "getElementsByTagName" : __getElementsByTagName,
+        "title" : "My Fake Title",
+        style: {},
+        navigator: navigator,
+        getAttribute: function() { return {}; },
+        addEventListener: function(tag, func) {
+            // Simulate the event happing by running the function.
+            logIOC("Element.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
+            func();
+        },
+        removeEventListener: function(tag) {
+            logIOC("Element.removeEventListener()", {event: tag}, "The script removed an event listener for the '" + tag + "' event.");
+        },                
+        "classList" : {
+            add: function() {},
+            remove: function() {},
+            trigger: function() {},
+            special: {},
+        },
+    };
     return [fake_dict];
 };
 
@@ -797,6 +826,7 @@ var ShareLink = {
 // Initial stubbed function. Add items a needed.
 function define(path, func) {
     // Run the function.
+    if (!(typeof(func) === "function")) return;
     func({}, {}, {}, {}, {});
 };
 define.amd = true;
@@ -1070,4 +1100,8 @@ mediaContainer = {
 function addEventListener(event, func) {
     console.log(event);
     func();
+}
+
+if (typeof(arguments) === "undefined") {
+    var arguments = [];
 }
