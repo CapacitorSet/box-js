@@ -781,6 +781,7 @@ window.String = String;
 window.RegExp = RegExp;
 window.JSON = JSON;
 window.Array = Array;
+localStorage = _localStorage;
 
 // Initial stubbed object. Add items a needed.
 var screen = {
