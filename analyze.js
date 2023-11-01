@@ -115,6 +115,7 @@ function hideStrs(s) {
     var justExitedComment = false;
     var slashSubstr = ""
     s = stripSingleLineComments(s);
+    //console.log("prev,curr,dbl,single,commsingl,comm,regex,slash,justexitcom");
     for (let i = 0; i < s.length; i++) {
 
         // Track consecutive backslashes. We use this to tell if the
@@ -134,7 +135,8 @@ function hideStrs(s) {
         var currChar = s[i];
 	var oldInComment = inComment;
         inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle && !inCommentSingle && !inStrBackTick);
-        //console.log(JSON.stringify([prevChar, currChar, inStrDouble, inStrSingle, inCommentSingle, inComment, inRegex, slashSubstr]))
+        //console.log(JSON.stringify([prevChar, currChar, inStrDouble, inStrSingle, inCommentSingle, inComment, inRegex, slashSubstr, justExitedComment]))
+	//console.log(r);
         
         // In /* */ comment?
         if (inComment) {
@@ -165,6 +167,12 @@ function hideStrs(s) {
 
         // Start // comment?
         inCommentSingle = inCommentSingle || ((prevChar == "/") && (currChar == "/") && !inStrDouble && !inStrSingle && !inComment && !justExitedComment && !inStrBackTick);
+	// Could have falsely jumped out of a /**/ comment if it contains a //.
+	if ((prevChar == "/") && (currChar == "/") && !inComment && justExitedComment) {
+	    inComment = true;
+	    justExitedComment = false;
+	    continue
+	}
         justExitedComment = false;
         
         // In // comment?
