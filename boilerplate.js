@@ -304,11 +304,12 @@ function __getElementsByTagName(tag) {
     };
     
     // Return a dict that maps every tag name to the same fake element.
+    /*
     fake_dict = {};
     fake_dict = new Proxy(fake_dict, {
         get(target, phrase) { // intercept reading a property from dictionary
             return {
-                "appendChild" : func,
+                appendChild : func,
                 "insertBefore" : func,
                 "parentNode" : {
                     "appendChild" : func,
@@ -336,6 +337,34 @@ function __getElementsByTagName(tag) {
             };
         }
     });
+    */
+    var fake_dict = {
+        "appendChild" : func,
+        "insertBefore" : func,
+        "parentNode" : {
+            "appendChild" : func,
+            "insertBefore" : func,
+        },
+        "getElementsByTagName" : __getElementsByTagName,
+        "title" : "My Fake Title",
+        style: {},
+        navigator: navigator,
+        getAttribute: function() { return {}; },
+        addEventListener: function(tag, func) {
+            // Simulate the event happing by running the function.
+            logIOC("Element.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
+            func();
+        },
+        removeEventListener: function(tag) {
+            logIOC("Element.removeEventListener()", {event: tag}, "The script removed an event listener for the '" + tag + "' event.");
+        },                
+        "classList" : {
+            add: function() {},
+            remove: function() {},
+            trigger: function() {},
+            special: {},
+        },
+    };
     return [fake_dict];
 };
 
@@ -519,8 +548,6 @@ const navigator = {
     },
     userActivation: {
     },
-    userAgent: {
-    },
     userAgentData: {
     },
     virtualKeyboard: {
@@ -698,6 +725,11 @@ class URL {
     static revokeObjectURL() {};
 };
 
+function requestAnimationFrame(func) {
+    lib.logIOC("requestAnimationFrame()", {}, "The script ran a function with requestAnimationFrame().");
+    func();
+}
+
 // Stubbed global window object.
 var window = {
     eval: function(cmd) { eval(cmd); },
@@ -709,6 +741,7 @@ var window = {
         }
     },
     close: function(){},
+    requestAnimationFrame: requestAnimationFrame,
     matchMedia: function(){ return {}; },
     atob: function(s){
         return atob(s);
@@ -794,6 +827,7 @@ var ShareLink = {
 // Initial stubbed function. Add items a needed.
 function define(path, func) {
     // Run the function.
+    if (!(typeof(func) === "function")) return;
     func({}, {}, {}, {}, {});
 };
 define.amd = true;
@@ -955,6 +989,7 @@ Array.prototype.reduce = function(a, b) {
 };
 
 function setTimeout(func, time) {
+    if (!(typeof(func) === "function")) return;
     func();
 };
 function clearTimeout() {};
@@ -1066,4 +1101,8 @@ mediaContainer = {
 function addEventListener(event, func) {
     console.log(event);
     func();
+}
+
+if (typeof(arguments) === "undefined") {
+    var arguments = [];
 }
