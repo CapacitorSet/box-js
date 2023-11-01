@@ -291,6 +291,10 @@ var location = {
     },
 };
 
+tagNameMap = {
+    /* !! ADD TAG TO VALUE MAPPINGS HERE !! */
+};
+
 function __getElementsByTagName(tag) {
     var func = function(content) {
         logIOC('DOM Write', {content}, "The script added a HTML node to the DOM");
