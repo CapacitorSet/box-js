@@ -295,7 +295,8 @@ tagNameMap = {
     /* !! ADD TAG TO VALUE MAPPINGS HERE !! */
 };
 
-function __getElementsByTagName(tag) {
+function __makeFakeElem(data) {
+
     var func = function(content) {
         logIOC('DOM Write', {content}, "The script added a HTML node to the DOM");
         const urls = pullActionUrls(content);
@@ -307,42 +308,7 @@ function __getElementsByTagName(tag) {
         return "";
     };
     
-    // Return a dict that maps every tag name to the same fake element.
-    /*
-    fake_dict = {};
-    fake_dict = new Proxy(fake_dict, {
-        get(target, phrase) { // intercept reading a property from dictionary
-            return {
-                appendChild : func,
-                "insertBefore" : func,
-                "parentNode" : {
-                    "appendChild" : func,
-                    "insertBefore" : func,
-                },
-                "getElementsByTagName" : __getElementsByTagName,
-                "title" : "My Fake Title",
-                style: {},
-                navigator: navigator,
-                getAttribute: function() { return {}; },
-                addEventListener: function(tag, func) {
-                    // Simulate the event happing by running the function.
-                    logIOC("Element.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
-                    func();
-                },
-                removeEventListener: function(tag) {
-                    logIOC("Element.removeEventListener()", {event: tag}, "The script removed an event listener for the '" + tag + "' event.");
-                },                
-                "classList" : {
-                    add: function() {},
-                    remove: function() {},
-                    trigger: function() {},
-                    special: {},
-                },
-            };
-        }
-    });
-    */
-    var fake_dict = {
+    var fakeDict = {
         "appendChild" : func,
         "insertBefore" : func,
         "parentNode" : {
@@ -368,8 +334,25 @@ function __getElementsByTagName(tag) {
             trigger: function() {},
             special: {},
         },
+        innerHTML: data,    
     };
-    return [fake_dict];
+    return fakeDict;
+}
+
+function __getElementsByTagName(tag) {
+    
+    // Do we have data for this tag?
+    const tagData = tagNameMap[tag];
+    if (tagData) {
+        var r = [];
+        for (var i = 0; i < tagData.length; i++) {
+            r.push(__makeFakeElem(tagData[i]));
+        }
+        return r;
+    }
+    else {
+        return [__makeFakeElem("")];
+    }
 };
 
 var __fakeParentElem = undefined;
