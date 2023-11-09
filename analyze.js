@@ -52,12 +52,14 @@ if (argv["activex-as-ioc"]) {
     rawcode = iconv.decode(sampleBuffer, encoding);
 }
 
+/*
 if (code.match("<job") || code.match("<script")) { // The sample may actually be a .wsf, which is <job><script>..</script><script>..</script></job>.
     lib.debug("Sample seems to be WSF");
     code = code.replace(/<\??\/?\w+( [\w=\"\']*)*\??>/g, ""); // XML tags
     code = code.replace(/<!\[CDATA\[/g, "");
     code = code.replace(/\]\]>/g, "");
 }
+*/
 
 function lacksBinary(name) {
     const path = child_process.spawnSync("command", ["-v", name], {
@@ -114,6 +116,7 @@ function hideStrs(s) {
     var skip = false;
     var justExitedComment = false;
     var slashSubstr = ""
+    var resetSlashes = false;
     s = stripSingleLineComments(s);
     //console.log("prev,curr,dbl,single,commsingl,comm,regex,slash,justexitcom");
     for (let i = 0; i < s.length; i++) {
@@ -130,9 +133,14 @@ function hideStrs(s) {
         else if (prevChar != "\\") {
             slashSubstr = "";
         }
+        // Backslash escaping gets 'reset' when hitting a space.
+        var currChar = s[i];
+        if ((currChar == " ") && slashSubstr) {
+            slashSubstr = "";
+            resetSlashes = true;
+        }
         
         // Start /* */ comment?
-        var currChar = s[i];
 	var oldInComment = inComment;
         inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle && !inCommentSingle && !inStrBackTick);
         //console.log(JSON.stringify([prevChar, currChar, inStrDouble, inStrSingle, inCommentSingle, inComment, inRegex, slashSubstr, justExitedComment]))
@@ -178,6 +186,9 @@ function hideStrs(s) {
         // In // comment?
         if (inCommentSingle) {
 
+            // Not in a regex if we are in a '// ...' comment.
+            inRegex = false;
+
             // Save comment text unmodified.
             r += currChar;
 
@@ -206,12 +217,14 @@ function hideStrs(s) {
             r += currChar;
 
             // Out of regex?
-            if (oldInRegex && (currChar == "/")) {
+            if (oldInRegex && (currChar == "/") && ((slashSubstr.length % 2) == 0)) {
                 inRegex = false;
             }
 
             // Keep going until we leave the regex.
             if (currChar != " ") prevChar = currChar;
+            if (resetSlashes) prevChar = " ";
+            resetSlashes = false;
             continue;
         }
         
@@ -297,6 +310,8 @@ function hideStrs(s) {
 	// escaped quotes in strings.
         prevPrevChar = prevChar;
         if (currChar != " ") prevChar = currChar;
+        if (resetSlashes) prevChar = " ";
+        resetSlashes = false;
         prevEscapedSlash = escapedSlash;
     }
     return [r, allStrs];
@@ -356,6 +371,10 @@ function extractCode(code) {
 
 function rewrite(code) {
 
+    //console.log("!!!! CODE: 0 !!!!");
+    //console.log(code);                
+    //console.log("!!!! CODE: 0 !!!!");
+    
     // box-js is assuming that the JS will be run on Windows with cscript or wscript.
     // Neither of these engines supports strict JS mode, so remove those calls from
     // the code.
@@ -383,6 +402,9 @@ function rewrite(code) {
     //console.log("!!!! CODE: 2 !!!!");
     //console.log(code);                
     //console.log("!!!! CODE: 2 !!!!");
+    //console.log("!!!! STRMAP !!!!");
+    //console.log(strMap);
+    //console.log("!!!! STRMAP !!!!");
     
     // Now unhide the string literals.
     code = unhideStrs(code, strMap);
