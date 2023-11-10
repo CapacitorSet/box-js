@@ -56,28 +56,36 @@ function rewriteSimpleControlLoop(key, val) {
     // While loop?
     if (val.type != "WhileStatement") return;
 
-    // 2 statements in the loop body?
+    // 2 statements in the loop body? Could also have a useless
+    // assignment statement.
     if (val.body.type != "BlockStatement") return;
-    if (val.body.body.length != 2) return;
+    if ((val.body.body.length != 2) && (val.body.body.length != 3)) return;
     
     // Should have 1 increment statement and 1 try catch in the loop
     // body. Figure out which is which.
     var line1 = val.body.body[0];
     var line2 = val.body.body[1];
+    var line3 = "??";
+    if (val.body.body.length == 3) {
+        line3 = val.body.body[2];
+    }
     
     // Any loop body statement is a try/catch?
-    if ((line1.type != "TryStatement") && (line2.type != "TryStatement")) return;
+    if ((line1.type != "TryStatement") && (line2.type != "TryStatement") && (line3.type != "TryStatement")) return;
     // Any loop body statement an expression?
-    if ((line1.type != "ExpressionStatement") && (line2.type != "ExpressionStatement")) return;
+    if ((line1.type != "ExpressionStatement") && (line2.type != "ExpressionStatement") && (line3.type != "ExpressionStatement")) return;
     
     // Carve out the try/catch and the expression.
-    if (line1.type != "TryStatement") {
-        const tmp = line1;
-        line1 = line2;
-        line2 = tmp;
-    }
-    const exceptBlock = line1;
-    const updateStmt = line2;
+    var exceptBlock;
+    var updateStmt;
+    if (line1.type == "TryStatement") exceptBlock = line1;
+    if (line2.type == "TryStatement") exceptBlock = line2;
+    if (line3.type == "TryStatement") exceptBlock = line3;
+    if (line1.type == "ExpressionStatement") updateStmt = line1;
+    if (line2.type == "ExpressionStatement") updateStmt = line2;
+    if (line3.type == "ExpressionStatement") updateStmt = line3;
+    line1 = exceptBlock;
+    line2 = updateStmt;
     
     // 1 statement in try block?
     if (line1.block.type != "BlockStatement") return;
@@ -121,7 +129,7 @@ function rewriteSimpleControlLoop(key, val) {
     r = require("./patches/except_while_loop.js")(val, exceptBlock, updateStmt);
     //console.log("REWRITE CONTROL!!");
     //console.log(JSON.stringify(r, null, 2));
-    //console.log(escodegen.generate(r));
+    console.log(escodegen.generate(r));
     return r;
 };
 
