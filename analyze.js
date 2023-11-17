@@ -117,6 +117,7 @@ function hideStrs(s) {
     var justExitedComment = false;
     var slashSubstr = ""
     var resetSlashes = false;
+    var justStartedRegex = false;
     s = stripSingleLineComments(s);
     //console.log("prev,curr,dbl,single,commsingl,comm,regex,slash,justexitcom");
     for (let i = 0; i < s.length; i++) {
@@ -215,12 +216,23 @@ function hideStrs(s) {
 
             // Save regex unmodified.
             r += currChar;
-
+            
             // Out of regex?
-            if (oldInRegex && (currChar == "/") && ((slashSubstr.length % 2) == 0)) {
+            //
+            // Unescaped '/' can appear in a regex (nice). Try to
+            // guess whether the '/' actually ends the regex based on
+            // the char after the '/'. Add chars that CANNOT appear
+            // after a regex def as needed.
+            //
+            // ex. var f=/[!"#$%&'()*+,/\\:;<=>?@[\]^`{|}~]/g;
+            if (!justStartedRegex && (prevChar == "/") && ((slashSubstr.length % 2) == 0) &&
+                ("\\:".indexOf(currChar) == -1)) {
                 inRegex = false;
             }
 
+            // Track seeing the '/' starting the regex.
+            justStartedRegex = !oldInRegex;
+            
             // Keep going until we leave the regex.
             if (currChar != " ") prevChar = currChar;
             if (resetSlashes) prevChar = " ";
@@ -276,7 +288,7 @@ function hideStrs(s) {
 	// Start/end backtick quoted string?
 	if ((currChar == '`') &&
             ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash && inStrBackTick)) &&
-            !inStrSingle && !inStrDouble) {
+            !inStrSingle && !inStrDouble && !inCommentSingle && !inComment && !inRegex) {
 
 	    // Switch being in/out of string.
 	    inStrBackTick = !inStrBackTick;
