@@ -378,7 +378,8 @@ function rewrite(code) {
     // box-js is assuming that the JS will be run on Windows with cscript or wscript.
     // Neither of these engines supports strict JS mode, so remove those calls from
     // the code.
-    code = code.toString().replace(/("|')use strict("|')/g, '"STRICT MODE NOT SUPPORTED"');
+    code = code.toString().replace(/"use strict"/g, '"STRICT MODE NOT SUPPORTED"');
+    code = code.toString().replace(/'use strict'/g, "'STRICT MODE NOT SUPPORTED'");
 
     // The following 2 code rewrites should not be applied to patterns
     // in string literals. Hide the string literals first.
