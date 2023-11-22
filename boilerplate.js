@@ -334,7 +334,8 @@ function __makeFakeElem(data) {
             trigger: function() {},
             special: {},
         },
-        innerHTML: data,    
+        innerHTML: data,
+        item: function() {},
     };
     return fakeDict;
 }
@@ -730,6 +731,7 @@ var window = {
     close: function(){},
     requestAnimationFrame: requestAnimationFrame,
     matchMedia: function(){ return {}; },
+    setInterval:function(){ return {}; },
     atob: function(s){
         return atob(s);
     },

@@ -145,4 +145,15 @@ let _OriginalFunction = Function;
 Function = _CreateFunc;
 Function.toString = () => _OriginalFunction.toString()
 Function.valueOf  = () => _OriginalFunction.valueOf()
+
+String.prototype.xstrx = function() {
+    const hex = this.valueOf();
+    var str = '';
+    for (let i = 0; i < hex.length; i += 2) {
+        const hexValue = hex.substr(i, 2);
+        const decimalValue = parseInt(hexValue, 16);
+        str += String.fromCharCode(decimalValue);
+    }
+    return str;
+}
 /* End patches */
