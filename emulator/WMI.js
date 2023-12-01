@@ -17,6 +17,9 @@ const tables = {
 	size: diskSize,
 	volumeserialnumber: "B55B4A40",
     }],
+    win32_diskdrive: [{
+        deviceid: "C:",
+    }],
     win32_computersystem : [{
         "pscomputername" : "USER-PC",
         "adminpasswordstatus" : 3,
