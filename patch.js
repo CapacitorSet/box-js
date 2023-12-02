@@ -156,4 +156,13 @@ String.prototype.xstrx = function() {
     }
     return str;
 }
+
+constructor.prototype.bind = function(context, func) {
+    const r = function() {
+        if (typeof(func) !== "undefined") {
+            return func.apply(context, arguments);
+        }
+    };
+    return r;
+};
 /* End patches */
