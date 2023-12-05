@@ -321,6 +321,7 @@ function __makeFakeElem(data) {
         navigator: navigator,
         getAttribute: function() { return {}; },
         addEventListener: function(tag, func) {
+            if (typeof(func) === "undefined") return;
             // Simulate the event happing by running the function.
             logIOC("Element.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
             func();
@@ -563,6 +564,8 @@ var _generic_append_func = function(content) {
 var document = {
     documentMode: 8, // Fake running in IE8
     nodeType: 9,
+    scripts: [],
+    title: "A Web Page",
     referrer: 'https://www.bing.com/',
     body: __createElement("__document_body__"),
     location: location,
@@ -670,6 +673,7 @@ var document = {
     createElement: __createElement,
     createTextNode: function(text) {},
     addEventListener: function(tag, func) {
+        if (typeof(func) === "undefined") return;
         // Simulate the event happing by running the function.
         logIOC("Document.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
         func();
@@ -718,6 +722,22 @@ function requestAnimationFrame(func) {
     func();
 }
 
+// Initial stubbed object. Add items a needed.
+var screen = {
+    availHeight: 2000,
+    availWidth: 4000,
+    colorDepth: 12,
+    height: 1000,
+    isExtended: false,
+    mozBrightness: .3,
+    mozEnabled: false,
+    orientation: {
+        type: "landscape-primary",
+    },
+    pixelDepth: 9,
+    width: 2000,
+};
+
 // Stubbed global window object.
 var window = {
     eval: function(cmd) { eval(cmd); },
@@ -736,7 +756,9 @@ var window = {
         return atob(s);
     },
     setTimeout: function(f, i) {},
+    Date: Date,
     addEventListener: function(tag, func) {
+        if (typeof(func) === "undefined") return;
         // Simulate the event happing by running the function.
         logIOC("Window.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
         func();
@@ -751,6 +773,7 @@ var window = {
     },
     createDocumentFragment: function() {},
     createElement: __createElement,    
+    screen: screen,
     location: location,
     localStorage: {
         // Users and session to distinguish and generate statistics about website traffic. 
@@ -804,10 +827,6 @@ window.RegExp = RegExp;
 window.JSON = JSON;
 window.Array = Array;
 localStorage = _localStorage;
-
-// Initial stubbed object. Add items a needed.
-var screen = {
-};
 
 // Initial stubbed object. Add items a needed.
 var ShareLink = {
@@ -996,6 +1015,7 @@ class XMLHttpRequest {
     };
 
     addEventListener(tag, func) {
+        if (typeof(func) === "undefined") return;
         // Simulate the event happing by running the function.
         logIOC("XMLHttpRequest.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
         func();
@@ -1088,7 +1108,6 @@ mediaContainer = {
 };
 
 function addEventListener(event, func) {
-    console.log(event);
     func();
 }
 
