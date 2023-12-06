@@ -738,6 +738,42 @@ var screen = {
     width: 2000,
 };
 
+class XMLHttpRequest {
+    constructor(){
+        this.method = null;
+        this.url = null;
+    };
+
+    addEventListener(tag, func) {
+        if (typeof(func) === "undefined") return;
+        // Simulate the event happing by running the function.
+        logIOC("XMLHttpRequest.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
+        func();
+    };
+
+    removeEventListener(tag) {
+        logIOC("XMLHttpRequest.removeEventListener()", {event: tag}, "The script removed an event listener for the '" + tag + "' event.");
+    };
+    
+    open(method, url) {
+        this.method = method;
+	// Maybe you can skip the http part of the URL and XMLHTTP
+	// still handles it?
+	if (url.startsWith("//")) {
+	    url = "http:" + url;
+	}
+        this.url = url;
+        lib.logIOC("XMLHttpRequest", {method: method, url: url}, "The script opened a HTTP request.");
+        lib.logUrl("XMLHttpRequest", url);
+    };
+
+    setRequestHeader(field, val) {
+        lib.logIOC("XMLHttpRequest", {field: field, value: val}, "The script set a HTTP header value.");
+    };
+    
+    send() {};
+};
+
 // Stubbed global window object.
 var window = {
     eval: function(cmd) { eval(cmd); },
@@ -813,6 +849,7 @@ var window = {
 	logIOC('MAIL_URL Location', {url}, "The script changed window.MAIL_URL.");
 	logUrl('MAIL_URL Location', url);
     },
+    XMLHttpRequest: XMLHttpRequest,
 };
 window.self = window;
 window.top = window;
@@ -1007,42 +1044,6 @@ function setInterval(func, val) {
     };
 };
 function clearInterval() {};
-
-class XMLHttpRequest {
-    constructor(){
-        this.method = null;
-        this.url = null;
-    };
-
-    addEventListener(tag, func) {
-        if (typeof(func) === "undefined") return;
-        // Simulate the event happing by running the function.
-        logIOC("XMLHttpRequest.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
-        func();
-    };
-
-    removeEventListener(tag) {
-        logIOC("XMLHttpRequest.removeEventListener()", {event: tag}, "The script removed an event listener for the '" + tag + "' event.");
-    };
-    
-    open(method, url) {
-        this.method = method;
-	// Maybe you can skip the http part of the URL and XMLHTTP
-	// still handles it?
-	if (url.startsWith("//")) {
-	    url = "http:" + url;
-	}
-        this.url = url;
-        lib.logIOC("XMLHttpRequest", {method: method, url: url}, "The script opened a HTTP request.");
-        lib.logUrl("XMLHttpRequest", url);
-    };
-
-    setRequestHeader(field, val) {
-        lib.logIOC("XMLHttpRequest", {field: field, value: val}, "The script set a HTTP header value.");
-    };
-    
-    send() {};
-};
 
 // Some JS checks to see if these are defined. Do very basic stubbing
 // until better stubbing is needed.
