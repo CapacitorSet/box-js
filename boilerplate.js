@@ -465,6 +465,15 @@ function __createElement(tag) {
             if (typeof(this._innerHTML) === "undefined") this._innerHTML = "";
             return this._innerHTML;
         },
+        addEventListener: function(tag, func) {
+            if (typeof(func) === "undefined") return;
+            // Simulate the event happing by running the function.
+            logIOC("Element.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
+            func();
+        },
+        removeEventListener: function(tag) {
+            logIOC("Element.removeEventListener()", {event: tag}, "The script removed an event listener for the '" + tag + "' event.");
+        },        
 	removeChild: function() {},
         "classList" : {
             add: function() {},
