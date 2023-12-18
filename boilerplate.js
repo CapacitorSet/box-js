@@ -1,6 +1,56 @@
 const parse = require("node-html-parser").parse;
 const lib = require("./lib.js");
 
+// Dummy event to use for faked event handler calls.
+const dummyEvent = {
+
+    // A boolean value indicating whether or not the event bubbles up through the DOM.
+    bubbles: true,
+
+    // A boolean value indicating whether the event is cancelable.
+    cancelable: true,
+
+    //A boolean indicating whether or not the event can bubble across
+    //the boundary between the shadow DOM and the regular DOM.
+    composed: true,
+
+    // A reference to the currently registered target for the
+    // event. This is the object to which the event is currently
+    // slated to be sent. It's possible this has been changed along
+    // the way through retargeting.
+    currentTarget: "??",
+
+    // Indicates whether or not the call to event.preventDefault() canceled the event.
+    defaultPrevented: false,
+
+    // Indicates which phase of the event flow is being processed. It
+    // is one of the following numbers: NONE, CAPTURING_PHASE,
+    // AT_TARGET, BUBBLING_PHASE.
+    eventPhase: 1, // CAPTURING_PHASE
+
+    // Indicates whether or not the event was initiated by the browser
+    // (after a user click, for instance) or by a script (using an
+    // event creation method, for example).
+    isTrusted: true,
+
+    // A reference to the object to which the event was originally
+    // dispatched.
+    target: "??",
+
+    // The time at which the event was created (in milliseconds). By
+    // specification, this value is time since epoch—but in reality,
+    // browsers' definitions vary. In addition, work is underway to
+    // change this to be a DOMHighResTimeStamp instead.
+    timeStamp: 1702919791198,
+
+    // The name identifying the type of the event.
+    type: "FILL IN BASED ON FAKED HANDLER",
+    
+    // For Key events.
+    key: 97, // "a"
+
+};
+
 // Handle Blobs. All Blob methods in the real Blob class for dumping
 // the data in a Blob are asynch and box-js is all synchronous, so
 // rather than rewriting the entire tool to be asynch we are just
@@ -324,7 +374,7 @@ function __makeFakeElem(data) {
             if (typeof(func) === "undefined") return;
             // Simulate the event happing by running the function.
             logIOC("Element.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
-            func();
+            func(dummyEvent);
         },
         removeEventListener: function(tag) {
             logIOC("Element.removeEventListener()", {event: tag}, "The script removed an event listener for the '" + tag + "' event.");
@@ -469,7 +519,7 @@ function __createElement(tag) {
             if (typeof(func) === "undefined") return;
             // Simulate the event happing by running the function.
             logIOC("Element.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
-            func();
+            func(dummyEvent);
         },
         removeEventListener: function(tag) {
             logIOC("Element.removeEventListener()", {event: tag}, "The script removed an event listener for the '" + tag + "' event.");
@@ -617,13 +667,6 @@ var document = {
         
         if (typeof(ids) != "undefined") {
 
-	    // Maybe just tracked as attr?
-	    for (var i = 0; i < attrs.length; i++) {
-		if (attrs[i].class === id) {
-		    return attrs[i];
-		}
-	    }
-
 	    // Look for it in ID map.
             for (var i = 0; i < ids.length; i++) {
                 if (char_codes_to_string(ids[i]) == id) {
@@ -638,6 +681,16 @@ var document = {
                     return r;                    
                 }
             }
+
+            // Maybe just tracked as attr?
+	    for (var i = 0; i < attrs.length; i++) {
+		if ((attrs[i].class === id) || ((attrs[i].id === id))) {
+                    var r = __createElement(id);
+                    r.value = attrs[i].value;
+		    return r;
+		}
+	    }
+            
         }
 
         // got nothing to return. Make up some fake element and hope for the best.
@@ -685,7 +738,7 @@ var document = {
         if (typeof(func) === "undefined") return;
         // Simulate the event happing by running the function.
         logIOC("Document.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
-        func();
+        func(dummyEvent);
     },
     removeEventListener: function(tag) {
         logIOC("Document.removeEventListener()", {event: tag}, "The script removed an event listener for the '" + tag + "' event.");
@@ -757,7 +810,7 @@ class XMLHttpRequest {
         if (typeof(func) === "undefined") return;
         // Simulate the event happing by running the function.
         logIOC("XMLHttpRequest.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
-        func();
+        func(dummyEvent);
     };
 
     removeEventListener(tag) {
@@ -806,7 +859,7 @@ var window = {
         if (typeof(func) === "undefined") return;
         // Simulate the event happing by running the function.
         logIOC("Window.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
-        func();
+        func(dummyEvent);
     },
     removeEventListener: function(tag) {
         logIOC("Window.removeEventListener()", {event: tag}, "The script removed an event listener for the '" + tag + "' event.");
@@ -1082,7 +1135,7 @@ class Image {
 function pullActionUrls(html) {
 
     // Sanity check.
-    if (typeof(html.match) == "undefined") return undefined;
+    if ((typeof(html) == "undefined") || (typeof(html.match) == "undefined")) return undefined;
     
     // Do we have action attributes?
     const actPat = /(?:action|src)\s*=\s*"([^"]*)"/g;
@@ -1118,7 +1171,7 @@ mediaContainer = {
 };
 
 function addEventListener(event, func) {
-    func();
+    func(dummyEvent);
 }
 
 if (typeof(arguments) === "undefined") {
