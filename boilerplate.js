@@ -837,85 +837,97 @@ class XMLHttpRequest {
 };
 
 // Stubbed global window object.
-var window = {
-    eval: function(cmd) { eval(cmd); },
-    resizeTo: function(a,b){},
-    moveTo: function(a,b){},
-    open: function(url) {
-        if ((typeof(url) == "string") && (url.length > 0)){
-            logIOC('window.open()', {url}, "The script loaded a resource.");
-        }
-    },
-    close: function(){},
-    requestAnimationFrame: requestAnimationFrame,
-    matchMedia: function(){ return {}; },
-    setInterval:function(){ return {}; },
-    atob: function(s){
-        return atob(s);
-    },
-    setTimeout: function(f, i) {},
-    Date: Date,
-    addEventListener: function(tag, func) {
-        if (typeof(func) === "undefined") return;
-        // Simulate the event happing by running the function.
-        logIOC("Window.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
-        func(dummyEvent);
-    },
-    removeEventListener: function(tag) {
-        logIOC("Window.removeEventListener()", {event: tag}, "The script removed an event listener for the '" + tag + "' event.");
-    },
-    attachEvent: function(){},
-    getComputedStyle: function(){
-	return ["??",
-		"-moz-"];
-    },
-    createDocumentFragment: function() {},
-    createElement: __createElement,    
-    screen: screen,
-    location: location,
-    localStorage: {
-        // Users and session to distinguish and generate statistics about website traffic. 
-        "___utma" : undefined,
-        // Users and session to distinguish and generate statistics about website traffic. 
-        "__utma" : undefined,
-        // Determine new sessions and visits and generate statistics about website traffic. 
-        "__utmb" : undefined,
-        // Determine new sessions and visits and generate statistics about website traffic. 
-        "__utmc" : undefined,
-        // Process user requests and generate statistics about the website traffic. 
-        "__utmt" : undefined,
-        // Store customized variable data at visitor level and generate statistics about the website traffic. 
-        "__utmv" : undefined,
-        // To record the traffic source or campaign how users ended up on the website. 
-        "__utmz" : undefined,
-    },
-    document: document,
-    navigator: navigator,
-    _NavbarView: class _NavbarView {
-        constructor() {};    
-    },
-    URL: URL,
-    decodeURIComponent: decodeURIComponent,
-    set onload(func) {
-	lib.info("Script set window.onload function.");
-	func();
-    },
-    get MAIL_URL() {
-        if (typeof(this._MAIL_URL) === "undefined") this._href = 'http://mylegitdomain.com:2112/and/i/have/a/path.php#tag?var1=12&ref=otherlegitdomain.moe';
-        return this._MAIL_URL;
-    },
-    set MAIL_URL(url) {
-	// Could be base64.
-	if (atob(url)) url = atob(url);
-	this._MAIL_URL = url;
-	logIOC('MAIL_URL Location', {url}, "The script changed window.MAIL_URL.");
-	logUrl('MAIL_URL Location', url);
-    },
-    XMLHttpRequest: XMLHttpRequest,
-};
+function makeWindowObject() {
+    var window = {
+        eval: function(cmd) { eval(cmd); },
+        resizeTo: function(a,b){},
+        moveTo: function(a,b){},
+        open: function(url) {
+            if ((typeof(url) == "string") && (url.length > 0)){
+                logIOC('window.open()', {url}, "The script loaded a resource.");
+            }
+        },
+        close: function(){},
+        requestAnimationFrame: requestAnimationFrame,
+        matchMedia: function(){ return {}; },
+        setInterval:function(){ return {}; },
+        atob: function(s){
+            return atob(s);
+        },
+        setTimeout: function(f, i) {},
+        Date: Date,
+        addEventListener: function(tag, func) {
+            if (typeof(func) === "undefined") return;
+            // Simulate the event happing by running the function.
+            logIOC("Window.addEventListener()", {event: tag}, "The script added an event listener for the '" + tag + "' event.");
+            func(dummyEvent);
+        },
+        removeEventListener: function(tag) {
+            logIOC("Window.removeEventListener()", {event: tag}, "The script removed an event listener for the '" + tag + "' event.");
+        },
+        attachEvent: function(){},
+        getComputedStyle: function(){
+	    return ["??",
+		    "-moz-"];
+        },
+        createDocumentFragment: function() {},
+        createElement: __createElement,    
+        screen: screen,
+        _location: location,
+        get location() {
+            return this._location;
+        },
+        set location(url) {
+            this._location.href = url;
+        },
+        localStorage: {
+            // Users and session to distinguish and generate statistics about website traffic. 
+            "___utma" : undefined,
+            // Users and session to distinguish and generate statistics about website traffic. 
+            "__utma" : undefined,
+            // Determine new sessions and visits and generate statistics about website traffic. 
+            "__utmb" : undefined,
+            // Determine new sessions and visits and generate statistics about website traffic. 
+            "__utmc" : undefined,
+            // Process user requests and generate statistics about the website traffic. 
+            "__utmt" : undefined,
+            // Store customized variable data at visitor level and generate statistics about the website traffic. 
+            "__utmv" : undefined,
+            // To record the traffic source or campaign how users ended up on the website. 
+            "__utmz" : undefined,
+        },
+        document: document,
+        navigator: navigator,
+        _NavbarView: class _NavbarView {
+            constructor() {};    
+        },
+        URL: URL,
+        decodeURIComponent: decodeURIComponent,
+        set onload(func) {
+	    lib.info("Script set window.onload function.");
+	    func();
+        },
+        get MAIL_URL() {
+            if (typeof(this._MAIL_URL) === "undefined") this._href = 'http://mylegitdomain.com:2112/and/i/have/a/path.php#tag?var1=12&ref=otherlegitdomain.moe';
+            return this._MAIL_URL;
+        },
+        set MAIL_URL(url) {
+	    // Could be base64.
+	    if (atob(url)) url = atob(url);
+	    this._MAIL_URL = url;
+	    logIOC('MAIL_URL Location', {url}, "The script changed window.MAIL_URL.");
+	    logUrl('MAIL_URL Location', url);
+        },
+        XMLHttpRequest: XMLHttpRequest,
+    };
+
+    return window;
+}
+window = makeWindowObject();
 window.self = window;
 window.top = window;
 self = window;
+window.parent = makeWindowObject();
 const _localStorage = {
     getItem: function(x) {return undefined},
     setItem: function(x,y) {},
