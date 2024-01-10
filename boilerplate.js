@@ -757,7 +757,17 @@ var document = {
 class URL {
 
     constructor(url, base="") {
+        if (typeof(url) == "undefined") url = "???";
 	this.url = url + base;
+        this.hostname = "???";
+        const startHost = this.url.indexOf("://");
+        if (startHost >= 0) {
+            this.hostname = this.url.slice(startHost + 3);
+            const endHost = this.hostname.indexOf("/");
+            if (endHost >= 0) {
+                this.hostname = this.hostname.slice(0, endHost);
+            }
+        }
 	lib.logIOC("URL()", {method: "URL()", url: this.url}, "The script created a URL object.");
         lib.logUrl("URL()", this.url);
     };
@@ -938,6 +948,7 @@ window.RegExp = RegExp;
 window.JSON = JSON;
 window.Array = Array;
 localStorage = _localStorage;
+top = window;
 
 // Initial stubbed object. Add items a needed.
 var ShareLink = {
