@@ -429,6 +429,10 @@ function __createElement(tag) {
             logIOC('Remote Script', {url}, "The script set a remote script source.");
             logUrl('Remote Script', url);
         },
+        set onerror(func) {
+            // Call the onerror handler.
+            func();
+        },
         // Not ideal or close to correct, but sometimes needs a parentNode field.
         parentNode: __fakeParentElem,
         log: [],
