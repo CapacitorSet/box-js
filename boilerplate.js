@@ -1204,3 +1204,9 @@ function addEventListener(event, func) {
 if (typeof(arguments) === "undefined") {
     var arguments = [];
 }
+
+// TODO: Add flag to specify whether to use high or low values.
+Math.random = function() {
+    logIOC('Math.random', {}, "Script called Math.random().");
+    return 0.0;
+}
