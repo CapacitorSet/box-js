@@ -188,6 +188,11 @@
             "description": "Rewrite == checks so that comparisons of the current script name to a hard coded script name always return true."
         },
         {
+            "name": "real-script-name",
+            "type": "Boolean",
+            "description": "Return the real file name of the currently analyzed script rather than a fake name."
+        },
+        {
             "name": "activex-as-ioc",
             "type": "Boolean",
             "description": "Logs All ActiveX calls as IOC's and tries to determine if the call is obfuscated in the JS source."

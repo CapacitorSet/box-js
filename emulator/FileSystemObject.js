@@ -7,9 +7,14 @@ function TextStream(filename) {
     this.buffer = lib.readFile(filename) || "";
     this.uuid = lib.getUUID();
     this.filename = filename;
-    this.bufferarray = [];
-
-    this.atendofstream = () => this.bufferarray.length === 0;
+    this.bufferarray = this.buffer.split("\n");    
+    this.__atendofstream = function() {
+        return (this.bufferarray.length === 0);
+    };
+    // Call AtEndOfStream as property.
+    Object.defineProperty(this, 'atendofstream', {
+        get: () => this.__atendofstream(),
+    });
     this.close = () => {};
     this.readall = () => {
 	return this.buffer;

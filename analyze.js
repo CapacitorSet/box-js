@@ -802,6 +802,13 @@ if (argv["fake-sample-name"]) {
                {"sample-name": sampleName, "sample-name-full": sampleFullName},
                "Using fake sample file name " + sampleFullName + " when analyzing.");
 }
+else if (argv["real-script-name"]) {
+    sampleName = path.basename(filename);
+    sampleFullName = filename;
+    lib.logIOC("Sample Name",
+               {"sample-name": sampleName, "sample-name-full": sampleFullName},
+               "Using real sample file name " + sampleFullName + " when analyzing.");
+}
 else {
     lib.logIOC("Sample Name",
                {"sample-name": sampleName, "sample-name-full": sampleFullName},
