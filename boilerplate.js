@@ -1206,7 +1206,11 @@ if (typeof(arguments) === "undefined") {
 }
 
 // TODO: Add flag to specify whether to use high or low values.
+var randVal = 0.0;
 Math.random = function() {
     logIOC('Math.random', {}, "Script called Math.random().");
-    return 0.0;
+    const r = randVal;
+    randVal += 0.1;
+    if (randVal > 1.0) randval = 0.0;
+    return r;
 }
