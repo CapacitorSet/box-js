@@ -381,7 +381,7 @@ function extractCode(code) {
     return r;
 }
 
-function rewrite(code) {
+function rewrite(code, useException=false) {
 
     //console.log("!!!! CODE: 0 !!!!");
     //console.log(code);                
@@ -512,6 +512,7 @@ If you run into unexpected results, try uncommenting lines that look like
                     },
                 });
             } catch (e) {
+                if (useException) return 'throw("Parse Error")';
                 lib.error("Couldn't parse with Acorn:");
                 lib.error(e);
                 lib.error("");
@@ -950,7 +951,7 @@ const sandbox = {
     }),
     parse: (x) => {},
     rewrite: (code, log = false) => {
-        const ret = rewrite(code);
+        const ret = rewrite(code, useException=true);
         if (log) lib.logJS(ret);
         return ret;
     },
