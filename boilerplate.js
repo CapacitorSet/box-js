@@ -850,6 +850,8 @@ class XMLHttpRequest {
     send() {};
 };
 
+dataLayer = [];
+
 // Stubbed global window object.
 function makeWindowObject() {
     var window = {
@@ -911,6 +913,7 @@ function makeWindowObject() {
             "__utmz" : undefined,
         },
         document: document,
+        dataLayer: [],
         navigator: navigator,
         _NavbarView: class _NavbarView {
             constructor() {};    
