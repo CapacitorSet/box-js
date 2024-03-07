@@ -157,6 +157,12 @@ String.prototype.xstrx = function() {
     return str;
 }
 
+// Fake up JQuery $("#q").val(...) uses.
+String.prototype.val = function(value) {
+    if (!this.startsWith("#")) return;
+    logIOC("JQuery", value, "The script used JQuery $(\"#q\").val(...) to set an element.")
+}
+
 constructor.prototype.bind = function(context, func) {
     const r = function() {
         if (typeof(func) !== "undefined") {
