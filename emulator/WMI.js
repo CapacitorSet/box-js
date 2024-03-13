@@ -384,6 +384,10 @@ module.exports.GetObject = function(name) {
 	    lib.logSnippet(lib.getUUID(), {as: "command"}, command);
 	    return "";
 	},
+        AddressWidth: foo => {
+            lib.logIOC("WMI.GetObject.AddressWidth", "", "The script checked processor address width with WMI.");
+	    return "64";
+	},
     }, {
 	get(target, name) {
             //console.log("^^^^^^^^^^^");

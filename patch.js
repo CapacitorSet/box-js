@@ -163,6 +163,10 @@ String.prototype.val = function(value) {
     logIOC("JQuery", value, "The script used JQuery $(\"#q\").val(...) to set an element.")
 }
 
+Object.prototype.replace = function() {
+    return "";
+}
+
 constructor.prototype.bind = function(context, func) {
     const r = function() {
         if (typeof(func) !== "undefined") {
