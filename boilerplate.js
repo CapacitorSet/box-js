@@ -49,6 +49,7 @@ const dummyEvent = {
     // For Key events.
     key: 97, // "a"
 
+    stopPropagation: function() {},
 };
 
 // Handle Blobs. All Blob methods in the real Blob class for dumping
