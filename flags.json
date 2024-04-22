@@ -178,6 +178,11 @@
             "description": "Throttle reporting and data tracking of file writes that write a LOT of data"
         },
         {
+            "name": "throttle-commands",
+            "type": "Boolean",
+            "description": "Stop the analysis if a LOT of the same commands have been run"
+        },
+        {
             "name": "extract-conditional-code",
             "type": "Boolean",
             "description": "Pull the actual code to analyze from JScript conditional comments (/*@if(...)."

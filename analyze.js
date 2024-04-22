@@ -716,6 +716,11 @@ if (argv["throttle-writes"]) {
     lib.throttleFileWrites(true);
 };
 
+// Track if we are throttling frequent command executions.
+if (argv["throttle-commands"]) {
+    lib.throttleCommands(true);
+};
+
 // Rewrite the code if needed.
 code = rewrite(code);
 

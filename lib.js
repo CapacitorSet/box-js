@@ -93,6 +93,18 @@ function throttleFileWrites(val) {
     throttleWrites = val;
 };
 
+// If needed stop writing lots of the same sorts of commands.
+var _throttleCommands = false;
+var numCommandsRun = 0;
+const maxCommands = 5000;
+const maxPrefixCommands = 500;
+var commandPrefixCounts = {};
+
+// Function for enabling/disabling command throttling.
+function throttleCommands(val) {
+    _throttleCommands = val;
+};
+
 function noCasePropObj(obj)
 {
     var handler =
@@ -177,6 +189,7 @@ module.exports = {
     kill,
     getUUID,
     throttleFileWrites,
+    throttleCommands,
     noCasePropObj,
     
     debug: log.bind(null, "debug"),
@@ -358,6 +371,36 @@ module.exports = {
     },
     logIOC,
     runShellCommand: (command) => {
+        // Have too many commands been run?
+        if (_throttleCommands) {
+
+            // Too many commands total?
+            numCommandsRun++;
+            if (numCommandsRun > maxCommands) {
+                log("warn", "Too many commands were run. Terminating.");
+                console.log("");
+                lib.kill("Too many commands were run. Terminating.");
+            }
+
+            // Too many very similar commands?
+            if (command.lastIndexOf(" ") > 10) {
+
+                // Assuming that a command may just vary by an
+                // argument, strip off the last argument.
+                const end = command.lastIndexOf(" ");
+                const prefix = command.slice(0, end);
+                if (!(prefix in commandPrefixCounts)) {
+                    commandPrefixCounts[prefix] = 0;
+                }
+                commandPrefixCounts[prefix]++;
+                if (commandPrefixCounts[prefix] > maxPrefixCommands) {
+                    log("warn", "Too many similar commands were run. Terminating.");
+                    console.log("");
+                    lib.kill("Too many similar commands were run. Terminating.");
+                }
+            }
+        }
+        
 	const filename = getUUID();
 	logIOC("Run", {command}, "The script ran the command '" + command + "'.");
 	logSnippet(filename, {as: "WScript code"}, command);
