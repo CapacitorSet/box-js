@@ -46,7 +46,7 @@ function WScriptShell() {
     };
 
     this.environment1 = undefined;
-    this.specialfolders = (x) => `(Special folder ${x})`;
+    this.specialfolders = (x) => `${x}`;
     this.createshortcut = function(shortcut) {
 
         // Thrown error for things that don't look like MS shortcuts.
