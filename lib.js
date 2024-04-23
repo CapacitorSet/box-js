@@ -379,7 +379,9 @@ module.exports = {
             if (numCommandsRun > maxCommands) {
                 log("warn", "Too many commands were run. Terminating.");
                 console.log("");
-                lib.kill("Too many commands were run. Terminating.");
+                // We want this to take precedence over the --no-kill
+                // flag, so directly exit.
+                process.exit(0);
             }
 
             // Too many very similar commands?
@@ -396,7 +398,9 @@ module.exports = {
                 if (commandPrefixCounts[prefix] > maxPrefixCommands) {
                     log("warn", "Too many similar commands were run. Terminating.");
                     console.log("");
-                    lib.kill("Too many similar commands were run. Terminating.");
+                    // We want this to take precedence over the --no-kill
+                    // flag, so directly exit.
+                    process.exit(0);
                 }
             }
         }
