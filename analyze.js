@@ -76,10 +76,13 @@ function stripSingleLineComments(s) {
     const lines = s.split("\n");
     var r = "";
     for (const line of lines) {
-        var lineStrip = line.trim();
-        // Full line comment?
-        if (lineStrip.startsWith("//")) continue;
-        r += line + "\n";
+        var lineStrip = line.trim() + "\r";
+        for (const subLine of lineStrip.split("\r")) {
+            // Full line comment?
+            var subLineStrip = subLine.trim();
+            if (subLineStrip.startsWith("//")) continue;
+            r += subLineStrip + "\n";
+        }
     }
     return r;
 }
@@ -194,7 +197,7 @@ function hideStrs(s) {
             r += currChar;
 
             // Out of comment?
-            if (currChar == "\n") {
+            if ((currChar == "\n") || (currChar == "\r")) {
                 inCommentSingle = false;
             }
 
