@@ -122,6 +122,16 @@ function hideStrs(s) {
     var resetSlashes = false;
     var justStartedRegex = false;
     s = stripSingleLineComments(s);
+    // For debugging.
+    var window = "               ";
+    // Special case. Regex uses like '/.../["test"]' are really hard
+    // to deal with. Hide all '["test"]' instances.
+    var tmpName = "HIDE_" + counter++;
+    s = s.replace(/\["test"\]/g, tmpName);
+    allStrs[tmpName] = '["test"]';
+    tmpName = "HIDE_" + counter++;
+    s = s.replace(/\['test'\]/g, tmpName);
+    allStrs[tmpName] = "['test']";
     //console.log("prev,curr,dbl,single,commsingl,comm,regex,slash,justexitcom");
     for (let i = 0; i < s.length; i++) {
 
@@ -143,6 +153,9 @@ function hideStrs(s) {
             slashSubstr = "";
             resetSlashes = true;
         }
+        // Debugging.
+        //window = window.slice(1,) + currChar;
+        //console.log(window);
         
         // Start /* */ comment?
 	var oldInComment = inComment;
@@ -857,7 +870,7 @@ var wscript_proxy = new Proxy({
     scriptfullname: sampleFullName,
     scriptname: sampleName,
     quit: function() {        
-        lib.logIOC("WScript", "Quit()", "The sample explcitly called WScript.Quit().");
+        lib.logIOC("WScript", "Quit()", "The sample explicitly called WScript.Quit().");
         //console.trace()
         if (!argv["ignore-wscript-quit"]) {
             process.exit(0);
