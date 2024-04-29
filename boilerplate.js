@@ -118,6 +118,11 @@ class VBArray {
     };
 };
 
+function btoa(data) {
+    if (typeof(data) == "undefined") return "";
+    return Buffer.from(data, 'binary').toString('base64')
+}
+
 // atob() taken from abab.atob.js .
 
 /**
@@ -819,8 +824,21 @@ class XMLHttpRequest {
     constructor(){
         this.method = null;
         this.url = null;
+        this.readyState = 4;
+        this.status = 200;
+        this.responseText = "";
     };
 
+    _onreadystatechange = undefined;
+    get onreadystatechange() {
+        return this._onreadystatechange;
+    };
+    set onreadystatechange(func) {
+        lib.info("onreadystatechange() method set for XMLHTTP object.");
+        this._onreadystatechange = func;
+        if (typeof(func) !== "undefined") func();
+    };
+    
     addEventListener(tag, func) {
         if (typeof(func) === "undefined") return;
         // Simulate the event happing by running the function.
@@ -1122,8 +1140,10 @@ var _WidgetManager = {
 
 // We are acting like cscript when emulating. JS in cscript does not
 // implement Array.reduce().
-Array.prototype.reduce = function(a, b) {
-    throw "CScript JScript has no Array.reduce() method."
+if (WScript.name != "node") {
+    Array.prototype.reduce = function(a, b) {
+        throw "CScript JScript has no Array.reduce() method."
+    };
 };
 
 function setTimeout(func, time) {

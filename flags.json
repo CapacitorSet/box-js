@@ -70,7 +70,7 @@
         {
             "name": "fake-script-engine",
             "type": "String",
-            "description": "The script engine to report in WScript.FullName and WScript.Name (ex. 'cscript.exe' or 'wscript.exe'). Default is wscript.exe."
+            "description": "The script engine to report in WScript.FullName and WScript.Name (ex. 'cscript.exe', 'wscript.exe', or 'node'). Default is wscript.exe."
         },
         {
             "name": "fake-cl-args",

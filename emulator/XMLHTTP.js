@@ -3,7 +3,14 @@ const argv = require("../argv.js").run;
 
 function XMLHTTP() {
     this.headers = {};
-    this.onreadystatechange = () => {};
+    this._onreadystatechange = () => {};
+    get onreadystatechange() {
+        return this._onreadystatechange;
+    };
+    set onreadystatechange(func) {
+        lib.info("onreadystatechange() method set for XMLHTTP object.");
+        //if (typeof(func) !== "undefined") func();
+    };
     this.readystate = 0;
     this.statustext = "UNSENT";
     this.status = undefined;
