@@ -270,6 +270,7 @@ var location = {
         return this._href;
     },
     set href(url) {
+	url = url.replace(/\r?\n/g, "");
         this._href = url;
         logIOC('HREF Location', {url}, "The script changed location.href.");
 	logUrl('HREF Location', url);
