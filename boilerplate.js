@@ -611,8 +611,7 @@ const navigator = {
     },
     virtualKeyboard: {
     },
-    webdriver: {
-    },
+    webdriver: false,
     windowControlsOverlay: {
     },
     xr: {
