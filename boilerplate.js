@@ -836,7 +836,14 @@ class XMLHttpRequest {
     set onreadystatechange(func) {
         lib.info("onreadystatechange() method set for XMLHTTP object.");
         this._onreadystatechange = func;
-        if (typeof(func) !== "undefined") func();
+        if (typeof(func) !== "undefined") {
+            try {
+                func("fake");
+            }
+            catch (e) {
+                lib.info("Callback function execution failed. Continuing analysis anyway.");
+            }
+        }
     };
     
     addEventListener(tag, func) {
