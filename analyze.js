@@ -132,6 +132,15 @@ function hideStrs(s) {
     tmpName = "HIDE_" + counter++;
     s = s.replace(/\['test'\]/g, tmpName);
     allStrs[tmpName] = "['test']";
+    // Similar to the above, obfuscator.io constructs like
+    // '/.../[0x_fff(' are also really hard to deal with. Replace
+    // those also.
+    tmpName = "HIDE_" + counter++;
+    // Ony match exprs that start with the '/' and keep the '/' in the
+    // code to close out the regex. We are doing this because
+    // Replacement name must start with HIDE_.
+    s = s.replace(/\/\[_0x/g, "/" + tmpName);
+    allStrs[tmpName] = "[_0x";
     //console.log("prev,curr,dbl,single,commsingl,comm,regex,slash,justexitcom");
     for (let i = 0; i < s.length; i++) {
 
