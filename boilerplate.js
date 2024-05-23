@@ -414,6 +414,7 @@ function __getElementsByTagName(tag) {
     }
 };
 
+var __currSelectedVal = undefined;
 var __fakeParentElem = undefined;
 function __createElement(tag) {
     var fake_elem = {
@@ -490,6 +491,9 @@ function __createElement(tag) {
         // Probably wrong, fix this if it causes problems.
         querySelector: function(tag) {
             return __createElement(tag);
+        },
+        select: function() {
+            __currSelectedVal = this.val;
         },
         cloneNode: function() {
             // Actually clone the element (deep copy).
@@ -657,6 +661,11 @@ var document = {
         func();
     },
     elementCache : {},
+    execCommand : function(cmd) {
+        if ((cmd == "copy") && (typeof(__currSelectedVal) !== "undefined")) {
+            logIOC('Clipboard', __currSelectedVal, "The script pasted text into the clipboard.");
+        }
+    },
     getElementById : function(id) {
 
 	// Normalize ID.
@@ -688,6 +697,7 @@ var document = {
                     };
                     r.attrs = attrs[i];
                     this.elementCache[id] = r;
+                    r.val = jqueryVals[id];
                     return r;                    
                 }
             }
@@ -704,7 +714,9 @@ var document = {
         }
 
         // got nothing to return. Make up some fake element and hope for the best.
-        return __createElement(id);
+        var r = __createElement(id);
+        r.val = jqueryVals[id];
+        return r;
     },
     documentElement: {
         style: {},
@@ -881,7 +893,7 @@ dataLayer = [];
 // Stubbed global window object.
 function makeWindowObject() {
     var window = {
-        eval: function(cmd) { eval(cmd); },
+        eval: function(cmd) { return eval(cmd); },
         resizeTo: function(a,b){},
         moveTo: function(a,b){},
         open: function(url) {
@@ -971,6 +983,7 @@ window.self = window;
 window.top = window;
 self = window;
 window.parent = makeWindowObject();
+download = window;
 const _localStorage = {
     getItem: function(x) {return undefined},
     setItem: function(x,y) {},

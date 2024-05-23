@@ -157,10 +157,15 @@ String.prototype.xstrx = function() {
     return str;
 }
 
+// Track the values of elements set by JQuery $("#q").val(...) uses.
+var jqueryVals = {};
+
 // Fake up JQuery $("#q").val(...) uses.
 String.prototype.val = function(value) {
     if (!this.startsWith("#")) return;
     logIOC("JQuery", value, "The script used JQuery $(\"#q\").val(...) to set an element.")
+    var name = this.slice(1);
+    jqueryVals[name] = value;
 }
 
 Object.prototype.replace = function() {
