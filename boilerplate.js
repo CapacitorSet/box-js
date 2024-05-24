@@ -322,7 +322,17 @@ var location = {
        Is a USVString containing a '#' followed by the fragment identifier
        of the URL.
     */
-    hash: '#eyAiZW1haWwiIDogInZpY3RpbUBwbGVhc2UucGhpc2gubWUiIH0K',
+    get hash() {
+        // Return a fake fragment ID if location is not set.
+        if (typeof(this._href) === "undefined") {
+            return '#eyAiZW1haWwiIDogInZpY3RpbUBwbGVhc2UucGhpc2gubWUiIH0K';
+        };
+        // Return the actual fragment ID if we have one.
+        const i = this._href.indexOf("#");
+        var r = "";
+        if (i >= 0) r = this._href.slice(i);
+        return r;
+    },
 
     /* 
        Location.origin Read only
@@ -1258,3 +1268,14 @@ Math.random = function() {
     if (randVal > 1.0) randval = 0.01;
     return r;
 }
+
+// Fake history object.
+var history = {
+
+    replaceState: function(state, unused, url) {
+        logIOC('history', url, "The script changed browsing history with history.replaceState().");
+        // Let's assume that the current location is being set to this URL.
+        location._href = url;
+    },
+    pushState: function() {},
+};
