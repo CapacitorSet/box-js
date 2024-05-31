@@ -168,6 +168,9 @@ String.prototype.val = function(value) {
     jqueryVals[name] = value;
 }
 
+// Fake up JQuery $("#q").fadeIn(...) uses.
+String.prototype.fadeIn = function() {};
+
 Object.prototype.replace = function() {
     return "";
 }
