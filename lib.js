@@ -315,8 +315,9 @@ module.exports = {
             return;
         };
 
-        // Save the new file contents.
-	fs.writeFileSync(filePath, content);
+        // Save the new file contents. Save as binary data to make
+        // sure we dump the exact bytes to disk.
+	fs.writeFileSync(filePath, content, "binary");
 
         // Don't spam lots of file write info to same file.
         if (typeof(fileWriteCount[filePath]) == "undefined") fileWriteCount[filePath] = 0;
