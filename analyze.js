@@ -446,8 +446,10 @@ function rewrite(code, useException=false) {
     // (replace these expressions with comments). We have to do this
     // with regexes rather than modifying the parse tree since these
     // expressions cannot be parsed by acorn.
-    const rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[\n;])/g;
+    var rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[;])/g;
     code = code.toString().replace(rvaluePat, ';/* ASSIGNING TO RVALUE */');
+    rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[\n])/g;
+    code = code.toString().replace(rvaluePat, ';// ASSIGNING TO RVALUE');
     //console.log("!!!! CODE: 2 !!!!");
     //console.log(code);                
     //console.log("!!!! CODE: 2 !!!!");
