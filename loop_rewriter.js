@@ -129,7 +129,7 @@ function rewriteSimpleControlLoop(key, val) {
     r = require("./patches/except_while_loop.js")(val, exceptBlock, updateStmt);
     //console.log("REWRITE CONTROL!!");
     //console.log(JSON.stringify(r, null, 2));
-    console.log(escodegen.generate(r));
+    //console.log(escodegen.generate(r));
     return r;
 };
 
