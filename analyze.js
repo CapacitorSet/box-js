@@ -141,7 +141,7 @@ function hideStrs(s) {
     // Replacement name must start with HIDE_.
     s = s.replace(/\/\[_0x/g, "/" + tmpName);
     allStrs[tmpName] = "[_0x";
-    //console.log("prevprev,prev,curr,dbl,single,commsingl,comm,regex,slash,justexitcom");
+    //console.log("prevprev,prev,curr,dbl,single,commsingl,comm,regex,oldinregex,slash,justexitcom");
     for (let i = 0; i < s.length; i++) {
 
         // Track consecutive backslashes. We use this to tell if the
@@ -168,8 +168,8 @@ function hideStrs(s) {
         
         // Start /* */ comment?
 	var oldInComment = inComment;
-        inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle && !inCommentSingle && !inStrBackTick && !inRegex);
-        //console.log(JSON.stringify([prevPrevChar, prevChar, currChar, inStrDouble, inStrSingle, inCommentSingle, inComment, inRegex, slashSubstr, justExitedComment]))
+        inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle && !inCommentSingle && !inStrBackTick && (!inRegex || !oldInRegex));
+        //console.log(JSON.stringify([prevPrevChar, prevChar, currChar, inStrDouble, inStrSingle, inCommentSingle, inComment, inRegex, oldInRegex, slashSubstr, justExitedComment]))
 	//console.log(r);
         
         // In /* */ comment?
@@ -303,7 +303,7 @@ function hideStrs(s) {
 	// Start/end double quoted string?
 	if ((currChar == '"') &&
             ((prevChar != "\\") || ((prevChar == "\\") && ((slashSubstr.length % 2) == 0) && inStrDouble)) &&
-            !inStrSingle && !inStrBackTick) {
+            !inStrSingle && !inStrBackTick && !inCommentSingle && !inComment && !inRegex) {
 
 	    // Switch being in/out of string.
 	    inStrDouble = !inStrDouble;
@@ -362,6 +362,7 @@ function hideStrs(s) {
         resetSlashes = false;
         prevEscapedSlash = escapedSlash;
     }
+    //console.log(JSON.stringify([prevPrevChar, prevChar, currChar, inStrDouble, inStrSingle, inCommentSingle, inComment, inRegex, slashSubstr, justExitedComment]))
     return [r, allStrs];
 }
 
