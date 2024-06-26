@@ -609,6 +609,7 @@ const navigator = {
     },
     permissions: {
     },
+    platform: "Win32",
     presentation: {
     },
     serial: {
@@ -995,7 +996,7 @@ self = window;
 window.parent = makeWindowObject();
 download = window;
 const _localStorage = {
-    getItem: function(x) {return undefined},
+    getItem: function(x) {return null},
     setItem: function(x,y) {},
 };
 window.localStorage = _localStorage;
