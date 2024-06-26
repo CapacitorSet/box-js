@@ -735,9 +735,14 @@ cc decoder.c -o decoder
 
             lib.verbose("Rewritten successfully.", false);
         } catch (e) {
-            console.log("An error occurred during rewriting:");
-            console.log(e);
-            process.exit(3);
+	    if (argv["ignore-rewrite-errors"]) {
+		lib.warning("Code rewriting failed. Analyzing original sample.");
+	    }
+	    else {
+		console.log("An error occurred during rewriting:");
+		console.log(e);
+		process.exit(3);
+	    }
         }
     }
 

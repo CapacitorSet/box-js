@@ -206,7 +206,13 @@
             "name": "ignore-wscript-quit",
             "type": "Boolean",
             "description": "Ignore calls to WSCript.Quit() and continue execution."
+        },
+	{
+            "name": "ignore-rewrite-errors",
+            "type": "Boolean",
+            "description": "Analyze original sample if any sample rewrites fail."
         }
+
     ],
     "export": [
         {
