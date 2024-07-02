@@ -410,9 +410,14 @@ function extractCode(code) {
     // See if we can pull code out from conditional comments.
     // /*@if(@_jscript_version >= 4) ... @else @*/
     // /*@if(1) ... @end@*/
-    const commentPat = /\/\*@if\s*\([^\)]+\)(.+?)@(else|end)\s*@\s*\*\//
+    //
+    // /*@cc_on
+    // @if(1) ... @end@*/
+    const commentPat = /\/\*(?:@cc_on\s+)?@if\s*\([^\)]+\)(.+?)@(else|end)\s*@\s*\*\//s
     const codeMatch = code.match(commentPat);
-    if (!codeMatch) return code;
+    if (!codeMatch) {
+        return code;
+    }
     var r = codeMatch[1];
     lib.info("Extracted code to analyze from conditional JScript comment.");
     return r;
