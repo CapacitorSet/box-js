@@ -1038,6 +1038,13 @@ function adjustIframes() {};
 var funcDict = {
     on: function(){ return funcDict },
     val: function() {},
+    click: function(f) {
+	// Fake event arg for click function. Add fields as needed.
+	const e = {
+	    preventDefault: function() {},
+	};
+	f(e);
+    },
     scroll: function() {},
     ready: function() {},
     document: function() {},
@@ -1079,9 +1086,12 @@ var funcDict = {
     blur: function() {},
 };
 var jQuery = function(field){
-    if (typeof(field) != "undefined") {
+    // Handle things like $(document) by just returning document.
+    if ((typeof(field) != "undefined") && (typeof(field) != "string")) {
         return field;
     };
+    // If we have $('string') it looks like we should get some JQuery
+    // object back.
     return funcDict;
 };
 
