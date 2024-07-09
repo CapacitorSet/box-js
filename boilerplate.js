@@ -1205,8 +1205,8 @@ var exports = {};
 //var module = {};
 
 // fetch API emulation.
-function fetch(url) {
-    lib.logIOC("fetch", {url: url}, "The script fetch()ed a URL.");
+function fetch(url, data) {
+    lib.logIOC("fetch", {url: url, data: data}, "The script fetch()ed a URL.");
     lib.logUrl("fetch", url);
 };
 
