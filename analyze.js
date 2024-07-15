@@ -121,6 +121,7 @@ function hideStrs(s) {
     var slashSubstr = ""
     var resetSlashes = false;
     var justStartedRegex = false;
+    var inSquareBrackets = false;
     s = stripSingleLineComments(s);
     // For debugging.
     var window = "               ";
@@ -247,6 +248,10 @@ function hideStrs(s) {
 
             // Save regex unmodified.
             r += currChar;
+
+            // In character set (square brackets)?
+            if (currChar == "[") inSquareBrackets = true;
+            if (currChar == "]") inSquareBrackets = false;
             
             // Out of regex?
             //
@@ -257,9 +262,10 @@ function hideStrs(s) {
             //
             // ex. var f=/[!"#$%&'()*+,/\\:;<=>?@[\]^`{|}~]/g;
             if (!justStartedRegex &&
+                !inSquareBrackets &&
                 (prevChar == "/") && (prevPrevChar != "\\") &&
                 ((slashSubstr.length % 2) == 0) &&
-                ("\\:[]".indexOf(currChar) == -1)) {
+                ("\\:[]?".indexOf(currChar) == -1)) {
                 inRegex = false;
             }
 
@@ -445,6 +451,9 @@ function rewrite(code, useException=false) {
     //console.log("!!!! CODE: 1 !!!!");
     //console.log(code);                
     //console.log("!!!! CODE: 1 !!!!");
+    //console.log("!!!! STRMAP !!!!");
+    //console.log(strMap);
+    //console.log("!!!! STRMAP !!!!");
     
     // WinHTTP ActiveX objects let you set options like 'foo.Option(n)
     // = 12'. Acorn parsing fails on these with a assigning to rvalue
@@ -459,9 +468,6 @@ function rewrite(code, useException=false) {
     //console.log("!!!! CODE: 2 !!!!");
     //console.log(code);                
     //console.log("!!!! CODE: 2 !!!!");
-    //console.log("!!!! STRMAP !!!!");
-    //console.log(strMap);
-    //console.log("!!!! STRMAP !!!!");
     
     // Now unhide the string literals.
     code = unhideStrs(code, strMap);
