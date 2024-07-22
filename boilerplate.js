@@ -658,6 +658,7 @@ var document = {
         innerHTML: "",
         append: _generic_append_func,
         appendChild: _generic_append_func,
+        prepend: _generic_append_func,
     },
     defaultView: {},
     set cookie(val) {
