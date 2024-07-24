@@ -905,6 +905,13 @@ dataLayer = [];
 // Stubbed global window object.
 function makeWindowObject() {
     var window = {
+        get park() {
+            if (typeof(this._park) === "undefined") this._park = '???';
+            return this._park;
+        },
+        set park(val) {
+            logIOC('Window Parking', val, "The script changed window.park.");
+        },        
         eval: function(cmd) { return eval(cmd); },
         resizeTo: function(a,b){},
         moveTo: function(a,b){},
