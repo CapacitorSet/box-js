@@ -1253,7 +1253,7 @@ function pullActionUrls(html) {
     return r;
 }
 
-// Stubbing for chrome object. Currently does nothing.
+// Stubbing for chrome object. Currently does very little.
 const chrome = {
 
     extension: {
@@ -1261,7 +1261,18 @@ const chrome = {
             addListener: function () {}
         },            
     },
-    
+
+    runtime : {
+        sendMessage : function(info) {
+            if (info["url"]) {
+                var url = info["url"];
+                var method = "??";
+                if (info["message"]) method = info["message"];
+                lib.logIOC("chrome.runtime.sendMessage", {method: method, url: url}, "The script opened a HTTP request.");
+                lib.logUrl("chrome.runtime.sendMessage", url);
+            };
+        },
+    },    
 };
 
 Modernizr = {};
@@ -1298,3 +1309,4 @@ var history = {
     },
     pushState: function() {},
 };
+
