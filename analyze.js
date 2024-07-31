@@ -911,7 +911,7 @@ var wscript_proxy = new Proxy({
     quit: function() {        
         lib.logIOC("WScript", "Quit()", "The sample explicitly called WScript.Quit().");
         //console.trace()
-        if (!argv["ignore-wscript-quit"]) {
+        if ((!argv["ignore-wscript-quit"]) || lib.doWscriptQuit()) {
             process.exit(0);
         }
     },

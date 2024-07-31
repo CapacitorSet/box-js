@@ -3,8 +3,10 @@ let __PATCH_CODE_ADDED__ = true;
 window = this;
 
 _globalTimeOffset = 0;
+_sleepCount = 0;
 WScript.sleep = function(delay) {
     _globalTimeOffset += delay;
+    _sleepCount++;
 }
 
 let fullYearGetter = Date.prototype.getFullYear;

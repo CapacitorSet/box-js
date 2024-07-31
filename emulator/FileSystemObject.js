@@ -174,18 +174,38 @@ function FileSystemObject() {
 	return true;
     };
     this.fileexists = (path) => {
-	const value = !argv["no-file-exists"];
+	var value = !argv["no-file-exists"];
 	if (value) {
 	    lib.info(`Returning true for FileSystemObject.FileExists(${path}); use --no-file-exists if nothing happens`);
+	}
+	if (typeof(this._fileCheckCount) == "undefined") this._fileCheckCount = 0;
+	this._fileCheckCount++;
+	if (argv["limit-file-checks"] && (this._fileCheckCount > 10)) {
+	    // Flip whether the file exists or not to see if that
+	    // breaks a loop.
+	    value = !value;
+	    // Might break emulation based on WScript.quit(). Stop
+	    // ignoring WScript.quit().
+	    lib.doWscriptQuit(true);
 	}
         lib.logIOC("FileExists", path, "The script checked to see if a file exists.");
 	return value;
     };
     this.folderexists = (path) => {
-	const value = !argv["no-folder-exists"];
+	var value = !argv["no-folder-exists"];
 	if (value) {
 	    lib.info(`Returning true for FileSystemObject.FolderExists(${path}); use --no-folder-exists if nothing happens`);
 	}
+	if (typeof(this._fileCheckCount) == "undefined") this._fileCheckCount = 0;
+	this._fileCheckCount++;
+	if (argv["limit-file-checks"] && (this._fileCheckCount > 500)) {
+	    // Flip whether the file exists or not to see if that
+	    // breaks a loop.
+	    value = !value;
+	    // Might break emulation based on WScript.quit(). Stop
+	    // ignoring WScript.quit().
+	    lib.doWscriptQuit(true);
+	}	
         lib.logIOC("FolderExists", path, "The script checked to see if a folder exists.");
 	return value;
     };

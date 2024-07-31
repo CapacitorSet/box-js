@@ -184,6 +184,12 @@ function noCasePropObj(obj)
     return newObj; // object with upper cased keys
 };
 
+_doWscriptQuit = false;
+function doWscriptQuit(flag) {
+    if (typeof(flag) != "undefined") _doWscriptQuit = flag;
+    return _doWscriptQuit;
+}
+
 module.exports = {
     argv,
     kill,
@@ -191,6 +197,7 @@ module.exports = {
     throttleFileWrites,
     throttleCommands,
     noCasePropObj,
+    doWscriptQuit,
     
     debug: log.bind(null, "debug"),
     verbose: log.bind(null, "verb"),

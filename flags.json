@@ -122,6 +122,11 @@
             "type": "Boolean",
             "description": "Return `false` for Scripting.FileSystemObject.FileExists(x)"
         },
+	{
+            "name": "limit-file-checks",
+            "type": "Boolean",
+            "description": "Switch default value for folder/file exists checks if many checks are performed (try to break infinite file check loops)."
+        },	
         {
             "name": "no-folder-exists",
             "type": "Boolean",
