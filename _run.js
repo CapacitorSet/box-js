@@ -4,6 +4,13 @@ const path = require("path");
 const walk = require("walk-sync");
 const argv = require("./argv.js").run;
 
+// Just printing where to find default boilerplate code?
+if (argv["prepended-code"] == "show-default") {
+    const defaultBP = __dirname + "/boilerplate.js"
+    console.log(defaultBP);
+    process.exit(0);
+}
+
 function list_delete(arr, item) {
     for( var i = 0; i < arr.length; i++){ 
         

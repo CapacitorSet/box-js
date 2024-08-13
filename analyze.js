@@ -786,7 +786,12 @@ if (argv["prepended-code"]) {
     var files = []
 
     // get all the files in the directory and sort them alphebetically
-    if (fs.lstatSync(argv["prepended-code"]).isDirectory()) {
+    var isDir = false;
+    try {
+        isDir = fs.lstatSync(argv["prepended-code"]).isDirectory();
+    }
+    catch (e) {}
+    if (isDir) {
 
         dir_files = fs.readdirSync(argv["prepended-code"]);
         for (var i = 0; i < dir_files.length; i++) {
@@ -796,7 +801,15 @@ if (argv["prepended-code"]) {
         // make sure we're adding mock code in the right order
         files.sort()
     } else {
-        files.push(argv["prepended-code"])
+        
+        // Use default boilerplate code?
+        if (argv["prepended-code"] == "default") {
+            const defaultBP = __dirname + "/boilerplate.js";
+            files.push(defaultBP);
+        }
+        else {
+            files.push(argv["prepended-code"]);
+        }
     }
 
     for (var i = 0; i < files.length; i++) {

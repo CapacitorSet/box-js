@@ -65,7 +65,7 @@
         {
             "name": "prepended-code",
             "type": "String",
-            "description": "Input file or directory containing code that should be prepended to the JS file(s) we're analyzing. If directory is given,  prepends contents of all files in the directory in "
+            "description": "Input file or directory containing code that should be prepended to the JS file(s) we're analyzing. If directory is given,  prepends contents of all files in the directory. If 'default' is given use the default boilerplate.js that comes with box-js. if 'show-default' is given just print path of boilerplate.js and exit (useful if you want to copy and modify default boilerplate code)."
         },
         {
             "name": "fake-script-engine",
