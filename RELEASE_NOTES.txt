@@ -1,3 +1,19 @@
+Version 1.19.26, 8/13/2024
+--------------------------
+
+* Added --prepended-code=default option for using the default box-js boilerplate.js file.
+* Added --limit-file-checks command line flag to switch faked file/folder exists
+  behavior once many file check have been executed. Used to
+  (potentially) break infinite file check loops.
+* Added --ignore-rewrite-errors command line flag.
+* Added --fake-script-engine command line flag.
+* Added --real-script-name command line option.
+* More browser DOM element emulations.
+* More ActiveX class emulations.
+* Make Math.Random() return a predictable series of values. This helps
+  make emulation deterministic.
+* Bug fixes in JS code rewriting.
+
 Version 1.19.25, 6/27/2023
 --------------------------
 
