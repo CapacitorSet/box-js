@@ -3,8 +3,10 @@ let __PATCH_CODE_ADDED__ = true;
 window = this;
 
 _globalTimeOffset = 0;
+_sleepCount = 0;
 WScript.sleep = function(delay) {
     _globalTimeOffset += delay;
+    _sleepCount++;
 }
 
 let fullYearGetter = Date.prototype.getFullYear;
@@ -30,6 +32,22 @@ Date.prototype.toString = function() {
 	this.getFullYear()
     ].join(" ");
 }
+let toLocaleStringGetter = Date.prototype.toLocaleString;
+Date.prototype.toLocaleString = function(lang, opts) {
+
+    try {
+        // Try doing the real toLocaleDateString() with the given args.
+        return toLocaleStringGetter.call(this, lang, opts);
+    } catch (e) {
+        // Invalid args. cscript defaults to some sensible options in
+        // this case, so return that result.
+        const sensibleOpts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+        return toLocaleStringGetter.call(this, undefined, sensibleOpts).replace(" at ", " ");
+    }
+};
+Date.prototype.gethours = Date.prototype.getHours;
+Date.prototype.getminutes = Date.prototype.getMinutes;
+
 const legacyDate = Date;
 Date = function() {
     return new Proxy({
@@ -129,4 +147,42 @@ let _OriginalFunction = Function;
 Function = _CreateFunc;
 Function.toString = () => _OriginalFunction.toString()
 Function.valueOf  = () => _OriginalFunction.valueOf()
+
+String.prototype.xstrx = function() {
+    const hex = this.valueOf();
+    var str = '';
+    for (let i = 0; i < hex.length; i += 2) {
+        const hexValue = hex.substr(i, 2);
+        const decimalValue = parseInt(hexValue, 16);
+        str += String.fromCharCode(decimalValue);
+    }
+    return str;
+}
+
+// Track the values of elements set by JQuery $("#q").val(...) uses.
+var jqueryVals = {};
+
+// Fake up JQuery $("#q").val(...) uses.
+String.prototype.val = function(value) {
+    if (!this.startsWith("#")) return;
+    logIOC("JQuery", value, "The script used JQuery $(\"#q\").val(...) to set an element.")
+    var name = this.slice(1);
+    jqueryVals[name] = value;
+}
+
+// Fake up JQuery $("#q").fadeIn(...) uses.
+String.prototype.fadeIn = function() {};
+
+Object.prototype.replace = function() {
+    return "";
+}
+
+constructor.prototype.bind = function(context, func) {
+    const r = function() {
+        if (typeof(func) !== "undefined") {
+            return func.apply(context, arguments);
+        }
+    };
+    return r;
+};
 /* End patches */

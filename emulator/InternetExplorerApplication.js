@@ -3,6 +3,7 @@ const lib = require("../lib");
 function InternetExplorerApplication() {
     this.navigate = function(url) {
         lib.logUrl('IE URL Navigation', url);
+        lib.logIOC("InternetExplorer.Application", {url: url}, "The script navigated IE to " + url);
     }
     this.busy = false;
     this.readystate = 4;

@@ -17,6 +17,9 @@ const tables = {
 	size: diskSize,
 	volumeserialnumber: "B55B4A40",
     }],
+    win32_diskdrive: [{
+        deviceid: "C:",
+    }],
     win32_computersystem : [{
         "pscomputername" : "USER-PC",
         "adminpasswordstatus" : 3,
@@ -336,7 +339,9 @@ module.exports.GetObject = function(name) {
     // Track URLs from 'script:...' GetObject() creations.
     const lname = name.toLowerCase();
     if (lname.startsWith("script:http")) {
-	lib.logUrl("GetObject()", lname.replace("script:http", "http"));
+        const url = lname.replace("script:http", "http");
+	lib.logUrl("GetObject()", url);
+        lib.logIOC("GetObject()", url, "The script used WMI to download a remote object.");
     }
 
     // Fake up an object.
@@ -378,6 +383,10 @@ module.exports.GetObject = function(name) {
             lib.logIOC("WMI.GetObject.Create", command, "The script created a process with WMI.");
 	    lib.logSnippet(lib.getUUID(), {as: "command"}, command);
 	    return "";
+	},
+        AddressWidth: foo => {
+            lib.logIOC("WMI.GetObject.AddressWidth", "", "The script checked processor address width with WMI.");
+	    return "64";
 	},
     }, {
 	get(target, name) {

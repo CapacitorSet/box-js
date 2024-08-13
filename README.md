@@ -48,9 +48,9 @@ Box.js will emulate a Windows JScript environment, print a summary of the emulat
 
 ## Analysis Fails Due to Missing 'document' Object or Other Objects/Functions
 
-The box-js repository from git includes a `boilerplate.js` file. This file defines some stubbed versions of common browser objects such as document. Try rerunning your analysis with the `--prepended-code=DIR/boilerplate.js` option, where `DIR` is the directory of the cloned box-js repository. The `--prepended-code` option tells box-js to prepend the JavaScript in the given file to the sample being analyzed.
+The box-js repository from git includes a `boilerplate.js` file. This file defines some stubbed versions of common browser objects such as document. Try rerunning your analysis with the `--prepended-code=DIR/boilerplate.js` option, where `DIR` is the directory of the cloned box-js repository or with `--prepended-code=default`. The `--prepended-code` option tells box-js to prepend the JavaScript in the given file to the sample being analyzed.
 
-Note that you can copy boilerplate.js and add your own stubbed classes, objects, etc. as needed.
+Note that you can copy boilerplate.js and add your own stubbed classes, objects, etc. as needed. Use the `--prepended-code=show-default` command line option to print the full path to the default box-js boilerplate.js file.
 
 ## Batch usage
 
@@ -74,64 +74,74 @@ cat ./*.results/active_urls.json | sort | uniq
 
 <!--START_FLAGS-->
     NAME                   DESCRIPTION                                                                     
-    -h, --help             Show the help text and quit                                                     
-    -v, --version          Show the package version and quit                                               
-    --license              Show the license and quit                                                       
-    --debug                Die when an emulation error occurs, even in "batch mode", and pass on the exit  
-                           code.                                                                           
-    --loglevel             Logging level (debug, verbose, info, warning, error - default "info")           
-    --threads              When running in batch mode, how many analyses to run at the same time (0 =      
-                           unlimited, default: as many as the number of CPU cores)                         
-    --download             Actually download the payloads                                                  
-    --encoding             Encoding of the input sample (will be automatically detected by default)        
-    --timeout              The script will timeout after this many seconds (default 10)                    
-    --output-dir           The location on disk to write the results files and folders to (defaults to the 
-                           current directory)                                                              
-    --preprocess           Preprocess the original source code (makes reverse engineering easier, but takes
-                           a few seconds)                                                                  
-    --prepended-code       Prepend the JavaScript in the given file to the sample prior to sandboxing
-    --fake-script-engine   The script engine to report in WScript.FullName and WScript.Name (ex.           
-                           'cscript.exe' or 'wscript.exe'). Default is wscript.exe.            
-    --fake-cl-args         Fake script command line arguments. In the string these should be comma         
-                           separated.
-    --fake-sample-name     Fake file name to use for the sample being analyzed. Can be a full path or just 
-                           the file name to use. If you have '\' in the path escape them as '\\' in this   
-                           command line argument value (ex. --fake-sample-name=C:\\foo\\bar.js).           
-    --fake-download        Fake that HTTP requests work and have them return a fake payload
-    --unsafe-preprocess    More aggressive preprocessing. Often results in better code, but can break on   
-                           some edge cases (eg. redefining prototypes)                                     
-    --no-kill              Do not kill the application when runtime errors occur                           
-    --no-echo              When the script prints data, do not print it to the console                     
-    --no-rewrite           Do not rewrite the source code at all, other than for `@cc_on` support          
-    --no-catch-rewrite     Do not rewrite try..catch clauses to make the exception global-scoped           
-    --no-cc_on-rewrite     Do not rewrite `/*@cc_on <...>@*/` to `<...>`                                   
-    --no-eval-rewrite      Do not rewrite `eval` so that its argument is rewritten                         
-    --no-file-exists       Return `false` for Scripting.FileSystemObject.FileExists(x)                     
-    --no-folder-exists     Return `false` for Scripting.FileSystemObject.FileExists(x)                     
-    --function-rewrite     Rewrite function calls in order to catch eval calls                             
-    --no-rewrite-prototype Do not rewrite expressions like `function A.prototype.B()` as `A.prototype.B =  
-                           function()`                                                                     
-    --no-hoist-prototype   Do not hoist expressions like `function A.prototype.B()` (implied by            
-                           no-rewrite-prototype)                                                           
-    --no-shell-error       Do not throw a fake error when executing `WScriptShell.Run` (it throws a fake   
-                           error by default to pretend that the distribution sites are down, so that the   
-                           script will attempt to poll every site)                                         
-    --no-typeof-rewrite    Do not rewrite `typeof` (e.g. `typeof ActiveXObject`, which must return         
-                           'unknown' in the JScript standard and not 'object')                             
-    --proxy                [experimental] Use the specified proxy for downloads. This is not relevant if   
-                           the --download flag is not present.                                             
-    --windows-xp           Emulate Windows XP (influences the value of environment variables)              
-    --dangerous-vm         Use the `vm` module, rather than `vm2`. This sandbox can be broken, so **don't  
-                           use this** unless you're 100% sure of what you're doing. Helps with debugging by
-                           giving correct stack traces.                                                    
-    --rewrite-loops        Rewrite some types of loops to make analysis faster                             
-    --throttle-writes      Throttle reporting and data tracking of file writes that write a LOT of data
+    -h, --help                 Show the help text and quit                                                     
+    -v, --version              Show the package version and quit                                               
+    --license                  Show the license and quit                                                       
+    --debug                    Die when an emulation error occurs, even in "batch mode", and pass on the exit  
+                               code.                                                                           
+    --loglevel                 Logging level (debug, verbose, info, warning, error - default "info")           
+    --threads                  When running in batch mode, how many analyses to run at the same time (0 =      
+                               unlimited, default: as many as the number of CPU cores)                         
+    --download                 Actually download the payloads                                                  
+    --encoding                 Encoding of the input sample (will be automatically detected by default)        
+    --timeout                  The script will timeout after this many seconds (default 10)                    
+    --output-dir               The location on disk to write the results files and folders to (defaults to the 
+                               current directory)                                                              
+    --preprocess               Preprocess the original source code (makes reverse engineering easier, but takes
+                               a few seconds)                                                                  
+    --unsafe-preprocess        More aggressive preprocessing. Often results in better code, but can break on   
+                               some edge cases (eg. redefining prototypes)                                     
+    --prepended-code           Input file or directory containing code that should be prepended to the JS      
+                               file(s) we're analyzing. If directory is given,  prepends contents of all files 
+                               in the directory. If 'default' is given use the default boilerplate.js that     
+                               comes with box-js. if 'show-default' is given just print path of boilerplate.js 
+                               and exit (useful if you want to copy and modify default boilerplate code).      
+    --fake-script-engine       The script engine to report in WScript.FullName and WScript.Name (ex.           
+                               'cscript.exe', 'wscript.exe', or 'node'). Default is wscript.exe.               
+    --fake-cl-args             Fake script command line arguments. In the string these should be comma         
+                               separated.                                                                      
+    --fake-sample-name         Fake file name to use for the sample being analyzed. Can be a full path or just 
+                               the file name to use. If you have '\' in the path escape them as '\\' in this   
+                               command line argument value (ex. --fake-sample-name=C:\\foo\\bar.js).           
+    --fake-download            Fake that HTTP requests work and have them return a fake payload                
+    --no-kill                  Do not kill the application when runtime errors occur                           
+    --no-echo                  When the script prints data, do not print it to the console                     
+    --no-rewrite               Do not rewrite the source code at all, other than for `@cc_on` support          
+    --no-catch-rewrite         Do not rewrite try..catch clauses to make the exception global-scoped           
+    --no-cc_on-rewrite         Do not rewrite `/*@cc_on <...>@*/` to `<...>`                                   
+    --no-eval-rewrite          Do not rewrite `eval` so that its argument is rewritten                         
+    --no-file-exists           Return `false` for Scripting.FileSystemObject.FileExists(x)                     
+    --limit-file-checks        Switch default value for folder/file exists checks if many checks are performed 
+                               (try to break infinite file check loops).                                       
+    --no-folder-exists         Return `false` for Scripting.FileSystemObject.FileExists(x)                     
+    --function-rewrite         Rewrite function calls in order to catch eval calls                             
+    --no-rewrite-prototype     Do not rewrite expressions like `function A.prototype.B()` as `A.prototype.B =  
+                               function()`                                                                     
+    --no-hoist-prototype       Do not hoist expressions like `function A.prototype.B()` (implied by            
+                               no-rewrite-prototype)                                                           
+    --no-shell-error           Do not throw a fake error when executing `WScriptShell.Run` (it throws a fake   
+                               error by default to pretend that the distribution sites are down, so that the   
+                               script will attempt to poll every site)                                         
+    --no-typeof-rewrite        Do not rewrite `typeof` (e.g. `typeof ActiveXObject`, which must return         
+                               'unknown' in the JScript standard and not 'object')                             
+    --proxy                    [experimental] Use the specified proxy for downloads. This is not relevant if   
+                               the --download flag is not present.                                             
+    --windows-xp               Emulate Windows XP (influences the value of environment variables)              
+    --dangerous-vm             Use the `vm` module, rather than `vm2`. This sandbox can be broken, so **don't  
+                               use this** unless you're 100% sure of what you're doing. Helps with debugging by
+                               giving correct stack traces.                                                    
+    --rewrite-loops            Rewrite some types of loops to make analysis faster                             
+    --throttle-writes          Throttle reporting and data tracking of file writes that write a LOT of data    
+    --throttle-commands        Stop the analysis if a LOT of the same commands have been run                   
     --extract-conditional-code Pull the actual code to analyze from JScript conditional comments (/*@if(...).  
-    --loose-script-name    Rewrite == checks so that comparisons of the current script name to a hard coded
-                           script name always return true.                                                 
-    --activex-as-ioc       Logs All ActiveX calls as IOC's and tries to determine if the call is obfuscated
-                           in the JS source.                                                               
+    --loose-script-name        Rewrite == checks so that comparisons of the current script name to a hard coded
+                               script name always return true.                                                 
+    --real-script-name         Return the real file name of the currently analyzed script rather than a fake   
+                               name.                                                                           
+    --activex-as-ioc           Logs All ActiveX calls as IOC's and tries to determine if the call is obfuscated
+                               in the JS source.                                                               
     --ignore-wscript-quit      Ignore calls to WSCript.Quit() and continue execution.                          
+    --ignore-rewrite-errors    Analyze original sample if any sample rewrites fail.                            
 <!--END_FLAGS-->
 
 # Analyzing the output

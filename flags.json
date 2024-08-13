@@ -65,12 +65,12 @@
         {
             "name": "prepended-code",
             "type": "String",
-            "description": "Input file or directory containing code that should be prepended to the JS file(s) we're analyzing. If directory is given,  prepends contents of all files in the directory in "
+            "description": "Input file or directory containing code that should be prepended to the JS file(s) we're analyzing. If directory is given,  prepends contents of all files in the directory. If 'default' is given use the default boilerplate.js that comes with box-js. if 'show-default' is given just print path of boilerplate.js and exit (useful if you want to copy and modify default boilerplate code)."
         },
         {
             "name": "fake-script-engine",
             "type": "String",
-            "description": "The script engine to report in WScript.FullName and WScript.Name (ex. 'cscript.exe' or 'wscript.exe'). Default is wscript.exe."
+            "description": "The script engine to report in WScript.FullName and WScript.Name (ex. 'cscript.exe', 'wscript.exe', or 'node'). Default is wscript.exe."
         },
         {
             "name": "fake-cl-args",
@@ -122,6 +122,11 @@
             "type": "Boolean",
             "description": "Return `false` for Scripting.FileSystemObject.FileExists(x)"
         },
+	{
+            "name": "limit-file-checks",
+            "type": "Boolean",
+            "description": "Switch default value for folder/file exists checks if many checks are performed (try to break infinite file check loops)."
+        },	
         {
             "name": "no-folder-exists",
             "type": "Boolean",
@@ -178,6 +183,11 @@
             "description": "Throttle reporting and data tracking of file writes that write a LOT of data"
         },
         {
+            "name": "throttle-commands",
+            "type": "Boolean",
+            "description": "Stop the analysis if a LOT of the same commands have been run"
+        },
+        {
             "name": "extract-conditional-code",
             "type": "Boolean",
             "description": "Pull the actual code to analyze from JScript conditional comments (/*@if(...)."
@@ -188,6 +198,11 @@
             "description": "Rewrite == checks so that comparisons of the current script name to a hard coded script name always return true."
         },
         {
+            "name": "real-script-name",
+            "type": "Boolean",
+            "description": "Return the real file name of the currently analyzed script rather than a fake name."
+        },
+        {
             "name": "activex-as-ioc",
             "type": "Boolean",
             "description": "Logs All ActiveX calls as IOC's and tries to determine if the call is obfuscated in the JS source."
@@ -196,7 +211,13 @@
             "name": "ignore-wscript-quit",
             "type": "Boolean",
             "description": "Ignore calls to WSCript.Quit() and continue execution."
+        },
+	{
+            "name": "ignore-rewrite-errors",
+            "type": "Boolean",
+            "description": "Analyze original sample if any sample rewrites fail."
         }
+
     ],
     "export": [
         {

@@ -93,6 +93,18 @@ function throttleFileWrites(val) {
     throttleWrites = val;
 };
 
+// If needed stop writing lots of the same sorts of commands.
+var _throttleCommands = false;
+var numCommandsRun = 0;
+const maxCommands = 5000;
+const maxPrefixCommands = 500;
+var commandPrefixCounts = {};
+
+// Function for enabling/disabling command throttling.
+function throttleCommands(val) {
+    _throttleCommands = val;
+};
+
 function noCasePropObj(obj)
 {
     var handler =
@@ -172,12 +184,20 @@ function noCasePropObj(obj)
     return newObj; // object with upper cased keys
 };
 
+_doWscriptQuit = false;
+function doWscriptQuit(flag) {
+    if (typeof(flag) != "undefined") _doWscriptQuit = flag;
+    return _doWscriptQuit;
+}
+
 module.exports = {
     argv,
     kill,
     getUUID,
     throttleFileWrites,
+    throttleCommands,
     noCasePropObj,
+    doWscriptQuit,
     
     debug: log.bind(null, "debug"),
     verbose: log.bind(null, "verb"),
@@ -302,8 +322,9 @@ module.exports = {
             return;
         };
 
-        // Save the new file contents.
-	fs.writeFileSync(filePath, content);
+        // Save the new file contents. Save as binary data to make
+        // sure we dump the exact bytes to disk.
+	fs.writeFileSync(filePath, content, "binary");
 
         // Don't spam lots of file write info to same file.
         if (typeof(fileWriteCount[filePath]) == "undefined") fileWriteCount[filePath] = 0;
@@ -358,6 +379,40 @@ module.exports = {
     },
     logIOC,
     runShellCommand: (command) => {
+        // Have too many commands been run?
+        if (_throttleCommands) {
+
+            // Too many commands total?
+            numCommandsRun++;
+            if (numCommandsRun > maxCommands) {
+                log("warn", "Too many commands were run. Terminating.");
+                console.log("");
+                // We want this to take precedence over the --no-kill
+                // flag, so directly exit.
+                process.exit(0);
+            }
+
+            // Too many very similar commands?
+            if (command.lastIndexOf(" ") > 10) {
+
+                // Assuming that a command may just vary by an
+                // argument, strip off the last argument.
+                const end = command.lastIndexOf(" ");
+                const prefix = command.slice(0, end);
+                if (!(prefix in commandPrefixCounts)) {
+                    commandPrefixCounts[prefix] = 0;
+                }
+                commandPrefixCounts[prefix]++;
+                if (commandPrefixCounts[prefix] > maxPrefixCommands) {
+                    log("warn", "Too many similar commands were run. Terminating.");
+                    console.log("");
+                    // We want this to take precedence over the --no-kill
+                    // flag, so directly exit.
+                    process.exit(0);
+                }
+            }
+        }
+        
 	const filename = getUUID();
 	logIOC("Run", {command}, "The script ran the command '" + command + "'.");
 	logSnippet(filename, {as: "WScript code"}, command);

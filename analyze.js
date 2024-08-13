@@ -52,12 +52,14 @@ if (argv["activex-as-ioc"]) {
     rawcode = iconv.decode(sampleBuffer, encoding);
 }
 
+/*
 if (code.match("<job") || code.match("<script")) { // The sample may actually be a .wsf, which is <job><script>..</script><script>..</script></job>.
     lib.debug("Sample seems to be WSF");
     code = code.replace(/<\??\/?\w+( [\w=\"\']*)*\??>/g, ""); // XML tags
     code = code.replace(/<!\[CDATA\[/g, "");
     code = code.replace(/\]\]>/g, "");
 }
+*/
 
 function lacksBinary(name) {
     const path = child_process.spawnSync("command", ["-v", name], {
@@ -74,19 +76,38 @@ function stripSingleLineComments(s) {
     const lines = s.split("\n");
     var r = "";
     for (const line of lines) {
-        var lineStrip = line.trim();
-        // Full line comment?
-        if (lineStrip.startsWith("//")) continue;
-        r += line + "\n";
+        var lineStrip = line.trim() + "\r";
+        for (const subLine of lineStrip.split("\r")) {
+            // Full line comment?
+            var subLineStrip = subLine.trim();
+            if (subLineStrip.startsWith("//")) continue;
+            r += subLineStrip + "\n";
+        }
     }
     return r;
 }
 
+function isAlphaNumeric(str) {
+    var code, i;
+
+    if (str.length == 0) return false;
+    code = str.charCodeAt(0);
+    if (!(code > 47 && code < 58) && // numeric (0-9)
+        !(code > 64 && code < 91) && // upper alpha (A-Z)
+        !(code > 96 && code < 123)) { // lower alpha (a-z)
+        return false;
+    }
+    return true;
+};
+
 function hideStrs(s) {
     var inStrSingle = false;
     var inStrDouble = false;
+    var inStrBackTick = false;
     var inComment = false;
     var inCommentSingle = false;
+    var inRegex = false
+    var oldInRegex = false
     var currStr = undefined;
     var prevChar = "";
     var prevPrevChar = "";
@@ -96,49 +117,168 @@ function hideStrs(s) {
     var counter = 1000000;
     var r = "";
     var skip = false;
+    var justExitedComment = false;
+    var slashSubstr = ""
+    var resetSlashes = false;
+    var justStartedRegex = false;
+    var inSquareBrackets = false;
     s = stripSingleLineComments(s);
+    // For debugging.
+    var window = "               ";
+    // Special case. Regex uses like '/.../["test"]' are really hard
+    // to deal with. Hide all '["test"]' instances.
+    var tmpName = "HIDE_" + counter++;
+    s = s.replace(/\["test"\]/g, tmpName);
+    allStrs[tmpName] = '["test"]';
+    tmpName = "HIDE_" + counter++;
+    s = s.replace(/\['test'\]/g, tmpName);
+    allStrs[tmpName] = "['test']";
+    // Similar to the above, obfuscator.io constructs like
+    // '/.../[0x_fff(' are also really hard to deal with. Replace
+    // those also.
+    tmpName = "HIDE_" + counter++;
+    // Ony match exprs that start with the '/' and keep the '/' in the
+    // code to close out the regex. We are doing this because
+    // Replacement name must start with HIDE_.
+    s = s.replace(/\/\[_0x/g, "/" + tmpName);
+    allStrs[tmpName] = "[_0x";
+    //console.log("prevprev,prev,curr,dbl,single,commsingl,comm,regex,oldinregex,slash,justexitcom");
     for (let i = 0; i < s.length; i++) {
 
-        // Start /* */ comment?
+        // Track consecutive backslashes. We use this to tell if the
+        // current back slash has been escaped (even # of backslashes)
+        // or is escaping the next character (odd # of slashes).
+        if (prevChar == "\\" && (slashSubstr.length == 0)) {
+            slashSubstr = "\\";
+        }
+        else if (prevChar == "\\" && (slashSubstr.length > 0)) {
+            slashSubstr += "\\";
+        }        
+        else if (prevChar != "\\") {
+            slashSubstr = "";
+        }
+        // Backslash escaping gets 'reset' when hitting a space.
         var currChar = s[i];
+        if ((currChar == " ") && slashSubstr) {
+            slashSubstr = "";
+            resetSlashes = true;
+        }
+        // Debugging.
+        //window = window.slice(1,) + currChar;
+        //console.log(window);
+        
+        // Start /* */ comment?
 	var oldInComment = inComment;
-        inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle && !inCommentSingle);
+        inComment = inComment || ((prevChar == "/") && (currChar == "*") && !inStrDouble && !inStrSingle && !inCommentSingle && !inStrBackTick && (!inRegex || !oldInRegex));
+        //console.log(JSON.stringify([prevPrevChar, prevChar, currChar, inStrDouble, inStrSingle, inCommentSingle, inComment, inRegex, oldInRegex, slashSubstr, justExitedComment]))
+	//console.log(r);
         
         // In /* */ comment?
         if (inComment) {
 
 	    // We are stripping /* */ comments, so drop the '/' if we
 	    // just entered the comment.
-	    if (oldInComment != inComment) r = r.slice(0, -1);
+	    if (oldInComment != inComment) {
+                inRegex = false;
+                r = r.slice(0, -1);
+            }
 	    
 	    // Dropping /* */ comments, so don't save current char.
 
             // Out of comment?
             if ((prevChar == "*") && (currChar == "/")) {
                 inComment = false;
+                // Handle FP single line comment detection for things
+                // like '/* comm1 *//* comm2 */'.
+                justExitedComment = true;
             }
 
-            // Keep going until we leave the comment.
-            prevChar = currChar;
+            // Keep going until we leave the comment. Recognizing some
+            // constructs is hard with whitespace, so strip that out
+            // when tracking previous characters.
+            if (currChar != " ") {
+                prevPrevChar = prevChar;
+                prevChar = currChar;
+            }
             continue;
         }
 
         // Start // comment?
-        inCommentSingle = inCommentSingle || ((prevChar == "/") && (currChar == "/") && !inStrDouble && !inStrSingle && !inComment);
+        inCommentSingle = inCommentSingle || ((prevChar == "/") && (currChar == "/") && !inStrDouble && !inStrSingle && !inComment && !justExitedComment && !inStrBackTick);
+	// Could have falsely jumped out of a /**/ comment if it contains a //.
+	if ((prevChar == "/") && (currChar == "/") && !inComment && justExitedComment) {
+	    inComment = true;
+	    justExitedComment = false;
+	    continue
+	}
+        justExitedComment = false;
         
         // In // comment?
         if (inCommentSingle) {
+
+            // Not in a regex if we are in a '// ...' comment.
+            inRegex = false;
 
             // Save comment text unmodified.
             r += currChar;
 
             // Out of comment?
-            if (currChar == "\n") {
+            if ((currChar == "\n") || (currChar == "\r")) {
                 inCommentSingle = false;
             }
 
             // Keep going until we leave the comment.
-            prevChar = currChar;
+            if (currChar != " ") {
+                prevPrevChar = prevChar;
+                prevChar = currChar;
+            }
+            continue;
+        }
+
+        // Start /.../ regex expression?
+        oldInRegex = inRegex;
+        // Assume that regex expressions can't be preceded by ')' or
+        // an alphanumeric character. This is to try to tell divisiion
+        // from the start of a regex.
+        inRegex = inRegex || ((prevChar != "/") && (prevChar != ")") && !isAlphaNumeric(prevChar) &&
+                              (currChar == "/") && !inStrDouble && !inStrSingle && !inComment && !inCommentSingle && !inStrBackTick);
+        
+        // In /.../ regex expression?
+        if (inRegex) {
+
+            // Save regex unmodified.
+            r += currChar;
+
+            // In character set (square brackets)?
+            if (currChar == "[") inSquareBrackets = true;
+            if (currChar == "]") inSquareBrackets = false;
+            
+            // Out of regex?
+            //
+            // Unescaped '/' can appear in a regex (nice). Try to
+            // guess whether the '/' actually ends the regex based on
+            // the char after the '/'. Add chars that CANNOT appear
+            // after a regex def as needed.
+            //
+            // ex. var f=/[!"#$%&'()*+,/\\:;<=>?@[\]^`{|}~]/g;
+            if (!justStartedRegex &&
+                !inSquareBrackets &&
+                (prevChar == "/") && (prevPrevChar != "\\") &&
+                ((slashSubstr.length % 2) == 0) &&
+                ("\\:[]?".indexOf(currChar) == -1)) {
+                inRegex = false;
+            }
+
+            // Track seeing the '/' starting the regex.
+            justStartedRegex = !oldInRegex;
+            
+            // Keep going until we leave the regex.
+            if (currChar != " ") {
+                prevPrevChar = prevChar;
+                prevChar = currChar;
+            }
+            if (resetSlashes) prevChar = " ";
+            resetSlashes = false;
             continue;
         }
         
@@ -147,8 +287,8 @@ function hideStrs(s) {
         
 	// Start/end single quoted string?
 	if ((currChar == "'") &&
-            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash && inStrSingle)) &&
-            !inStrDouble) {
+            ((prevChar != "\\") || ((prevChar == "\\") && ((slashSubstr.length % 2) == 0) && inStrSingle)) &&
+            !inStrDouble && !inStrBackTick) {
 
 	    // Switch being in/out of string.
 	    inStrSingle = !inStrSingle;
@@ -168,8 +308,8 @@ function hideStrs(s) {
 
 	// Start/end double quoted string?
 	if ((currChar == '"') &&
-            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash && inStrDouble)) &&
-            !inStrSingle) {
+            ((prevChar != "\\") || ((prevChar == "\\") && ((slashSubstr.length % 2) == 0) && inStrDouble)) &&
+            !inStrSingle && !inStrBackTick && !inCommentSingle && !inComment && !inRegex) {
 
 	    // Switch being in/out of string.
 	    inStrDouble = !inStrDouble;
@@ -187,8 +327,29 @@ function hideStrs(s) {
 	    }
 	};
 
+	// Start/end backtick quoted string?
+	if ((currChar == '`') &&
+            ((prevChar != "\\") || ((prevChar == "\\") && escapedSlash && !prevEscapedSlash && inStrBackTick)) &&
+            !inStrSingle && !inStrDouble && !inCommentSingle && !inComment && !inRegex) {
+
+	    // Switch being in/out of string.
+	    inStrBackTick = !inStrBackTick;
+
+	    // Finished up a string we were tracking?
+	    if (!inStrBackTick) {
+		currStr += '`';
+                const strName = "HIDE_" + counter++;
+                allStrs[strName] = currStr;
+                r += strName;
+                skip = true;
+	    }
+	    else {
+		currStr = "";
+	    }
+	};
+
 	// Save the current character if we are tracking a string.
-	if (inStrDouble || inStrSingle) {
+	if (inStrDouble || inStrSingle || inStrBackTick) {
             currStr += currChar;
         }
 
@@ -202,9 +363,12 @@ function hideStrs(s) {
 	// Track what is now the previous character so we can handle
 	// escaped quotes in strings.
         prevPrevChar = prevChar;
-	prevChar = currChar;
+        if (currChar != " ") prevChar = currChar;
+        if (resetSlashes) prevChar = " ";
+        resetSlashes = false;
         prevEscapedSlash = escapedSlash;
     }
+    //console.log(JSON.stringify([prevPrevChar, prevChar, currChar, inStrDouble, inStrSingle, inCommentSingle, inComment, inRegex, slashSubstr, justExitedComment]))
     return [r, allStrs];
 }
 
@@ -252,20 +416,30 @@ function extractCode(code) {
     // See if we can pull code out from conditional comments.
     // /*@if(@_jscript_version >= 4) ... @else @*/
     // /*@if(1) ... @end@*/
-    const commentPat = /\/\*@if\s*\([^\)]+\)(.+?)@(else|end)\s*@\s*\*\//
+    //
+    // /*@cc_on
+    // @if(1) ... @end@*/
+    const commentPat = /\/\*(?:@cc_on\s+)?@if\s*\([^\)]+\)(.+?)@(else|end)\s*@\s*\*\//s
     const codeMatch = code.match(commentPat);
-    if (!codeMatch) return code;
+    if (!codeMatch) {
+        return code;
+    }
     var r = codeMatch[1];
     lib.info("Extracted code to analyze from conditional JScript comment.");
     return r;
 }
 
-function rewrite(code) {
+function rewrite(code, useException=false) {
 
+    //console.log("!!!! CODE: 0 !!!!");
+    //console.log(code);                
+    //console.log("!!!! CODE: 0 !!!!");
+    
     // box-js is assuming that the JS will be run on Windows with cscript or wscript.
     // Neither of these engines supports strict JS mode, so remove those calls from
     // the code.
-    code = code.toString().replace(/("|')use strict("|')/g, '"STRICT MODE NOT SUPPORTED"');
+    code = code.toString().replace(/"use strict"/g, '"STRICT MODE NOT SUPPORTED"');
+    code = code.toString().replace(/'use strict'/g, "'STRICT MODE NOT SUPPORTED'");
 
     // The following 2 code rewrites should not be applied to patterns
     // in string literals. Hide the string literals first.
@@ -274,18 +448,32 @@ function rewrite(code) {
     var counter = 1000000;
     const [newCode, strMap] = hideStrs(code);
     code = newCode;
-        
+    //console.log("!!!! CODE: 1 !!!!");
+    //console.log(code);                
+    //console.log("!!!! CODE: 1 !!!!");
+    //console.log("!!!! STRMAP !!!!");
+    //console.log(strMap);
+    //console.log("!!!! STRMAP !!!!");
+    
     // WinHTTP ActiveX objects let you set options like 'foo.Option(n)
     // = 12'. Acorn parsing fails on these with a assigning to rvalue
     // syntax error, so rewrite things like this so we can parse
     // (replace these expressions with comments). We have to do this
     // with regexes rather than modifying the parse tree since these
     // expressions cannot be parsed by acorn.
-    const rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[\n;])/g;
+    var rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[;])/g;
     code = code.toString().replace(rvaluePat, ';/* ASSIGNING TO RVALUE */');
+    rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[\n])/g;
+    code = code.toString().replace(rvaluePat, ';// ASSIGNING TO RVALUE');
+    //console.log("!!!! CODE: 2 !!!!");
+    //console.log(code);                
+    //console.log("!!!! CODE: 2 !!!!");
     
     // Now unhide the string literals.
     code = unhideStrs(code, strMap);
+    //console.log("!!!! CODE: 3 !!!!");
+    //console.log(code);                
+    //console.log("!!!! CODE: 3 !!!!");
     
     // Some samples (for example that use JQuery libraries as a basis to which to
     // add malicious code) won't emulate properly for some reason if there is not
@@ -362,9 +550,9 @@ If you run into unexpected results, try uncommenting lines that look like
 
             let tree;
             try {
-                //console.log("!!!! CODE !!!!");
+                //console.log("!!!! CODE FINAL !!!!");
                 //console.log(code);                
-                //console.log("!!!! CODE !!!!");
+                //console.log("!!!! CODE FINAL !!!!");
                 tree = acorn.parse(code, {
                     ecmaVersion: "latest",
                     allowReturnOutsideFunction: true, // used when rewriting function bodies
@@ -374,6 +562,7 @@ If you run into unexpected results, try uncommenting lines that look like
                     },
                 });
             } catch (e) {
+                if (useException) return 'throw("Parse Error")';
                 lib.error("Couldn't parse with Acorn:");
                 lib.error(e);
                 lib.error("");
@@ -557,9 +746,14 @@ cc decoder.c -o decoder
 
             lib.verbose("Rewritten successfully.", false);
         } catch (e) {
-            console.log("An error occurred during rewriting:");
-            console.log(e);
-            process.exit(3);
+	    if (argv["ignore-rewrite-errors"]) {
+		lib.warning("Code rewriting failed. Analyzing original sample.");
+	    }
+	    else {
+		console.log("An error occurred during rewriting:");
+		console.log(e);
+		process.exit(3);
+	    }
         }
     }
 
@@ -577,6 +771,11 @@ if (argv["throttle-writes"]) {
     lib.throttleFileWrites(true);
 };
 
+// Track if we are throttling frequent command executions.
+if (argv["throttle-commands"]) {
+    lib.throttleCommands(true);
+};
+
 // Rewrite the code if needed.
 code = rewrite(code);
 
@@ -587,7 +786,12 @@ if (argv["prepended-code"]) {
     var files = []
 
     // get all the files in the directory and sort them alphebetically
-    if (fs.lstatSync(argv["prepended-code"]).isDirectory()) {
+    var isDir = false;
+    try {
+        isDir = fs.lstatSync(argv["prepended-code"]).isDirectory();
+    }
+    catch (e) {}
+    if (isDir) {
 
         dir_files = fs.readdirSync(argv["prepended-code"]);
         for (var i = 0; i < dir_files.length; i++) {
@@ -597,7 +801,15 @@ if (argv["prepended-code"]) {
         // make sure we're adding mock code in the right order
         files.sort()
     } else {
-        files.push(argv["prepended-code"])
+        
+        // Use default boilerplate code?
+        if (argv["prepended-code"] == "default") {
+            const defaultBP = __dirname + "/boilerplate.js";
+            files.push(defaultBP);
+        }
+        else {
+            files.push(argv["prepended-code"]);
+        }
     }
 
     for (var i = 0; i < files.length; i++) {
@@ -664,6 +876,13 @@ if (argv["fake-sample-name"]) {
                {"sample-name": sampleName, "sample-name-full": sampleFullName},
                "Using fake sample file name " + sampleFullName + " when analyzing.");
 }
+else if (argv["real-script-name"]) {
+    sampleName = path.basename(filename);
+    sampleFullName = filename;
+    lib.logIOC("Sample Name",
+               {"sample-name": sampleName, "sample-name-full": sampleFullName},
+               "Using real sample file name " + sampleFullName + " when analyzing.");
+}
 else {
     lib.logIOC("Sample Name",
                {"sample-name": sampleName, "sample-name-full": sampleFullName},
@@ -703,9 +922,9 @@ var wscript_proxy = new Proxy({
     scriptfullname: sampleFullName,
     scriptname: sampleName,
     quit: function() {        
-        lib.logIOC("WScript", "Quit()", "The sample explcitly called WScript.Quit().");
+        lib.logIOC("WScript", "Quit()", "The sample explicitly called WScript.Quit().");
         //console.trace()
-        if (!argv["ignore-wscript-quit"]) {
+        if ((!argv["ignore-wscript-quit"]) || lib.doWscriptQuit()) {
             process.exit(0);
         }
     },
@@ -805,7 +1024,7 @@ const sandbox = {
     }),
     parse: (x) => {},
     rewrite: (code, log = false) => {
-        const ret = rewrite(code);
+        const ret = rewrite(code, useException=true);
         if (log) lib.logJS(ret);
         return ret;
     },
@@ -863,6 +1082,7 @@ if (argv["dangerous-vm"]) {
 }
 
 function mapCLSID(clsid) {
+    clsid = clsid.toUpperCase();
     switch (clsid) {
     case "F935DC22-1CF0-11D0-ADB9-00C04FD58A0B":
         return "wscript.shell";
@@ -897,6 +1117,23 @@ function mapCLSID(clsid) {
     }
 }
 
+function _makeDomDocument() {
+    const r = {
+        createElement: function(tag) {
+	    const r = {
+		dataType: "??",
+		text: "",
+		get nodeTypedValue() {
+		    if (this.dataType != "bin.base64") return this.text;
+		    return atob(this.text);
+		},
+	    };
+	    return r;
+	},
+    };
+    return r;
+}
+
 function ActiveXObject(name) {
 
     // Check for use of encoded ActiveX object names.
@@ -911,6 +1148,7 @@ function ActiveXObject(name) {
             clsid = m[1].toUpperCase();
             mappedname = mapCLSID(clsid);
             if (mappedname !== null) {
+                lib.logIOC("CLSID ActiveX Object Created",{name, mappedname}, `The script created a new ActiveX object ${mappedname} using CLSID ${name}`);
                 name = mappedname;
             }
         }
@@ -932,6 +1170,9 @@ function ActiveXObject(name) {
     name = name.toLowerCase();
     if (name.match("xmlhttp") || name.match("winhttprequest")) {
         return require("./emulator/XMLHTTP");
+    }
+    if (name.match("domdocument")) {
+	return _makeDomDocument();
     }
     if (name.match("dom")) {
         const r = {
@@ -990,6 +1231,16 @@ function ActiveXObject(name) {
         return require("./emulator/MSScriptControlScriptControl");
     case "schedule.service":
         return require("./emulator/ScheduleService");
+    case "system.text.asciiencoding":
+        return require("./emulator/AsciiEncoding");
+    case "system.security.cryptography.frombase64transform":
+        return require("./emulator/Base64Transform");
+    case "system.io.memorystream":
+        return require("./emulator/MemoryStream");
+    case "system.runtime.serialization.formatters.binary.binaryformatter":
+        return require("./emulator/BinaryFormatter");
+    case "system.collections.arraylist":
+        return require("./emulator/ArrayList");
     default:
         lib.kill(`Unknown ActiveXObject ${name}`);
         break;

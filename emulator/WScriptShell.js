@@ -46,7 +46,7 @@ function WScriptShell() {
     };
 
     this.environment1 = undefined;
-    this.specialfolders = (x) => `(Special folder ${x})`;
+    this.specialfolders = (x) => `${x}`;
     this.createshortcut = function(shortcut) {
 
         // Thrown error for things that don't look like MS shortcuts.
@@ -255,7 +255,8 @@ function WScriptShell() {
 	    lib.verbose(`Script opened a popup window: title "${title}", text "${text}"`);
 	    lib.verbose("Add flag --no-echo to disable this.");
 	}
-	return true; // Emulates a click
+	//return true; // Emulates a click
+        return 1;
     };
 }
 
