@@ -18,6 +18,7 @@ function WScriptNetwork() {
 	foo: "bar",
     }];
     this.userdomain = "";
+    this.username = "harvey_danger";
     this.mapnetworkdrive = function(letter, path) {
         lib.info(`Script maps network drive ${letter} to path ${path}`);
         lib.logUrl("map", ("https:" + path).replace("@", ":").replace(/\\/g, "/"));
