@@ -20,7 +20,10 @@ function XMLHTTP() {
 	this.method = method;
 	this.readystate = 1;
 	this.statustext = "OPENED";
+        lib.logUrl('XMLHTTP', url);
+        lib.logIOC("XMLHTTP", {url: url}, "The script opened URL " + url + " with XMLHTTP");
     };
+    this.responsetext = "console.log('The script executed JS returned from a C2 server.')";
     this.setrequestheader = function(key, val) {
 	key = key.replace(/:$/, ""); // Replace a trailing ":" if present
 	this.headers[key] = val;
