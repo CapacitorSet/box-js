@@ -762,6 +762,7 @@ var document = {
         eval(extractJSFromHTA(node));
     },
     getElementsByTagName: __getElementsByTagName,
+    getElementsByName: __getElementsByTagName,
     getElementsByClassName: __getElementsByTagName,
     createDocumentFragment: function() {
         return __createElement("__doc_fragment__");
