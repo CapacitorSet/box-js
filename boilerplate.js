@@ -451,6 +451,12 @@ function __createElement(tag) {
             // Call the onerror handler.
             func();
         },
+        set value(txt) {
+            this.val = txt;
+        },
+        get value() {
+            return this.val;
+        },
         // Not ideal or close to correct, but sometimes needs a parentNode field.
         parentNode: __fakeParentElem,
         log: [],
