@@ -419,10 +419,17 @@ function extractCode(code) {
     //
     // /*@cc_on
     // @if(1) ... @end@*/
+    //
+    // /*@cc_on @*//*@if (1)    
+    // ... @end @*/
     const commentPat = /\/\*(?:@cc_on\s+)?@if\s*\([^\)]+\)(.+?)@(else|end)\s*@\s*\*\//s
-    const codeMatch = code.match(commentPat);
+    var codeMatch = code.match(commentPat);
     if (!codeMatch) {
-        return code;
+        const commentPat1 = /\/\*\s*@cc_on\s*@\*\/\s*\/\*\s*@if\s*\([^\)]+\)(.+?)@(else|end)\s*@\s*\*\//s;
+        codeMatch = code.match(commentPat1);
+        if (!codeMatch) {
+            return code;
+        }
     }
     var r = codeMatch[1];
     lib.info("Extracted code to analyze from conditional JScript comment.");
