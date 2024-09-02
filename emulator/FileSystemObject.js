@@ -226,6 +226,14 @@ function FileSystemObject() {
         var r = new ProxiedFile(filename);
         return r;
     };
+    this.getfilename = function(filename) {
+        filename = "" + filename;
+        const i = filename.lastIndexOf("\\");
+        if (i > 0) {
+            filename = filename.slice(i + 1);
+        }
+        return filename;
+    };
     this.getfileversion = () => "";
     this.getfolder = (str) => new ProxiedFolder(str);
     this.getspecialfolder = function(id) {
