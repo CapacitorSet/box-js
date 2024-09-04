@@ -1223,6 +1223,10 @@ var exports = {};
 function fetch(url, data) {
     lib.logIOC("fetch", {url: url, data: data}, "The script fetch()ed a URL.");
     lib.logUrl("fetch", url);
+    return {
+	ok : true,
+	json : function() { return "1"; },
+    };
 };
 
 // Image class stub.
@@ -1317,3 +1321,8 @@ var history = {
     pushState: function() {},
 };
 
+// Fake sessionStorage object.
+var sessionStorage = {
+    getItem: function() {},
+    setItem: function() {},
+};
