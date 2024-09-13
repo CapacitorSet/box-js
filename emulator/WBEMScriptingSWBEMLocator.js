@@ -1,5 +1,25 @@
 const lib = require("../lib");
 const enumerator = require("./Enumerator");
+const argv = require("../argv.js").run;
+
+// Fake OS language can be set with the --fake-language option.
+// Default language is English.
+var langCode = 1033;
+if (argv["fake-language"]) {
+
+    // Were we given a supported language?
+    const langStr = argv["fake-language"];
+    const langs = {
+        'spanish' : 2058,
+        'english' : 1033,
+        'portuguese' : 1046,
+    };
+    langCode = langs[langStr];
+    if (!langCode) {
+        lib.error("Language '" + langStr + "' not supported.");
+        process.exit(4);
+    };
+}
 
 // Fake SWBEMService.instancesof results.
 
@@ -54,7 +74,10 @@ _fake_win32_operatingsystem = {
     // US English
     //"OSLanguage" : "1033",
     // Mexican Spanish
-    "OSLanguage" : "2058",
+    get OSLanguage() {
+        lib.logIOC("SWBEMService", langCode, "Read Win32_OperatingSystem.OSLanguage.");
+        return langCode;
+    },
     // International Spanish
     //"OSLanguage" : "3082",
     "OSProductSuite" : "256",
