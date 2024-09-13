@@ -89,6 +89,12 @@ function VirtualSWBEMServices() {
         };
     };
 
+    this.execquery = function(query) {
+        lib.logIOC("SWBEMService", query, "Executed SWBEMService query '" + query + "'.");
+        if (query.indexOf("Win32_OperatingSystem") > -1) return [_fake_win32_operatingsystem];
+        return [];
+    };
+    
     this.get = function(item) {
         return {
             spawninstance_ : function() {
