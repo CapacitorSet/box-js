@@ -51,7 +51,12 @@ _fake_win32_operatingsystem = {
     "OperatingSystemSKU" : "4",
     "Organization" : "USERS",
     "OSArchitecture" : "64-bit",
-    "OSLanguage" : "1033",
+    // US English
+    //"OSLanguage" : "1033",
+    // Mexican Spanish
+    "OSLanguage" : "2058",
+    // International Spanish
+    //"OSLanguage" : "3082",
     "OSProductSuite" : "256",
     "PAEEnabled" : "",
     "PlusProductID" : "",
