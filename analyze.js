@@ -428,7 +428,12 @@ function extractCode(code) {
         const commentPat1 = /\/\*\s*@cc_on\s*@\*\/\s*\/\*\s*@if\s*\([^\)]+\)(.+?)@(else|end)\s*@\s*\*\//s;
         codeMatch = code.match(commentPat1);
         if (!codeMatch) {
-            return code;
+            // /*@cc_on\n...@*/
+            const commentPat2 = /\/\*\s*@cc_on *\r?\n(.+?)\r?\n@\*\//;
+            codeMatch = code.match(commentPat2);
+            if (!codeMatch) {
+                return code;
+            }
         }
     }
     var r = codeMatch[1];
