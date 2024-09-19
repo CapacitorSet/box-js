@@ -414,6 +414,7 @@ module.exports = {
         }
         
 	const filename = getUUID();
+        command = "" + command;
 	logIOC("Run", {command}, "The script ran the command '" + command + "'.");
 	logSnippet(filename, {as: "WScript code"}, command);
 	process.send("expect-shell-error");
