@@ -122,6 +122,8 @@ function hideStrs(s) {
     var resetSlashes = false;
     var justStartedRegex = false;
     var inSquareBrackets = false;
+    var skippedSpace = false;
+    
     s = stripSingleLineComments(s);
     // For debugging.
     var window = "               ";
@@ -186,7 +188,7 @@ function hideStrs(s) {
 	    // Dropping /* */ comments, so don't save current char.
 
             // Out of comment?
-            if ((prevChar == "*") && (currChar == "/")) {
+            if ((prevChar == "*") && (currChar == "/") && !skippedSpace) {
                 inComment = false;
                 // Handle FP single line comment detection for things
                 // like '/* comm1 *//* comm2 */'.
@@ -199,6 +201,10 @@ function hideStrs(s) {
             if (currChar != " ") {
                 prevPrevChar = prevChar;
                 prevChar = currChar;
+                skippedSpace = false;
+            }
+            else {
+                skippedSpace = true;
             }
             continue;
         }
