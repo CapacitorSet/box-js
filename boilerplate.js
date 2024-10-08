@@ -457,6 +457,16 @@ function __createElement(tag) {
         get value() {
             return this.val;
         },
+        get href() {
+            if (typeof(this._href) === "undefined") this._href = 'http://mylegitdomain.com:2112/and/i/have/a/path.php#tag?var1=12&ref=otherlegitdomain.moe';
+            return this._href;
+        },
+        set href(url) {
+	    url = url.replace(/\r?\n/g, "");
+            this._href = url;
+            logIOC('HREF Location', {url}, "The script changed location.href.");
+	    logUrl('HREF Location', url);
+        },
         // Not ideal or close to correct, but sometimes needs a parentNode field.
         parentNode: __fakeParentElem,
         log: [],
@@ -598,8 +608,7 @@ const navigator = {
     },
     keyboard: {
     },
-    language: {
-    },
+    language: "english",
     languages: {
     },
     locks: {
