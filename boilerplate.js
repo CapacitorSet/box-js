@@ -50,6 +50,12 @@ const dummyEvent = {
     key: 97, // "a"
 
     stopPropagation: function() {},
+    preventDefault: function() {},
+    composedPath: function() {
+        return {
+            includes: function() { return false; },
+        };
+    },
 };
 
 // Handle Blobs. All Blob methods in the real Blob class for dumping
