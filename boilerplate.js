@@ -752,6 +752,7 @@ var document = {
         // got nothing to return. Make up some fake element and hope for the best.
         var r = __createElement(id);
         r.val = jqueryVals[id];
+        if (typeof(r.val) == "undefined") r.val = "";
         return r;
     },
     documentElement: {
