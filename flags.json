@@ -88,6 +88,11 @@
             "description": "Specify the language code to return for Win32_OperatingSystem.OSLanguage. Supported values are 'spanish', 'english', and 'portuguese'."
         },
         {
+            "name": "fake-domain",
+            "type": "String",
+            "description": "Specify the user domain to return for WScript.Network.UserDomain."
+        },
+        {
             "name": "fake-download",
             "type": "Boolean",
             "description": "Fake that HTTP requests work and have them return a fake payload"

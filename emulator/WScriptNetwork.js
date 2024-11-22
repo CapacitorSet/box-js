@@ -1,4 +1,10 @@
 const lib = require("../lib");
+const argv = require("../argv.js").run;
+
+var fakeUserDomain = "";
+if (argv["fake-domain"]) {
+    fakeUserDomain = argv["fake-domain"];
+}
 
 class DriveInfo {
     constructor(driveLetters) {
@@ -17,7 +23,7 @@ function WScriptNetwork() {
     this.enumprinterconnections = () => [{
 	foo: "bar",
     }];
-    this.userdomain = "";
+    this.userdomain = fakeUserDomain;
     this.username = "harvey_danger";
     this.mapnetworkdrive = function(letter, path) {
         lib.info(`Script maps network drive ${letter} to path ${path}`);
