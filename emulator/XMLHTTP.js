@@ -1,6 +1,8 @@
 const lib = require("../lib");
 const argv = require("../argv.js").run;
 
+var _fileCheckCount = 0;
+var _lastUrl = "";
 function XMLHTTP() {
     this.headers = {};
     this.onreadystatechange = () => {};
@@ -20,7 +22,21 @@ function XMLHTTP() {
 	this.method = method;
 	this.readystate = 1;
 	this.statustext = "OPENED";
+        lib.logUrl('XMLHTTP', url);
+        lib.logIOC("XMLHTTP", {url: url}, "The script opened URL " + url + " with XMLHTTP");
+
+        // Try to break infinite network loops by exiting if we do
+        // many open()s.
+        _fileCheckCount++;
+        if (argv["limit-file-checks"]) {
+            if ((_fileCheckCount > 100) && (url == _lastUrl)) {
+                lib.info("Possible infinite network loop detected. Exiting.");
+                process.exit(0);
+            }
+        }
+        _lastUrl = url;
     };
+    this.responsetext = "console.log('The script executed JS returned from a C2 server.')";
     this.setrequestheader = function(key, val) {
 	key = key.replace(/:$/, ""); // Replace a trailing ":" if present
 	this.headers[key] = val;

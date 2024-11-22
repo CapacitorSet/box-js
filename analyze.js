@@ -122,6 +122,8 @@ function hideStrs(s) {
     var resetSlashes = false;
     var justStartedRegex = false;
     var inSquareBrackets = false;
+    var skippedSpace = false;
+    
     s = stripSingleLineComments(s);
     // For debugging.
     var window = "               ";
@@ -186,7 +188,7 @@ function hideStrs(s) {
 	    // Dropping /* */ comments, so don't save current char.
 
             // Out of comment?
-            if ((prevChar == "*") && (currChar == "/")) {
+            if ((prevChar == "*") && (currChar == "/") && !skippedSpace) {
                 inComment = false;
                 // Handle FP single line comment detection for things
                 // like '/* comm1 *//* comm2 */'.
@@ -199,6 +201,10 @@ function hideStrs(s) {
             if (currChar != " ") {
                 prevPrevChar = prevChar;
                 prevChar = currChar;
+                skippedSpace = false;
+            }
+            else {
+                skippedSpace = true;
             }
             continue;
         }
@@ -419,10 +425,22 @@ function extractCode(code) {
     //
     // /*@cc_on
     // @if(1) ... @end@*/
+    //
+    // /*@cc_on @*//*@if (1)    
+    // ... @end @*/
     const commentPat = /\/\*(?:@cc_on\s+)?@if\s*\([^\)]+\)(.+?)@(else|end)\s*@\s*\*\//s
-    const codeMatch = code.match(commentPat);
+    var codeMatch = code.match(commentPat);
     if (!codeMatch) {
-        return code;
+        const commentPat1 = /\/\*\s*@cc_on\s*@\*\/\s*\/\*\s*@if\s*\([^\)]+\)(.+?)@(else|end)\s*@\s*\*\//s;
+        codeMatch = code.match(commentPat1);
+        if (!codeMatch) {
+            // /*@cc_on\n...@*/
+            const commentPat2 = /\/\*\s*@cc_on *\r?\n(.+?)\r?\n@\*\//;
+            codeMatch = code.match(commentPat2);
+            if (!codeMatch) {
+                return code;
+            }
+        }
     }
     var r = codeMatch[1];
     lib.info("Extracted code to analyze from conditional JScript comment.");

@@ -1,5 +1,25 @@
 const lib = require("../lib");
 const enumerator = require("./Enumerator");
+const argv = require("../argv.js").run;
+
+// Fake OS language can be set with the --fake-language option.
+// Default language is English.
+var langCode = 1033;
+if (argv["fake-language"]) {
+
+    // Were we given a supported language?
+    const langStr = argv["fake-language"];
+    const langs = {
+        'spanish' : 2058,
+        'english' : 1033,
+        'portuguese' : 1046,
+    };
+    langCode = langs[langStr];
+    if (!langCode) {
+        lib.error("Language '" + langStr + "' not supported.");
+        process.exit(4);
+    };
+}
 
 // Fake SWBEMService.instancesof results.
 
@@ -51,7 +71,15 @@ _fake_win32_operatingsystem = {
     "OperatingSystemSKU" : "4",
     "Organization" : "USERS",
     "OSArchitecture" : "64-bit",
-    "OSLanguage" : "1033",
+    // US English
+    //"OSLanguage" : "1033",
+    // Mexican Spanish
+    get OSLanguage() {
+        lib.logIOC("SWBEMService", langCode, "Read Win32_OperatingSystem.OSLanguage.");
+        return langCode;
+    },
+    // International Spanish
+    //"OSLanguage" : "3082",
     "OSProductSuite" : "256",
     "PAEEnabled" : "",
     "PlusProductID" : "",
@@ -89,6 +117,12 @@ function VirtualSWBEMServices() {
         };
     };
 
+    this.execquery = function(query) {
+        lib.logIOC("SWBEMService", query, "Executed SWBEMService query '" + query + "'.");
+        if (query.indexOf("Win32_OperatingSystem") > -1) return [_fake_win32_operatingsystem];
+        return [];
+    };
+    
     this.get = function(item) {
         return {
             spawninstance_ : function() {

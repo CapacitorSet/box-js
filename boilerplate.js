@@ -50,6 +50,12 @@ const dummyEvent = {
     key: 97, // "a"
 
     stopPropagation: function() {},
+    preventDefault: function() {},
+    composedPath: function() {
+        return {
+            includes: function() { return false; },
+        };
+    },
 };
 
 // Handle Blobs. All Blob methods in the real Blob class for dumping
@@ -451,6 +457,22 @@ function __createElement(tag) {
             // Call the onerror handler.
             func();
         },
+        set value(txt) {
+            this.val = txt;
+        },
+        get value() {
+            return this.val;
+        },
+        get href() {
+            if (typeof(this._href) === "undefined") this._href = 'http://mylegitdomain.com:2112/and/i/have/a/path.php#tag?var1=12&ref=otherlegitdomain.moe';
+            return this._href;
+        },
+        set href(url) {
+	    url = url.replace(/\r?\n/g, "");
+            this._href = url;
+            logIOC('HREF Location', {url}, "The script changed location.href.");
+	    logUrl('HREF Location', url);
+        },
         // Not ideal or close to correct, but sometimes needs a parentNode field.
         parentNode: __fakeParentElem,
         log: [],
@@ -567,7 +589,10 @@ __fakeParentElem = __createElement("FakeParentElem");
 // Stubbed global navigator object.
 const navigator = {
     userAgent: 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.2; WOW64; Trident/6.0; .NET4.0E; .NET4.0C; .NET CLR 3.5.30729; .NET CLR 2.0.50727; .NET CLR 3.0.30729; Tablet PC 2.0; InfoPath.3)',
-    clipboard: {        
+    clipboard: {
+        writeText : function(txt) {
+            logIOC('Clipboard', txt, "The script pasted text into the clipboard.");
+        },
     },
     connection: {
     },
@@ -589,8 +614,7 @@ const navigator = {
     },
     keyboard: {
     },
-    language: {
-    },
+    language: "english",
     languages: {
     },
     locks: {
@@ -728,6 +752,7 @@ var document = {
         // got nothing to return. Make up some fake element and hope for the best.
         var r = __createElement(id);
         r.val = jqueryVals[id];
+        if (typeof(r.val) == "undefined") r.val = "";
         return r;
     },
     documentElement: {
@@ -762,6 +787,7 @@ var document = {
         eval(extractJSFromHTA(node));
     },
     getElementsByTagName: __getElementsByTagName,
+    getElementsByName: __getElementsByTagName,
     getElementsByClassName: __getElementsByTagName,
     createDocumentFragment: function() {
         return __createElement("__doc_fragment__");
@@ -1216,6 +1242,10 @@ var exports = {};
 function fetch(url, data) {
     lib.logIOC("fetch", {url: url, data: data}, "The script fetch()ed a URL.");
     lib.logUrl("fetch", url);
+    return {
+	ok : true,
+	json : function() { return "1"; },
+    };
 };
 
 // Image class stub.
@@ -1310,3 +1340,8 @@ var history = {
     pushState: function() {},
 };
 
+// Fake sessionStorage object.
+var sessionStorage = {
+    getItem: function() {},
+    setItem: function() {},
+};
