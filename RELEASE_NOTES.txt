@@ -1,3 +1,15 @@
+Version 1.19.27, 11/22/2024
+--------------------------
+
+* Added --fake-language=LANG option for setting the language to return
+  for Win32_OperatingSystem.OSLanguage.
+* Added --fake-domain=DOM option for setting the domain to return for
+  WScript.Network.UserDomain.
+* Added tracking for XMLHTTP URLs.
+* Added emulation for FileSystemObject::GetFileName().
+* Added emulation for WBEMScripting::execQuery().
+* Added emulation for navigator.clipboard.writeText().
+
 Version 1.19.26, 8/13/2024
 --------------------------
 

@@ -103,6 +103,9 @@ cat ./*.results/active_urls.json | sort | uniq
     --fake-sample-name         Fake file name to use for the sample being analyzed. Can be a full path or just 
                                the file name to use. If you have '\' in the path escape them as '\\' in this   
                                command line argument value (ex. --fake-sample-name=C:\\foo\\bar.js).           
+    --fake-language            Specify the language code to return for Win32_OperatingSystem.OSLanguage.       
+                               Supported values are 'spanish', 'english', and 'portuguese'.                    
+    --fake-domain              Specify the user domain to return for WScript.Network.UserDomain.
     --fake-download            Fake that HTTP requests work and have them return a fake payload                
     --no-kill                  Do not kill the application when runtime errors occur                           
     --no-echo                  When the script prints data, do not print it to the console                     
