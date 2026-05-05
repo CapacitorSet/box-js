@@ -582,6 +582,7 @@ function __createElement(tag) {
 	    get: (target, name) => name in target ? target[name] : "???"
 	})),
         pathname: '/and/i/have/a/path.php',
+	checked: true,
 	nodeType: 9,
         set onload(func) {
 	    lib.info("Script set window.onload function.");
