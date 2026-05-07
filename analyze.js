@@ -495,14 +495,18 @@ function rewrite(code, useException=false) {
     // (replace these expressions with comments). We have to do this
     // with regexes rather than modifying the parse tree since these
     // expressions cannot be parsed by acorn.
-    var rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[;])/g;
-    code = code.toString().replace(rvaluePat, ';/* ASSIGNING TO RVALUE */');
-    rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[\n])/g;
-    code = code.toString().replace(rvaluePat, ';// ASSIGNING TO RVALUE');
-    //console.log("!!!! CODE: 2 !!!!");
-    //console.log(code);                
-    //console.log("!!!! CODE: 2 !!!!");
-    
+    //
+    // Don't do this for huge samples.
+    if (code.length < 2e6) {
+	var rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[;])/g;
+	code = code.toString().replace(rvaluePat, ';/* ASSIGNING TO RVALUE */');
+	rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[\n])/g;
+	code = code.toString().replace(rvaluePat, ';// ASSIGNING TO RVALUE');
+	//console.log("!!!! CODE: 2 !!!!");
+	//console.log(code);                
+	//console.log("!!!! CODE: 2 !!!!");
+    }
+
     // Now unhide the string literals.
     code = unhideStrs(code, strMap);
     //console.log("!!!! CODE: 3 !!!!");
