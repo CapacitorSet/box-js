@@ -1468,6 +1468,7 @@ function makeWindowObject() {
         crypto: nodeCrypto,
         getSelection: function () {},
 	postMessage: function () {},
+	parseFloat: parseFloat,
     };
 
     return window;
