@@ -1193,7 +1193,7 @@ if (argv["dangerous-vm"]) {
     // Dump interesting variable values to files for later analysis.
     if (argv["dump-vars"]) {
 	//argv["no-kill"] = true;
-	code += '\nvar _boxfso = new ActiveXObject("Scripting.FileSystemObject");\nvar _fileCount = 0;\nfor (var name in this) {\n    const val = this[name];\n    if (typeof(val) == "string") {\n        if (val.match("http://") || val.match("https://")) {\n            const fname = "variable_value" + _fileCount + ".txt";\n            _fileCount++;\n            var stream = _boxfso.CreateTextFile(fname, true);\n            stream.Write(val);\n            stream.close();\n        }\n    }\n}';
+	code += 'var _boxfso = undefined;\nvar _fileCount = 0;\nfor (var name in this) {\n    const val = this[name];\n    if (typeof(val) == "string") {\n        if ((val.match("http://") || val.match("https://")) && !val.match("mylegitdomain")) {\n            if (typeof(_boxfso == "undefined")) _boxfso = new ActiveXObject("Scripting.FileSystemObject");\n            const fname = "variable_value" + _fileCount + ".txt";\n            _fileCount++;\n            var stream = _boxfso.CreateTextFile(fname, true);\n            stream.Write(val);\n            stream.close();\n        }\n    }\n}\n';
     }
     
     try{
