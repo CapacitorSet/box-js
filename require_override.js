@@ -31,7 +31,16 @@ function require(arg) {
             machineId : _machineId,
             machineIdSync : _machineIdSync,
         },
+	"express" : {
+	    Router : _router,
+	},
     }
     if (typeof overrides[arg] !== "undefined") return overrides[arg];
-    return _origRequire(arg);
+    try {
+	return _origRequire(arg);
+    }
+    catch (e) {
+	lib.error("require(" + arg + ") failed (module unknown). Returning empty module ...");
+	return {};
+    }
 }

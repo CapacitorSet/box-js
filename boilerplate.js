@@ -2527,3 +2527,25 @@ class AbortController {
 var AbortSignal = {
     timeout : function () { },	
 };
+
+// Global module dict?
+module = {};
+
+// Stubbed JS express module methods.
+// https://expressjs.com/en/5x/api.html
+function _router() {
+
+    // Return a stubbed express.Router object.
+    r = {
+	__name: "_router()",
+	get : function(url) {
+	    logIOC('express.Router.get()', {url}, "The script made a GET request with express.Router.get().");
+	    logUrl('express.Router.get()', url);
+	},
+	post : function(url) {
+	    logIOC('express.Router.post()', {url}, "The script made a POST request with express.Router.post().");
+	    logUrl('express.Router.post()', url);
+	},
+    };
+    return r;
+}
