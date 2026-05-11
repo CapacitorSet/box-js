@@ -46,7 +46,9 @@ var num = 0;
 class TaskObject {
 
     constructor() {
+	this.__name = "TaskObject";
         this.settings = {};
+	this.Settings = {};
         this.triggers = {
             Create: function() {
                 var r = new TaskTriggerObject();
@@ -56,7 +58,8 @@ class TaskObject {
         };
         this.Actions = {
             Create: function() {
-                return this.taskObj;
+                //return this.taskObj;
+		return new TaskObject();
             },
         };
         this.Actions.Create.taskObj = this;
@@ -64,15 +67,16 @@ class TaskObject {
         this.triggers.Create.taskObj = this;
         this.triggers.Create = this.triggers.Create.bind(this.triggers.Create);
         this.debug = "DEBUG_" + (num++);
+	this.RegistrationInfo = {};
     };
 
     set Path(v) {
-        lib.info('The sample set task path to "' + v + '".');
+        lib.logIOC("Task Path", v, 'The sample set task path to "' + v + '".');
         this.path = v;
     };
 
     set Arguments(v) {
-        lib.info('The sample set task arguments to "' + v + '".');
+        lib.logIOC("Task Arguments", v, 'The sample set task arguments to "' + v + '".');
         this.args = v;
     };
 
