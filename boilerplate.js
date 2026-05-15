@@ -2429,6 +2429,12 @@ process.platform = "win32";
 this.arch = "x64";
 this.path = "C:/Users/legituser/Downloads";
 
+// Node.js setImmediate() stubbing.
+function setImmediate(func) {
+    // Just run the callback immediately.
+    func();
+}
+
 // Don't allow overriding selected console methods.
 const _origConsole = console;
 var fakeConsole = {
