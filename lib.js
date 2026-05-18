@@ -111,7 +111,10 @@ function logUrl(method, url) {
 
 const setVars = {};
 function logEnvVar(varName, varVal) {
-    log("info", `Set environment Variable ${varName} = "${varVal}"`);
+    var dots = " <snipped>...";
+    if (varVal.length < 200) dots = "";
+    const shortVal = varVal.substring(0,200) + dots;
+    log("info", `Set environment Variable ${varName} = "${shortVal}"`);
     setVars[varName] = varVal
     fs.writeFileSync(path.join(directory, "env_vars.json"), JSON.stringify(setVars, null, "\t"));
 }
