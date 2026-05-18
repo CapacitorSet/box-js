@@ -109,6 +109,13 @@ function logUrl(method, url) {
     fs.writeFileSync(path.join(directory, "urls.json"), simpleStringify(urls, null, "\t"));
 }
 
+const setVars = {};
+function logEnvVar(varName, varVal) {
+    log("info", `Set environment Variable ${varName} = "${varVal}"`);
+    setVars[varName] = varVal
+    fs.writeFileSync(path.join(directory, "env_vars.json"), JSON.stringify(setVars, null, "\t"));
+}
+
 // Track the # of times we have seen a file written to so we don't spam
 // emulation output.
 const MAXWRITES = 10;
@@ -322,6 +329,7 @@ module.exports = {
 	return files[filename];
     },
     logUrl,
+    logEnvVar,
     logResource: function(resourceName, emulatedPath, content) {
 
 	// Writing a Blob?

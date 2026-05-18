@@ -5,7 +5,8 @@ const argv = require("../argv.js").run;
 function WScriptShell() {
 
     this.clazz = "WScriptShell";
-    
+
+    const assignedVars = {};
     const vars = {
 	/* %APPDATA% equals C:\Documents and Settings\{username}\Application Data on Windows XP,
 	 * but C:\Users\{username}\AppData\Roaming on Win Vista and above.
@@ -33,6 +34,7 @@ function WScriptShell() {
     this._envVarLookup = function (argument) {
 	argument = argument.toLowerCase();
 	if (argument in vars) return vars[argument];
+	if (argument in assignedVars) return assignedVars[argument];
 	// Return a fake value so all environment variable reads succeed?
         if (argv["fake-reg-read"]) return ("Unknown environment variable " + argument);
 	lib.kill(`Unknown parameter ${argument} for WScriptShell.Environment.*`);
@@ -46,6 +48,10 @@ function WScriptShell() {
 		    return "C:\\ProgramData";
 		return "Unknown environment variable " + x;
 	    };
+	    r.rvalAssign = function(varName, varVal) {
+		assignedVars[varName] = varVal;
+		lib.logEnvVar(varName, varVal);
+	    }
 	    return r;
 	}
 	return `(Environment variable ${x})`;
