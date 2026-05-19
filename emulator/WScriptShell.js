@@ -41,7 +41,7 @@ function WScriptShell() {
     };
     
     this.environment = (x) => {
-	if ((x.toLowerCase() === "system") || (x.toLowerCase() === "process")) {
+	if ((x.toLowerCase() === "system") || (x.toLowerCase() === "process") || (x.toLowerCase() === "user")) {
 	    var r = this._envVarLookup;
 	    r.Item = function(x) {
 		if (x.toLowerCase() === "programdata")
