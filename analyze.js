@@ -820,6 +820,15 @@ cc decoder.c -o decoder
 // Just check the syntax of the JS sample and exit?
 if (argv["check"]) {
     try {
+
+	// Acorn gets fooled if the 1st line is a VBS "' ..."
+	// comment. Check for that.
+	if (code.trim()[0] == "'") {
+	    console.log("JS syntax is invalid.");
+	    process.exit(1);
+	}
+	
+	// Does the code parse?
         let tree = acorn.parse(code, {
             ecmaVersion: "latest",
             allowReturnOutsideFunction: true, // used when rewriting function bodies
@@ -827,7 +836,7 @@ if (argv["check"]) {
                 // enables acorn plugin needed by prototype rewrite
                 JScriptMemberFunctionStatement: !argv["no-rewrite-prototype"],
             },
-        });
+        });	
 	console.log("JS syntax is valid.");
 	process.exit(0);
     } catch (e) {
@@ -1195,7 +1204,7 @@ if (argv["dangerous-vm"]) {
     // DOM contents.
     code += "\nfor (const func of listenerCallbacks) {\nfunc(dummyEvent);\n}\n";
     //console.log(code);
-
+    
     // Dump interesting variable values to files for later analysis.
     if (argv["dump-vars"]) {
 	//argv["no-kill"] = true;
