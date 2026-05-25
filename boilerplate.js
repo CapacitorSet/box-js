@@ -578,6 +578,8 @@ function __createElement(tag) {
     var fake_elem = {
 	// For debugging.
 	__name: "fake_elem",
+	pause: function () {},
+	play: function () {},
 	dataset: (new Proxy({}, {
 	    get: (target, name) => name in target ? target[name] : "???"
 	})),
@@ -2556,3 +2558,13 @@ function _router() {
     };
     return r;
 }
+
+// Stubbed bootstrap package.
+bootstrap = {
+    Modal: function () {
+	return {
+	    show: function() {},
+	    hide: function() {},
+	};
+    },
+};
