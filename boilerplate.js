@@ -1644,7 +1644,7 @@ var funcDict = {
     focus: function() {},
     text: function() {},
     autocomplete: function() {},
-    append: function() {},
+    append: _generic_append_func,
 };
 var jQuery = function(field){
     // Handle things like $(document) by just returning document.
