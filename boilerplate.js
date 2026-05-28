@@ -121,6 +121,7 @@ const dummyEvent = {
     data: {
 	type: "???",
     },
+    originalEvent: "??",
 };
 event = dummyEvent;
 
@@ -1181,6 +1182,9 @@ var document = {
         return this;
     },
     close: function() {},
+    on: function(event, func) {
+	func(dummyEvent);
+    },
 };
 document.documentElement = document;
 const fixit = document;
@@ -1640,6 +1644,7 @@ var funcDict = {
     focus: function() {},
     text: function() {},
     autocomplete: function() {},
+    append: function() {},
 };
 var jQuery = function(field){
     // Handle things like $(document) by just returning document.
