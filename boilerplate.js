@@ -2573,3 +2573,6 @@ bootstrap = {
 	};
     },
 };
+
+// Some adware thing.
+MDCore = {};
