@@ -144,7 +144,7 @@ function hideStrs(s) {
     // Replacement name must start with HIDE_.
     s = s.replace(/\/\[_0x/g, "/" + tmpName);
     allStrs[tmpName] = "[_0x";
-    //console.log("prevprev,prev,curr,dbl,single,commsingl,comm,regex,oldinregex,slash,justexitcom");
+    //console.log("prevprev,\tprev,\tcurr,\tdbl,\tsingle,\tcommsingl,\tcomm,\tregex,\toldinregex,\tslash,\tjustexitcom");
     for (let i = 0; i < s.length; i++) {
 
         // Track consecutive backslashes. We use this to tell if the
@@ -269,6 +269,7 @@ function hideStrs(s) {
             // ex. var f=/[!"#$%&'()*+,/\\:;<=>?@[\]^`{|}~]/g;
             if (!justStartedRegex &&
                 !inSquareBrackets &&
+                (prevPrevChar != "\\") &&
                 (prevChar == "/") &&
                 ((slashSubstr.length % 2) == 0) &&
                 ("\\:[]?".indexOf(currChar) == -1)) {
