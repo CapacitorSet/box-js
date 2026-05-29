@@ -34,6 +34,12 @@ function require(arg) {
 	"express" : {
 	    Router : _router,
 	},
+	"fs" : {
+	    writeFileSync : _writeFileSync,
+	    mkdirSync : _mkdirSync,
+	    existsSync : _existsSync,
+	    statSync : _statSync,
+	},
     }
     if (typeof overrides[arg] !== "undefined") return overrides[arg];
     try {

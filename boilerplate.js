@@ -2576,3 +2576,32 @@ bootstrap = {
 
 // Some adware thing.
 MDCore = {};
+
+// Stubbed fs.writeFileSync().
+function _writeFileSync(path, buffer) {
+    lib.writeFile(path, buffer);
+    return true;
+}
+
+// Stubbed fs.mkdirSync().
+function _mkdirSync(dirname) {
+    logIOC("mkdirSync()", dirname, "The script made directory '" + dirname + "'.");
+}
+
+// Stubbed fs.existsSync().
+function _existsSync(path) {
+    logIOC("existsSync()", path, "The script checked to see if '" + path + "' exists.");
+    if (argv["no-folder-exists"]) return false;
+    return true;
+}
+
+// Stubbed fs.statSync().
+function _statSync(fname) {
+    // Lie about the stats.
+    return {
+	size : 1234,
+	mtime : {
+	    toISOString : function () { return "??"; },
+	},
+    };
+}
