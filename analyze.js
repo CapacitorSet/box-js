@@ -1037,7 +1037,7 @@ var wscript_proxy = new Proxy({
     buildversion: "1234",
     interactive: true,
     fullname: fakeEngineFull,
-    name: fakeEngineShort,
+    name: "Windows Script Host",
     path: "C:\\TestFolder\\",
     scriptfullname: sampleFullName,
     scriptname: sampleName,
