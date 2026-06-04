@@ -950,7 +950,7 @@ var fakeEngineShort = "wscript.exe"
 if (argv["fake-script-engine"]) {
     fakeEngineShort = argv["fake-script-engine"];
 }
-var fakeEngineFull = "C:\\WINDOWS\\system32\\" + fakeEngineShort;
+var fakeEngineFull = "C:\\WINDOWS\\System32\\" + fakeEngineShort;
 
 // Fake command line options can be set with the --fake-cl-args
 // option. "''" is an empty string argument.
