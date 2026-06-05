@@ -1291,6 +1291,9 @@ function _makeDomDocument() {
             }
             catch (e) { return false; };
         },
+	setProperty: function(field, val) {
+	    lib.logIOC("setProperty()", {field, val}, "The script called setProperty('" + field + "', " + val + "')");
+	},
     };
     return r;
 }
@@ -1336,6 +1339,9 @@ function ActiveXObject(name) {
     name = name.toLowerCase()
     if (name.match("xmlhttp") || name.match("winhttprequest")) {
         return require("./emulator/XMLHTTP");
+    }
+    if (name.match("xsltemplate")) {
+        return require("./emulator/XSLTemplate");
     }
     if ((name.match("domdocument")) || (name.match("xmldom"))) {
 	const r = _makeDomDocument();
