@@ -791,6 +791,7 @@ cc decoder.c -o decoder
             lib.error("Couldn't generate rewritten code. Using original code:");
             lib.error(e);
             lib.error("");
+	    //console.log(orig_code);
             return orig_code;
         }
         //console.log("!!!! CODE !!!!");

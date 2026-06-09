@@ -2156,6 +2156,7 @@ const TextDecoder = nodeUtil.TextDecoder;
 // **********
 
 // Stubbed Node process package.
+var _fakeHrtime = 1291249202069519n;
 var process = {
     // For debugging.
     __name: "process",
@@ -2165,6 +2166,17 @@ var process = {
     },
     on: function (signal, handler) {
         handler();
+    },
+    hrtime: {
+	bigint: function () {
+	    _fakeHrtime += 1000n;
+	    return _fakeHrtime;
+	},
+    },
+    versions: {
+	node: "22.0.3",
+    },
+    env: {
     },
 }
     
@@ -2544,6 +2556,9 @@ var AbortSignal = {
 
 // Global module dict?
 module = {};
+
+// Global global dict?
+global = {};
 
 // Stubbed JS express module methods.
 // https://expressjs.com/en/5x/api.html
