@@ -5,17 +5,19 @@ function RegExp() {
     this.Global = false;
     this.IgnoreCase = false;
 
-    this.Test = function(s) {
+    this.test = function(s) {
 	throw "Not Implemented!";
     };
 
-    this.Execute = function(s) {
+    this.execute = function(s) {
 	throw "Not Implemented!";
     };
 
-    this.Replace = function(s, repl) {
-	throw "Not Implemented!";
+    this.replace = function(s, repl) {
+	const regex = new RegExp(this.Pattern, "g");
+	const r = s.replace(regex, repl);
+	return r;
     };
 }
 
-module.exports = lib.proxify(Dictionary, "VBScript.RegExp");
+module.exports = lib.proxify(RegExp, "VBScript.RegExp");
