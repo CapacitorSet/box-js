@@ -989,6 +989,13 @@ var document = {
     body: __createElement("__document_body__"),
     location: location,
     readyState: "complete",
+    classList: {
+	add: function() {},
+	remove: function() {},
+	trigger: function() {},
+	toggle: function() {},
+	special: {},
+    },
     head: {
         innerHTML: "",
         append: _generic_append_func,
@@ -1114,6 +1121,13 @@ var document = {
     documentElement: {
         style: {},
         className: "",
+	classList: {
+	    add: function() {},
+	    remove: function() {},
+	    trigger: function() {},
+	    toggle: function() {},
+	    special: {},
+	},
     },
     write: function (content) {
         logIOC('DOM Write', {content}, 'The script wrote to the DOM')
