@@ -1,3 +1,22 @@
+Version 1.19.28, 6/29/2026
+--------------------------
+
+* Added support for tracking writes to the clipboard.
+* Track URLs hit with localStorage.getItem().
+* Added support for WBEMScripting.SWbemDateTime ActiveX objects.
+* Added support for WBEMScripting.SWbemNamedValueSet ActiveX objects.
+* Added --fake-reg-read command line flag for returning fake values for unknown registry items.
+* Pull/run onclick handlers from dynamically added HTML.
+* Added stubbed versions of Node http and child_process packages.
+* Track 'scriptlet:' WMI URL loads.
+* Added --check command line option for just syntax checking a JS file.
+* Added support for htmlfile ActiveX objects.
+* Added navigator.sendBeacon() tracking.
+* Track URLs and base64 blobs decoded with decodeURLComponent() as IOCs.
+* Added support for VBScript.RegEx ActiveX objects.
+* Added CL option --dump-vars for dumping the values of interesting variable values to as IOCs.
+* Dump environment variables set by the analyzed script as IOCs.
+
 Version 1.19.27, 11/22/2024
 --------------------------
 
