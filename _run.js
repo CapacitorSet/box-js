@@ -166,7 +166,9 @@ function analyze(filepath, filename, cb) {
     for (let i = 1; fs.existsSync(directory); i++)
 	directory = path.join(outputDir, filename + "." + i + ".results");
 
-    fs.mkdirSync(directory);
+    if (!argv["check"]) {
+	fs.mkdirSync(directory);
+    }
     directory += "/"; // For ease of use
     const worker = cp.fork(path.join(__dirname, "analyze"), [filepath, directory, ...options]);
 

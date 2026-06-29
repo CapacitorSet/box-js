@@ -180,7 +180,7 @@ function FileSystemObject() {
 	}
 	if (typeof(this._fileCheckCount) == "undefined") this._fileCheckCount = 0;
 	this._fileCheckCount++;
-	if (argv["limit-file-checks"] && (this._fileCheckCount > 10)) {
+	if (argv["limit-file-checks"] && (this._fileCheckCount > 100)) {
 	    // Flip whether the file exists or not to see if that
 	    // breaks a loop.
 	    value = !value;

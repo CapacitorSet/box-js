@@ -4,6 +4,9 @@ const argv = require("../argv.js").run;
 
 function WScriptShell() {
 
+    this.clazz = "WScriptShell";
+
+    const assignedVars = {};
     const vars = {
 	/* %APPDATA% equals C:\Documents and Settings\{username}\Application Data on Windows XP,
 	 * but C:\Users\{username}\AppData\Roaming on Win Vista and above.
@@ -16,6 +19,7 @@ function WScriptShell() {
 	os: "Windows_NT",
 	processor_revision: "0209",
 	processor_architecture: "x86",
+        processor_architew6432: "AMD64",
 	programdata: "C:\\ProgramData",
 	systemroot: "C:\\WINDOWS",
 	//tmp: "C:\\DOCUME~1\\User\\LOCALS~1\\Temp",
@@ -26,22 +30,30 @@ function WScriptShell() {
 	userprofile: "C:\\Users\\Sysop12\\",
 	windir: "C:\\WINDOWS"
     };
+
+    this._envVarLookup = function (argument) {
+	argument = argument.toLowerCase();
+	if (argument in vars) return vars[argument];
+	if (argument in assignedVars) return assignedVars[argument];
+	// Return a fake value so all environment variable reads succeed?
+        if (argv["fake-reg-read"]) return ("Unknown environment variable " + argument);
+	lib.kill(`Unknown parameter ${argument} for WScriptShell.Environment.*`);
+    };
     
     this.environment = (x) => {
-	if (x.toLowerCase() === "system")
-	    return (argument) => {
-		argument = argument.toLowerCase();
-		if (argument in vars) return vars[argument];
-		lib.kill(`Unknown parameter ${argument} for WScriptShell.Environment.System`);
+	if ((x.toLowerCase() === "system") || (x.toLowerCase() === "process") || (x.toLowerCase() === "user")) {
+	    var r = this._envVarLookup;
+	    r.Item = function(x) {
+		if (x.toLowerCase() === "programdata")
+		    return "C:\\ProgramData";
+		return "Unknown environment variable " + x;
 	    };
-	if (x.toLowerCase() === "process")
-	    return {
-		Item: function(x) {
-		    if (x.toLowerCase() === "programdata")
-			return "C:\\ProgramData";
-		    return "Unknown process item " + x;
-		}
-	    };
+	    r.rvalAssign = function(varName, varVal) {
+		assignedVars[varName] = varVal;
+		lib.logEnvVar(varName, varVal);
+	    }
+	    return r;
+	}
 	return `(Environment variable ${x})`;
     };
 
@@ -116,6 +128,7 @@ function WScriptShell() {
         
 	// lacks the HKEY_CURRENT_USER reg key by default (y tho?)
 	this._reg_entries["HKEY_CURRENT_USER"] = {}
+	this._reg_entries["HKEY_CURRENT_USER"]["Control Panel"] = {"International" : {"Locale" : "0x407"}}
     }
 
     // expand registry acronyms and make lowercase
@@ -148,6 +161,8 @@ function WScriptShell() {
 		currRegEntry = currRegEntry[foundKey[0]]
 	    }
 	    else {
+                // Return a fake value so all registry reads succeed?
+                if (argv["fake-reg-read"]) return "FAKE_REG_VALUE";
 		return undefined
 	    }
 	}
@@ -166,7 +181,7 @@ function WScriptShell() {
 	    return value
 	}
 	else {
-	    lib.warning(`Unknown registry key ${key}!`);
+	    lib.warning(`Unknown registry key ${key}`);
 	    //return "";
             throw("Registry key not found.");
 	}

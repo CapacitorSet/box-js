@@ -1,4 +1,5 @@
 /* !!!! Patches from box-js !!!! */
+const argv = require("./argv.js").run;
 let __PATCH_CODE_ADDED__ = true;
 window = this;
 
@@ -50,8 +51,14 @@ Date.prototype.getminutes = Date.prototype.getMinutes;
 
 const legacyDate = Date;
 Date = function() {
+    // Use a fixed old date for the current date if the --use-old-date
+    // command line option is used.
+    if (argv["use-old-date"] && (arguments.length == 0)) {
+        arguments = [2017, 3, 6]
+    }
+    var proxiedDate = new legacyDate(...arguments);
     return new Proxy({
-	_actualTime: new legacyDate(...arguments),
+	_actualTime: proxiedDate,
     }, {
 	get: (target, prop) => {
             // Fast forward through time to foil anti-sandboxing busy
@@ -128,6 +135,22 @@ function _CreateFunc(...args) {
 	originalSource = originalSource.toString();
 	source = rewrite("(" + originalSource + ")");
     } else if (typeof originalSource === "string") {
+
+        // Sheesh. Looks like in a browser you can obfuscate a
+        // function call like `(function
+        // def...)..constructor("debugger").call("action")`, all this
+        // does is call the defined function.
+        //
+        // Look for that case here.
+        if (originalSource === "debugger") {
+            var r = {};
+            r._func = this;
+            r.call = function (cmd) {
+                // Call the original function?
+                if (cmd === "action") return this._func();
+            };
+            return r;
+        }
 	source = `/* Function arguments: ${JSON.stringify(args)} */\n` + rewrite(originalSource);
     } else {
 	// What the fuck JS
@@ -185,4 +208,17 @@ constructor.prototype.bind = function(context, func) {
     };
     return r;
 };
+Function.constructor.prototype.bind = constructor.prototype.bind;
+
+// Fake version of require() to fake importing some packages.
+/*
+let _origRequire = require;
+console.log(_origRequire);
+const require = function(pname) {
+    if (pname == "requests") return fakeRequests;
+    return _origRequire(pname);
+}
+*/
+
 /* End patches */
+

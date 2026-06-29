@@ -15,6 +15,9 @@ function Dictionary() {
         };
         return r;
     };
+    this.exists = function(key) {
+	return (typeof(this.dictionary[key] !== "undefined"));
+    }
 }
 
 module.exports = lib.proxify(Dictionary, "Scripting.Dictionary");

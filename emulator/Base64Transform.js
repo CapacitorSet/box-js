@@ -2,6 +2,8 @@ const lib = require("../lib");
 
 function Base64Transform() {
 
+    this.clazz = "Base64Transform";
+    
     this.transformfinalblock = function (bytes, start, count) {
 
         // Chop out the block of "bytes" to b64 decode.

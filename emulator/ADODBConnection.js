@@ -3,6 +3,8 @@ const iconv = require("iconv-lite");
 
 function ADODBConnection() {
 
+    this.clazz = "ADODBConnection";
+    
     this.open = function(query, conn) {
         log.logIOC("ADODBConnection", {"query": query}, "The script opened an ADODB connection.");
     };

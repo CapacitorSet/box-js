@@ -2,6 +2,8 @@ const lib = require("../lib");
 
 function AsciiEncoding() {
 
+    this.clazz = "AsciiEncoding";
+    
     this.issinglebyte = true;
 
     this.getbytecount = function (str, pos=0) {

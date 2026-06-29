@@ -100,7 +100,15 @@ _fake_win32_operatingsystem = {
     "CimClass" : "root/cimv2:Win32_OperatingSystem",
     "CimInstanceProperties" : "{Caption, Description, InstallDate, Name...}",
     "CimSystemProperties" : "Microsoft.Management.Infrastructure.CimSystemProperties",
-}
+};
+
+_fake_win32_processor = {
+    "NumberOfCores" : 4,
+};
+
+_fake_win32_computersystem = {
+    "TotalPhysicalMemory" : 4294967296,
+};
 
 function VirtualSWBEMServices() {
     this.instancesof = function(item) {
@@ -120,6 +128,8 @@ function VirtualSWBEMServices() {
     this.execquery = function(query) {
         lib.logIOC("SWBEMService", query, "Executed SWBEMService query '" + query + "'.");
         if (query.indexOf("Win32_OperatingSystem") > -1) return [_fake_win32_operatingsystem];
+        if (query.indexOf("Win32_Processor") > -1) return [_fake_win32_processor];
+        if (query.indexOf("Win32_ComputerSystem") > -1) return [_fake_win32_computersystem];
         return [];
     };
     

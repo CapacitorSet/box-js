@@ -18,10 +18,41 @@ const IOC = [];
 
 let latestUrl = "";
 
+function simpleStringify(object, a, b) {
+    if (object && typeof object === 'object') {
+        const tmpObject = copyWithoutCircularReferences([object], object);
+        var newObject = [];
+        for (var i = 0; i < Object.keys(tmpObject).length; i++) {
+            newObject.push(tmpObject[""+i]);
+        }
+        object = newObject;
+    }
+    return JSON.stringify(object, a, b);
+    
+    function copyWithoutCircularReferences(references, object) {
+        var cleanObject = {};
+        Object.keys(object).forEach(function(key) {
+            var value = object[key];
+            if (value && typeof value === 'object') {
+                if (references.indexOf(value) < 0) {
+                    references.push(value);
+                    cleanObject[key] = copyWithoutCircularReferences(references, value);
+                    references.pop();
+                } else {
+                    cleanObject[key] = '###_Circular_###';
+                }
+            } else if (typeof value !== 'function') {
+                cleanObject[key] = value;
+            }
+        });
+        return cleanObject;
+    }
+}
+
 const logSnippet = function(filename, logContent, content) {
     snippets[filename] = logContent;
     fs.writeFileSync(path.join(directory, filename), "" + content);
-    fs.writeFileSync(path.join(directory, "snippets.json"), JSON.stringify(snippets, null, "\t"));
+    fs.writeFileSync(path.join(directory, "snippets.json"), simpleStringify(snippets, null, "\t"));
 };
 
 function kill(message) {
@@ -33,6 +64,7 @@ function kill(message) {
 }
 
 function log(tag, text, toFile = true, toStdout = true) {
+    if (argv["check"]) return;
     const levels = {
 	"debug": 0,
 	"verb": 1,
@@ -67,14 +99,24 @@ const getUUID = uuid.v4;
 function logIOC(type, value, description) {
     log("info", "IOC: " + description);
     IOC.push({type, value, description});
-    fs.writeFileSync(path.join(directory, "IOC.json"), JSON.stringify(IOC, null, "\t"));
+    fs.writeFileSync(path.join(directory, "IOC.json"), simpleStringify(IOC, null, "\t"));
 }
 
 function logUrl(method, url) {
     log("info", `${method} ${url}`);
     latestUrl = url;
     if (urls.indexOf(url) === -1) urls.push(url);
-    fs.writeFileSync(path.join(directory, "urls.json"), JSON.stringify(urls, null, "\t"));
+    fs.writeFileSync(path.join(directory, "urls.json"), simpleStringify(urls, null, "\t"));
+}
+
+const setVars = {};
+function logEnvVar(varName, varVal) {
+    var dots = " <snipped>...";
+    if (varVal.length < 200) dots = "";
+    const shortVal = varVal.substring(0,200) + dots;
+    log("info", `Set environment Variable ${varName} = "${shortVal}"`);
+    setVars[varName] = varVal
+    fs.writeFileSync(path.join(directory, "env_vars.json"), JSON.stringify(setVars, null, "\t"));
 }
 
 // Track the # of times we have seen a file written to so we don't spam
@@ -290,6 +332,7 @@ module.exports = {
 	return files[filename];
     },
     logUrl,
+    logEnvVar,
     logResource: function(resourceName, emulatedPath, content) {
 
 	// Writing a Blob?
@@ -333,7 +376,7 @@ module.exports = {
         let filetype = "";
 	if (doLog) {
             log("info", `Saved ${filePath} (${content.length} bytes)`);
-	    filetype = child_process.execSync("file " + JSON.stringify(filePath)).toString("utf8");
+	    filetype = child_process.execSync("file " + simpleStringify(filePath)).toString("utf8");
 	    filetype = filetype.replace(`${filePath}: `, "").replace("\n", "");
             log("info", `${filePath} has been detected as ${filetype}.`);
         }
@@ -346,7 +389,7 @@ module.exports = {
 	    log("info", `Active URL detected: ${latestUrl}`);
 	    if (activeUrls.indexOf(latestUrl) === -1)
 		activeUrls.push(latestUrl);
-	    fs.writeFileSync(path.join(directory, "active_urls.json"), JSON.stringify(activeUrls, null, "\t"));
+	    fs.writeFileSync(path.join(directory, "active_urls.json"), simpleStringify(activeUrls, null, "\t"));
 	}
 
 	if (doLog) {
@@ -366,7 +409,7 @@ module.exports = {
 	        sha256
 	    };
             logIOC("NewResource", resource, "The script created a resource.");
-	    fs.writeFileSync(path.join(directory, "resources.json"), JSON.stringify(resources, null, "\t"));
+	    fs.writeFileSync(path.join(directory, "resources.json"), simpleStringify(resources, null, "\t"));
             resources[resourceName] = resource;
         }
     },

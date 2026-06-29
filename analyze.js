@@ -144,7 +144,7 @@ function hideStrs(s) {
     // Replacement name must start with HIDE_.
     s = s.replace(/\/\[_0x/g, "/" + tmpName);
     allStrs[tmpName] = "[_0x";
-    //console.log("prevprev,prev,curr,dbl,single,commsingl,comm,regex,oldinregex,slash,justexitcom");
+    //console.log("prevprev,\tprev,\tcurr,\tdbl,\tsingle,\tcommsingl,\tcomm,\tregex,\toldinregex,\tslash,\tjustexitcom");
     for (let i = 0; i < s.length; i++) {
 
         // Track consecutive backslashes. We use this to tell if the
@@ -269,7 +269,8 @@ function hideStrs(s) {
             // ex. var f=/[!"#$%&'()*+,/\\:;<=>?@[\]^`{|}~]/g;
             if (!justStartedRegex &&
                 !inSquareBrackets &&
-                (prevChar == "/") && (prevPrevChar != "\\") &&
+                (prevPrevChar != "\\") &&
+                (prevChar == "/") &&
                 ((slashSubstr.length % 2) == 0) &&
                 ("\\:[]?".indexOf(currChar) == -1)) {
                 inRegex = false;
@@ -438,8 +439,13 @@ function extractCode(code) {
             const commentPat2 = /\/\*\s*@cc_on *\r?\n(.+?)\r?\n@\*\//;
             codeMatch = code.match(commentPat2);
             if (!codeMatch) {
-                return code;
-            }
+		// //@cc_on ... @*/
+		const commentPat3 = /\/\/\s*@cc_on(.+?)@\*\//;
+		codeMatch = code.match(commentPat3);
+		if (!codeMatch) {
+                    return code;
+		}
+	    }
         }
     }
     var r = codeMatch[1];
@@ -449,6 +455,9 @@ function extractCode(code) {
 
 function rewrite(code, useException=false) {
 
+    if (argv["no-rewrite"]) return code;
+    lib.verbose("Rewriting code...", false);
+    
     //console.log("!!!! CODE: 0 !!!!");
     //console.log(code);                
     //console.log("!!!! CODE: 0 !!!!");
@@ -456,6 +465,7 @@ function rewrite(code, useException=false) {
     // box-js is assuming that the JS will be run on Windows with cscript or wscript.
     // Neither of these engines supports strict JS mode, so remove those calls from
     // the code.
+    orig_code = code;
     code = code.toString().replace(/"use strict"/g, '"STRICT MODE NOT SUPPORTED"');
     code = code.toString().replace(/'use strict'/g, "'STRICT MODE NOT SUPPORTED'");
 
@@ -472,21 +482,38 @@ function rewrite(code, useException=false) {
     //console.log("!!!! STRMAP !!!!");
     //console.log(strMap);
     //console.log("!!!! STRMAP !!!!");
-    
+
+    // Some samples for some reason have spurious spaces in '==' type
+    // expressions. Fix those while the strings are hidden.
+    code = code.toString().replace(/= +=/g, "==");
+    code = code.toString().replace(/\^ +=/g, "^=");
+    code = code.toString().replace(/= +>/g, "=>");
+    code = code.toString().replace(/% +%/g, "%");
+
     // WinHTTP ActiveX objects let you set options like 'foo.Option(n)
     // = 12'. Acorn parsing fails on these with a assigning to rvalue
     // syntax error, so rewrite things like this so we can parse
     // (replace these expressions with comments). We have to do this
     // with regexes rather than modifying the parse tree since these
     // expressions cannot be parsed by acorn.
-    var rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[;])/g;
-    code = code.toString().replace(rvaluePat, ';/* ASSIGNING TO RVALUE */');
-    rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[\n])/g;
-    code = code.toString().replace(rvaluePat, ';// ASSIGNING TO RVALUE');
-    //console.log("!!!! CODE: 2 !!!!");
-    //console.log(code);                
-    //console.log("!!!! CODE: 2 !!!!");
-    
+    //
+    // Don't do this for huge samples.
+    if (code.length < 2e6) {
+	var rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[;])/g;
+	var rvaluePat1 = /[\n;]([^\n^;]*?)\(([^\n^;]+?)\)\s*=([^=^>][^\n^;]+?\r?(?=[;]))/g;
+	code = code.toString().replace(rvaluePat1, "$1.rvalAssign($2, $3)");
+	//code = code.toString().replace(rvaluePat, ';/* ASSIGNING TO RVALUE */');
+
+	rvaluePat = /[\n;][^\n^;]*?\([^\n^;]+?\)\s*=[^=^>][^\n^;]+?\r?(?=[\n])/g;
+	rvaluePat1 = /[\n;]([^\n^;]*?)\(([^\n^;]+?)\)\s*=([^=^>][^\n^;]+?\r?(?=[\n]))/g;
+	code = code.toString().replace(rvaluePat1, "$1.rvalAssign($2, $3)");
+	//code = code.toString().replace(rvaluePat, ';// ASSIGNING TO RVALUE');
+
+	//console.log("!!!! CODE: 2 !!!!");
+	//console.log(code);                
+	//console.log("!!!! CODE: 2 !!!!");
+    }
+
     // Now unhide the string literals.
     code = unhideStrs(code, strMap);
     //console.log("!!!! CODE: 3 !!!!");
@@ -557,225 +584,284 @@ If you run into unexpected results, try uncommenting lines that look like
         }
     }
 
-    if (!argv["no-rewrite"]) {
-        try {
-            lib.verbose("Rewriting code...", false);
-            if (argv["dumb-concat-simplify"]) {
-                lib.verbose("    Simplifying \"dumb\" concatenations (remove --dumb-concat-simplify to skip)...", false);
-                code = code.replace(/'[ \r\n]*\+[ \r\n]*'/gm, "");
-                code = code.replace(/"[ \r\n]*\+[ \r\n]*"/gm, "");
-            }
+    try {
+        if (argv["dumb-concat-simplify"]) {
+            lib.verbose("    Simplifying \"dumb\" concatenations (remove --dumb-concat-simplify to skip)...", false);
+            code = code.replace(/'[ \r\n]*\+[ \r\n]*'/gm, "");
+            code = code.replace(/"[ \r\n]*\+[ \r\n]*"/gm, "");
+        }
 
-            let tree;
-            try {
-                //console.log("!!!! CODE FINAL !!!!");
-                //console.log(code);                
-                //console.log("!!!! CODE FINAL !!!!");
-                tree = acorn.parse(code, {
-                    ecmaVersion: "latest",
-                    allowReturnOutsideFunction: true, // used when rewriting function bodies
-                    plugins: {
-                        // enables acorn plugin needed by prototype rewrite
-                        JScriptMemberFunctionStatement: !argv["no-rewrite-prototype"],
-                    },
-                });
-            } catch (e) {
-                if (useException) return 'throw("Parse Error")';
-                lib.error("Couldn't parse with Acorn:");
-                lib.error(e);
-                lib.error("");
-                if (filename.match(/jse$/)) {
-                    lib.error(
-                        `This appears to be a JSE (JScript.Encode) file.
+        let tree;
+        try {
+            //console.log("!!!! CODE FINAL !!!!");
+            //console.log(code);                
+            //console.log("!!!! CODE FINAL !!!!");
+            tree = acorn.parse(code, {
+                ecmaVersion: "latest",
+                allowReturnOutsideFunction: true, // used when rewriting function bodies
+                plugins: {
+                    // enables acorn plugin needed by prototype rewrite
+                    JScriptMemberFunctionStatement: !argv["no-rewrite-prototype"],
+                },
+            });
+        } catch (e) {
+            if (useException) return 'throw("Parse Error")';
+            lib.error("Couldn't parse with Acorn:");
+            lib.error(e);
+            lib.error("");
+            if (filename.match(/jse$/)) {
+                lib.error(
+                    `This appears to be a JSE (JScript.Encode) file.
 Please compile the decoder and decode it first:
 
 cc decoder.c -o decoder
 ./decoder ${filename} ${filename.replace(/jse$/, "js")}
 
 `
-                    );
-                } else {
-                    lib.error(
-                        // @@@ Emacs JS mode does not properly parse this block.
-                        //`This doesn't seem to be a JavaScript/WScript file.
-                        //If this is a JSE file (JScript.Encode), compile
-                        //decoder.c and run it on the file, like this:
-                        //
-                        //cc decoder.c -o decoder
-                        //./decoder ${filename} ${filename}.js
-                        //
-                        //`
-                        "Decode JSE. 'cc decoder.c -o decoder'. './decoder ${filename} ${filename}.js'"
-                    );
-                }
-                process.exit(4);
-                return;
+                );
+            } else {
+                lib.error(
+                    // @@@ Emacs JS mode does not properly parse this block.
+                    //`This doesn't seem to be a JavaScript/WScript file.
+                    //If this is a JSE file (JScript.Encode), compile
+                    //decoder.c and run it on the file, like this:
+                    //
+                    //cc decoder.c -o decoder
+                    //./decoder ${filename} ${filename}.js
+                    //
+                    //`
+                    "Decode JSE. 'cc decoder.c -o decoder'. './decoder ${filename} ${filename}.js'"
+                );
             }
-
-            // Loop rewriting is looking for loops in the original unmodified code so
-            // do this before any other modifications.
-            if (argv["rewrite-loops"]) {
-                lib.verbose("    Rewriting loops...", false);
-                traverse(tree, loop_rewriter.rewriteSimpleWaitLoop);
-                traverse(tree, loop_rewriter.rewriteSimpleControlLoop);
-                traverse(tree, loop_rewriter.rewriteLongWhileLoop);
-            };
-
-            // Rewrite == checks so that comparisons of the current script name to
-            // a hard coded script name always return true.
-            if (argv["loose-script-name"] && code.includes("==")) {
-                lib.verbose("    Rewriting == checks...", false);
-                traverse(tree, equality_rewriter.rewriteScriptCheck);
-            }
-
-            if (argv.preprocess) {
-                lib.verbose(`    Preprocessing with uglify-es v${require("uglify-es/package.json").version} (remove --preprocess to skip)...`, false);
-                const unsafe = !!argv["unsafe-preprocess"];
-                lib.debug("Unsafe preprocess: " + unsafe);
-                const result = require("uglify-es").minify(code, {
-                    parse: {
-                        bare_returns: true, // used when rewriting function bodies
-                    },
-                    compress: {
-                        passes: 3,
-
-                        booleans: true,
-                        collapse_vars: true,
-                        comparisons: true,
-                        conditionals: true,
-                        dead_code: true,
-                        drop_console: false,
-                        evaluate: true,
-                        if_return: true,
-                        inline: true,
-                        join_vars: false, // readability
-                        keep_fargs: unsafe, // code may rely on Function.length
-                        keep_fnames: unsafe, // code may rely on Function.prototype.name
-                        keep_infinity: true, // readability
-                        loops: true,
-                        negate_iife: false, // readability
-                        properties: true,
-                        pure_getters: false, // many variables are proxies, which don't have pure getters
-                        /* If unsafe preprocessing is enabled, tell uglify-es that Math.* functions
-                         * have no side effects, and therefore can be removed if the result is
-                         * unused. Related issue: mishoo/UglifyJS2#2227
-                         */
-                        pure_funcs: unsafe ?
-                            // https://stackoverflow.com/a/10756976
-                            Object.getOwnPropertyNames(Math).map(key => `Math.${key}`) : null,
-                        reduce_vars: true,
-                        /* Using sequences (a; b; c; -> a, b, c) provides some performance benefits
-                         * (https://github.com/CapacitorSet/box-js/commit/5031ba7114b60f1046e53b542c0e4810aad68a76#commitcomment-23243778),
-                         * but it makes code harder to read. Therefore, this behaviour is disabled.
-                         */
-                        sequences: false,
-                        toplevel: true,
-                        typeofs: false, // typeof foo == "undefined" -> foo === void 0: the former is more readable
-                        unsafe,
-                        unused: true,
-                    },
-                    output: {
-                        beautify: true,
-                        comments: true,
-                    },
-                });
-                if (result.error) {
-                    lib.error("Couldn't preprocess with uglify-es: " + JSON.stringify(result.error));
-                } else {
-                    code = result.code;
-                }
-            }
-            
-            if (!argv["no-rewrite-prototype"]) {
-                lib.verbose("    Replacing `function A.prototype.B()` (use --no-rewrite-prototype to skip)...", false);
-                traverse(tree, function(key, val) {
-                    if (!val) return;
-                    if (val.type !== "FunctionDeclaration" &&
-                        val.type !== "FunctionExpression") return;
-                    if (!val.id) return;
-                    if (val.id.type !== "MemberExpression") return;
-                    r = require("./patches/prototype.js")(val);
-                    return r;
-                });
-            }
-
-            if (!argv["no-hoist-prototype"]) {
-                lib.verbose("    Hoisting `function A.prototype.B()` (use --no-hoist-prototype to skip)...", false);
-                hoist(tree);
-            }
-
-            if (argv["function-rewrite"]) {
-                lib.verbose("    Rewriting functions (remove --function-rewrite to skip)...", false);
-                traverse(tree, function(key, val) {
-                    if (key !== "callee") return;
-                    if (val.autogenerated) return;
-                    switch (val.type) {
-                        case "MemberExpression":
-                            return require("./patches/this.js")(val.object, val);
-                        default:
-                            return require("./patches/nothis.js")(val);
-                    }
-                });
-            }
-
-            if (!argv["no-typeof-rewrite"]) {
-                lib.verbose("    Rewriting typeof calls (use --no-typeof-rewrite to skip)...", false);
-                traverse(tree, function(key, val) {
-                    if (!val) return;
-                    if (val.type !== "UnaryExpression") return;
-                    if (val.operator !== "typeof") return;
-                    if (val.autogenerated) return;
-                    return require("./patches/typeof.js")(val.argument);
-                });
-            }
-
-            if (!argv["no-eval-rewrite"]) {
-                lib.verbose("    Rewriting eval calls (use --no-eval-rewrite to skip)...", false);
-                traverse(tree, function(key, val) {
-                    if (!val) return;
-                    if (val.type !== "CallExpression") return;
-                    if (val.callee.type !== "Identifier") return;
-                    if (val.callee.name !== "eval") return;
-                    return require("./patches/eval.js")(val.arguments);
-                });
-            }
-
-            if (!argv["no-catch-rewrite"]) { // JScript quirk
-                lib.verbose("    Rewriting try/catch statements (use --no-catch-rewrite to skip)...", false);
-                traverse(tree, function(key, val) {
-                    if (!val) return;
-                    if (val.type !== "TryStatement") return;
-                    if (!val.handler) return;
-                    if (val.autogenerated) return;
-                    return require("./patches/catch.js")(val);
-                });
-            }
-
-            code = escodegen.generate(tree);
-            //console.log("!!!! CODE !!!!");
-            //console.log(code);
-
-            // The modifications may have resulted in more concatenations, eg. "a" + ("foo", "b") + "c" -> "a" + "b" + "c"
-            if (argv["dumb-concat-simplify"]) {
-                lib.verbose("    Simplifying \"dumb\" concatenations (remove --dumb-concat-simplify to skip)...", false);
-                code = code.replace(/'[ \r\n]*\+[ \r\n]*'/gm, "");
-                code = code.replace(/"[ \r\n]*\+[ \r\n]*"/gm, "");
-            }
-
-            lib.verbose("Rewritten successfully.", false);
-        } catch (e) {
-	    if (argv["ignore-rewrite-errors"]) {
-		lib.warning("Code rewriting failed. Analyzing original sample.");
-	    }
-	    else {
-		console.log("An error occurred during rewriting:");
-		console.log(e);
-		process.exit(3);
-	    }
+            process.exit(4);
+            return;
         }
+
+        // Loop rewriting is looking for loops in the original unmodified code so
+        // do this before any other modifications.
+        if (argv["rewrite-loops"]) {
+            lib.verbose("    Rewriting loops...", false);
+            traverse(tree, loop_rewriter.rewriteSimpleWaitLoop);
+            traverse(tree, loop_rewriter.rewriteSimpleControlLoop);
+            traverse(tree, loop_rewriter.rewriteLongWhileLoop);
+        };
+
+        // Rewrite == checks so that comparisons of the current script name to
+        // a hard coded script name always return true.
+        if (argv["loose-script-name"] && code.includes("==")) {
+            lib.verbose("    Rewriting == checks...", false);
+            traverse(tree, equality_rewriter.rewriteScriptCheck);
+        }
+
+        if (argv.preprocess) {
+            lib.verbose(`    Preprocessing with uglify-es v${require("uglify-es/package.json").version} (remove --preprocess to skip)...`, false);
+            const unsafe = !!argv["unsafe-preprocess"];
+            lib.debug("Unsafe preprocess: " + unsafe);
+            const result = require("uglify-es").minify(code, {
+                parse: {
+                    bare_returns: true, // used when rewriting function bodies
+                },
+                compress: {
+                    passes: 3,
+
+                    booleans: true,
+                    collapse_vars: true,
+                    comparisons: true,
+                    conditionals: true,
+                    dead_code: true,
+                    drop_console: false,
+                    evaluate: true,
+                    if_return: true,
+                    inline: true,
+                    join_vars: false, // readability
+                    keep_fargs: unsafe, // code may rely on Function.length
+                    keep_fnames: unsafe, // code may rely on Function.prototype.name
+                    keep_infinity: true, // readability
+                    loops: true,
+                    negate_iife: false, // readability
+                    properties: true,
+                    pure_getters: false, // many variables are proxies, which don't have pure getters
+                    /* If unsafe preprocessing is enabled, tell uglify-es that Math.* functions
+                     * have no side effects, and therefore can be removed if the result is
+                     * unused. Related issue: mishoo/UglifyJS2#2227
+                     */
+                    pure_funcs: unsafe ?
+                        // https://stackoverflow.com/a/10756976
+                    Object.getOwnPropertyNames(Math).map(key => `Math.${key}`) : null,
+                    reduce_vars: true,
+                    /* Using sequences (a; b; c; -> a, b, c) provides some performance benefits
+                     * (https://github.com/CapacitorSet/box-js/commit/5031ba7114b60f1046e53b542c0e4810aad68a76#commitcomment-23243778),
+                     * but it makes code harder to read. Therefore, this behaviour is disabled.
+                     */
+                    sequences: false,
+                    toplevel: true,
+                    typeofs: false, // typeof foo == "undefined" -> foo === void 0: the former is more readable
+                    unsafe,
+                    unused: true,
+                },
+                output: {
+                    beautify: true,
+                    comments: true,
+                },
+            });
+            if (result.error) {
+                lib.error("Couldn't preprocess with uglify-es: " + JSON.stringify(result.error));
+            } else {
+                code = result.code;
+            }
+        }
+        
+        if (!argv["no-rewrite-prototype"]) {
+            lib.verbose("    Replacing `function A.prototype.B()` (use --no-rewrite-prototype to skip)...", false);
+            traverse(tree, function(key, val) {
+                if (!val) return;
+                if (val.type !== "FunctionDeclaration" &&
+                    val.type !== "FunctionExpression") return;
+                if (!val.id) return;
+                if (val.id.type !== "MemberExpression") return;
+                r = require("./patches/prototype.js")(val);
+                return r;
+            });
+        }
+
+        if (!argv["no-hoist-prototype"]) {
+            lib.verbose("    Hoisting `function A.prototype.B()` (use --no-hoist-prototype to skip)...", false);
+            hoist(tree);
+        }
+
+        if (argv["function-rewrite"]) {
+            lib.verbose("    Rewriting functions (remove --function-rewrite to skip)...", false);
+            traverse(tree, function(key, val) {
+                if (key !== "callee") return;
+                if (val.autogenerated) return;
+                switch (val.type) {
+                case "MemberExpression":
+                    return require("./patches/this.js")(val.object, val);
+                default:
+                    return require("./patches/nothis.js")(val);
+                }
+            });
+        }
+
+        if (!argv["no-typeof-rewrite"]) {
+            lib.verbose("    Rewriting typeof calls (use --no-typeof-rewrite to skip)...", false);
+            traverse(tree, function(key, val) {
+                if (!val) return;
+                if (val.type !== "UnaryExpression") return;
+                if (val.operator !== "typeof") return;
+                if (val.autogenerated) return;
+                return require("./patches/typeof.js")(val.argument);
+            });
+        }
+
+        if (!argv["no-eval-rewrite"]) {
+            lib.verbose("    Rewriting eval calls (use --no-eval-rewrite to skip)...", false);
+            traverse(tree, function(key, val) {
+                if (!val) return;
+                if (val.type !== "CallExpression") return;
+                if (val.callee.type !== "Identifier") return;
+                if (val.callee.name !== "eval") return;
+                return require("./patches/eval.js")(val.arguments);
+            });
+        }
+
+        if (!argv["no-catch-rewrite"]) { // JScript quirk
+            lib.verbose("    Rewriting try/catch statements (use --no-catch-rewrite to skip)...", false);
+            traverse(tree, function(key, val) {
+                if (!val) return;
+                if (val.type !== "TryStatement") return;
+                if (!val.handler) return;
+                if (val.autogenerated) return;
+                try {
+                    return require("./patches/catch.js")(val);
+                }
+                catch (e) {
+                    lib.error("Couldn't rewrite try/catch blocks:");
+                    lib.error(e);
+                    lib.error("");
+                    return val;
+                }
+            });
+        }
+
+        try{
+            code = escodegen.generate(tree);
+        }
+        catch (e) {
+            lib.error("Couldn't generate rewritten code. Using original code:");
+            lib.error(e);
+            lib.error("");
+	    //console.log(orig_code);
+            return orig_code;
+        }
+        //console.log("!!!! CODE !!!!");
+        //console.log(code);
+
+        // The modifications may have resulted in more concatenations, eg. "a" + ("foo", "b") + "c" -> "a" + "b" + "c"
+        if (argv["dumb-concat-simplify"]) {
+            lib.verbose("    Simplifying \"dumb\" concatenations (remove --dumb-concat-simplify to skip)...", false);
+            code = code.replace(/'[ \r\n]*\+[ \r\n]*'/gm, "");
+            code = code.replace(/"[ \r\n]*\+[ \r\n]*"/gm, "");
+        }
+
+        lib.verbose("Rewritten successfully.", false);
+    } catch (e) {
+	if (argv["ignore-rewrite-errors"]) {
+	    lib.warning("Code rewriting failed. Analyzing original sample.");
+	}
+	else {
+	    console.log("An error occurred during rewriting:");
+	    console.log(e);
+	    process.exit(3);
+	}
     }
 
     return code;
+}
+
+// Just check the syntax of the JS sample and exit?
+if (argv["check"]) {
+    try {
+
+	// Acorn gets fooled if the 1st line is a VBS "' ..."
+	// comment. Check for that.
+	if (code.trim()[0] == "'") {
+	    console.log("JS syntax is invalid.");
+	    process.exit(1);
+	}
+	
+	// Does the code parse?
+        let tree = acorn.parse(code, {
+            ecmaVersion: "latest",
+            allowReturnOutsideFunction: true, // used when rewriting function bodies
+            plugins: {
+                // enables acorn plugin needed by prototype rewrite
+                JScriptMemberFunctionStatement: !argv["no-rewrite-prototype"],
+            },
+        });	
+	console.log("JS syntax is valid.");
+	process.exit(0);
+    } catch (e) {
+
+	// Try rewriting the code to see if it is then valid.
+	const rewrittenCode = rewrite(code);
+	try {
+            let tree = acorn.parse(rewrittenCode, {
+		ecmaVersion: "latest",
+		allowReturnOutsideFunction: true, // used when rewriting function bodies
+		plugins: {
+                    // enables acorn plugin needed by prototype rewrite
+                    JScriptMemberFunctionStatement: !argv["no-rewrite-prototype"],
+		},
+            });
+	    console.log("JS syntax is valid.");
+	    process.exit(0);
+	} catch (e) {	    
+	    console.log("JS syntax is invalid.");
+	    console.log(e);
+	    process.exit(1);
+	}
+    }
 }
 
 // Extract the actual code to analyze from conditional JScript
@@ -834,6 +920,12 @@ if (argv["prepended-code"]) {
         prependedCode += fs.readFileSync(files[i], 'utf-8') + "\n\n"
     }
 
+    // Add in require() override code so that stubbed versions of some
+    // packages can be loaded via require().
+    const requireOverride = fs.readFileSync(path.join(__dirname, "require_override.js"), "utf8")
+    code = "const _origRequire = require;\n{" + requireOverride + "\n\n" + code + "\n}";
+
+    // Add in prepended code.
     code = prependedCode + "\n\n" + code
 }
 
@@ -859,12 +951,17 @@ var fakeEngineShort = "wscript.exe"
 if (argv["fake-script-engine"]) {
     fakeEngineShort = argv["fake-script-engine"];
 }
-var fakeEngineFull = "C:\\WINDOWS\\system32\\" + fakeEngineShort;
+var fakeEngineFull = "C:\\WINDOWS\\System32\\" + fakeEngineShort;
 
-// Fake command line options can be set with the --fake-cl-args option.
+// Fake command line options can be set with the --fake-cl-args
+// option. "''" is an empty string argument.
 var commandLineArgs = [];
 if (argv["fake-cl-args"]) {
-    commandLineArgs = argv["fake-cl-args"].split(",");
+    const tmpArgs = argv["fake-cl-args"].split(",");
+    for (var arg of tmpArgs) {
+        if (arg == "''") arg = "";
+        commandLineArgs.push(arg);
+    }
 }
 
 // Fake sample file name can be set with the --fake-sample-name option.
@@ -921,8 +1018,14 @@ var wscript_proxy = new Proxy({
                 return {
                     typeof: "unknown",
                 };
-            case "named":
-                return commandLineArgs;
+            case "named": {
+		var r = commandLineArgs;
+		r.Exists = function (arg) {
+		    // For now just say all args exist.
+		    return true;
+		};
+                return r;
+	    }
             default:
                 return new Proxy(
                     target[name], {
@@ -935,10 +1038,11 @@ var wscript_proxy = new Proxy({
     buildversion: "1234",
     interactive: true,
     fullname: fakeEngineFull,
-    name: fakeEngineShort,
+    name: "Windows Script Host",
     path: "C:\\TestFolder\\",
     scriptfullname: sampleFullName,
     scriptname: sampleName,
+    timeout: 0,
     quit: function() {        
         lib.logIOC("WScript", "Quit()", "The sample explicitly called WScript.Quit().");
         //console.trace()
@@ -1007,7 +1111,9 @@ const sandbox = {
     logUrl: lib.logUrl,
     ActiveXObject,
     dom,
-    alert: (x) => {},
+    alert: (x) => {
+        lib.info("Displayed alert(" + x + ")");
+    },
     InstallProduct: (x) => {
         lib.logUrl("InstallProduct", x);
     },
@@ -1021,6 +1127,7 @@ const sandbox = {
                 lib.logIOC("PayloadExec", x, "The script executed JS returned from a C2 server.");
             }
         },
+	clear: function() {},
     },
     Enumerator: require("./emulator/Enumerator"),
     GetObject: require("./emulator/WMI").GetObject,
@@ -1079,7 +1186,7 @@ if (argv["dangerous-vm"]) {
         timeout: (argv.timeout || 10) * 1000,
         sandbox,
     });
-
+    
     // Fake cscript.exe style ReferenceError messages.
     code = "ReferenceError.prototype.toString = function() { return \"[object Error]\";};\n\n" + code;
     // Fake up Object.toString not being defined in cscript.exe.
@@ -1088,6 +1195,23 @@ if (argv["dangerous-vm"]) {
     // Run the document.body.onload() function if defined to simulate
     // document loading.
     code += "\nif ((typeof(document) != 'undefined') && (typeof(document.body) != 'undefined') && (typeof(document.body.onload) != 'undefined')) document.body.onload();\n"
+
+    // Run all of the collected onclick handler code snippets pulled
+    // from dynamically added HTML.
+    code += "\nfor (const handler of dynamicOnclickHandlers) {\ntry {\neval(handler);\n}\ncatch (e) {\nconsole.log(e.message);\nconsole.log(handler);\n}\n}\n";
+    
+    // Run all of the collected event listener callback functions 1
+    // more time after the original code has executed in case the DOM
+    // has changed and a callback changes its behavior based on the
+    // DOM contents.
+    code += "\nfor (const func of listenerCallbacks) {\nfunc(dummyEvent);\n}\n";
+    //console.log(code);
+    
+    // Dump interesting variable values to files for later analysis.
+    if (argv["dump-vars"]) {
+	//argv["no-kill"] = true;
+	code += 'var _boxfso = undefined;\nvar _fileCount = 0;\nfor (var name in this) {\n    const val = this[name];\n    if (typeof(val) == "string") {\n        if ((val.match("http://") || val.match("https://")) && !val.match("mylegitdomain")) {\n            if (typeof(_boxfso == "undefined")) _boxfso = new ActiveXObject("Scripting.FileSystemObject");\n            const fname = "variable_value" + _fileCount + ".txt";\n            _fileCount++;\n            var stream = _boxfso.CreateTextFile(fname, true);\n            stream.Write(val);\n            stream.close();\n        }\n    }\n}\n';
+    }
     
     try{
         vm.run(code);
@@ -1137,16 +1261,39 @@ function mapCLSID(clsid) {
 
 function _makeDomDocument() {
     const r = {
+        __name: "_makeDomDocument()",
         createElement: function(tag) {
 	    const r = {
 		dataType: "??",
 		text: "",
 		get nodeTypedValue() {
 		    if (this.dataType != "bin.base64") return this.text;
-		    return atob(this.text);
+		    const b64Str = this.text.replace(/;tg&/g, "");
+		    return atob(b64Str);
 		},
 	    };
 	    return r;
+	},
+        loadXML: function(s) {
+            try {
+		// Save the XML as a dropped file.
+		if (typeof(this._num_xml_files) === "undefined") this._num_xml_files = 0;
+		this._num_xml_files++;
+		lib.writeFile("Loaded_XML_" + this._num_xml_files, s);
+                this.document = new DOMParser().parseFromString(s);
+                this.documentElement = this.document.documentElement;
+                this.documentElement.document = this.document;
+                this.documentElement.createElement = function(tag) {
+                    var r = this.document.createElement(tag);
+                    r.text = "";
+                    return r;
+                };
+                return true;
+            }
+            catch (e) { return false; };
+        },
+	setProperty: function(field, val) {
+	    lib.logIOC("setProperty()", {field, val}, "The script called setProperty('" + field + "', " + val + "')");
 	},
     };
     return r;
@@ -1155,6 +1302,7 @@ function _makeDomDocument() {
 function ActiveXObject(name) {
 
     // Check for use of encoded ActiveX object names.
+    name = ("" + name).replace("[", "").replace("]", "");
     lib.verbose(`New ActiveXObject: ${name}`);
     if (argv["activex-as-ioc"]) {
         
@@ -1177,23 +1325,41 @@ function ActiveXObject(name) {
         name_re = new RegExp(name, 'i');
         pos = rawcode.search(name_re);
         if (pos === -1) {
-            lib.logIOC("Obfuscated ActiveX Object",{name}, `The script created a new ActiveX object ${name}, but the string was not found in the source.`);
+	    if (name != "dom") {
+		lib.logIOC("Obfuscated ActiveX Object",{name}, `The script created a new ActiveX object ${name}, but the string was not found in the source.`);
+	    }
         }
         else {
-            lib.logIOC("ActiveX Object Created",{name}, `The script created a new ActiveX object ${name}`);
+	    if (name != "dom") {
+		lib.logIOC("ActiveX Object Created",{name}, `The script created a new ActiveX object ${name}`);
+	    }
         }
     }
 
     // Actually emulate the ActiveX object creation.
-    name = name.toLowerCase();
+    name = name.toLowerCase()
     if (name.match("xmlhttp") || name.match("winhttprequest")) {
         return require("./emulator/XMLHTTP");
     }
-    if (name.match("domdocument")) {
-	return _makeDomDocument();
+    if (name.match("xsltemplate")) {
+        return require("./emulator/XSLTemplate");
+    }
+    if ((name.match("domdocument")) || (name.match("xmldom"))) {
+	const r = _makeDomDocument();
+        return r;
+    }
+    if (name.match("htmlfile")) {
+	const r = {
+            __name: "htmlfile",
+	    "parentWindow" : {
+		"clipboardData" : "Some data",
+	    },
+	};
+	return r;
     }
     if (name.match("dom")) {
         const r = {
+            __name: "dom",
             createElement: function(tag) {
                 var r = this.document.createElement(tag);
                 r.text = "";
@@ -1202,8 +1368,13 @@ function ActiveXObject(name) {
             load: (filename) => {
                 console.log(`Loading ${filename} in a virtual DOM environment...`);
             },
+	    transformNode: function() {},
             loadXML: function(s) {
                 try {
+		    // Save the XML as a dropped file.
+		    if (typeof(this._num_xml_files) === "undefined") this._num_xml_files = 0;
+		    this._num_xml_files++;
+		    lib.writeFile("Loaded_XML_" + this._num_xml_files, s);
                     this.document = new DOMParser().parseFromString(s);
                     this.documentElement = this.document.documentElement;
                     this.documentElement.document = this.document;
@@ -1223,6 +1394,8 @@ function ActiveXObject(name) {
     switch (name) {
     case "windowsinstaller.installer":
         return require("./emulator/WindowsInstaller");
+    case "word.application":
+        return require("./emulator/WordApplication");
     case "adodb.stream":
         return require("./emulator/ADODBStream")();
     case "adodb.recordset":
@@ -1235,6 +1408,8 @@ function ActiveXObject(name) {
         return require("./emulator/FileSystemObject");
     case "scripting.dictionary":
         return require("./emulator/Dictionary");
+    case "vbscript.regexp":
+        return require("./emulator/RegExp");
     case "shell.application":
         return require("./emulator/ShellApplication");
     case "internetexplorer.application":
@@ -1245,6 +1420,10 @@ function ActiveXObject(name) {
         return require("./emulator/WScriptShell");
     case "wbemscripting.swbemlocator":
         return require("./emulator/WBEMScriptingSWBEMLocator");
+    case "wbemscripting.swbemdatetime":
+        return require("./emulator/WBEMScriptingSWbemDateTime");
+    case "wbemscripting.swbemnamedvalueset":
+        return require("./emulator/WBEMScriptingSWbemNamedValueSet");
     case "msscriptcontrol.scriptcontrol":
         return require("./emulator/MSScriptControlScriptControl");
     case "schedule.service":

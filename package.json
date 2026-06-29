@@ -4,9 +4,9 @@
     "description": "A tool for studying JavaScript malware.",
     "dependencies": {
         "acorn": ">=8.8.0",
-        "xmldom": "*",
         "columnify": "*",
         "command-line-args": "^4.0.7",
+        "cross-blob": "^3.0.2",
         "escodegen": "^1.9.1",
         "global": "^4.4.0",
         "iconv-lite": "^0.4.23",
@@ -20,7 +20,8 @@
         "uglify-es": "^3.3.9",
         "uuid": "^3.2.1",
         "vm2": ">=3.9.19",
-        "walk-sync": "^0.3.2"
+        "walk-sync": "^0.3.2",
+        "xmldom": "*"
     },
     "devDependencies": {
         "babel-eslint": "^8.2.3",

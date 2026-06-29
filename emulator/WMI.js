@@ -2,11 +2,12 @@ const lib = require("../lib");
 const fs = require("fs");
 const path = require("path");
 
-const diskSize = Math.floor(Math.random() * 1E11);
+const diskSize = 1E12;
 const freeSpace = Math.floor(Math.random() * diskSize);
 
 // Note: all fields MUST be in lowercase!
 const processes = JSON.parse(fs.readFileSync(path.join(__dirname, "processes.json"), "utf8"));
+processes.__name = "Win32_Process";
 const tables = {
     antivirusproduct: [],
     win32_computersystemproduct: [],
@@ -19,6 +20,13 @@ const tables = {
     }],
     win32_diskdrive: [{
         deviceid: "C:",
+	model: "Seagate 8675",
+	interfacetype: "SCSI",
+	pnpdeviceid: "*PNP020a",
+	serialnumber: "WD-WL4492798726",
+    }],
+    win32_systemdriver: [{
+	name: "ionbucket",
     }],
     win32_computersystem : [{
         "pscomputername" : "USER-PC",
@@ -221,12 +229,14 @@ const classes = {
 	},
     }),
     win32_processstartup: new Proxy({
-	spawninstance_: () => {}
+	spawninstance_: () => {
+	    return {};
+	}
     }, {
 	get(target, _prop) {
 	    const prop = _prop.toLowerCase();
 	    if (prop in target) return target[prop];
-	    lib.kill(`Win32_Process.${prop} not implemented!`);
+	    lib.kill(`Win32_ProcessStartup.${prop} not implemented!`);
 	},
     })
 }
@@ -338,7 +348,7 @@ module.exports.GetObject = function(name) {
 
     // Track URLs from 'script:...' GetObject() creations.
     const lname = name.toLowerCase();
-    if (lname.startsWith("script:http")) {
+    if (lname.startsWith("script:http") || lname.startsWith("scriptlet:http")) {
         const url = lname.replace("script:http", "http");
 	lib.logUrl("GetObject()", url);
         lib.logIOC("GetObject()", url, "The script used WMI to download a remote object.");
@@ -379,7 +389,17 @@ module.exports.GetObject = function(name) {
 	    lib.logSnippet(lib.getUUID(), {as: "command"}, command);
 	    return "";
 	},
+        RUN: command => {
+            lib.logIOC("WMI.GetObject.Run", command, "The script executed a command with WMI.");
+	    lib.logSnippet(lib.getUUID(), {as: "command"}, command);
+	    return "";
+	},        
 	Create: command => {
+            lib.logIOC("WMI.GetObject.Create", command, "The script created a process with WMI.");
+	    lib.logSnippet(lib.getUUID(), {as: "command"}, command);
+	    return "";
+	},
+	create: command => {
             lib.logIOC("WMI.GetObject.Create", command, "The script created a process with WMI.");
 	    lib.logSnippet(lib.getUUID(), {as: "command"}, command);
 	    return "";
@@ -388,6 +408,46 @@ module.exports.GetObject = function(name) {
             lib.logIOC("WMI.GetObject.AddressWidth", "", "The script checked processor address width with WMI.");
 	    return "64";
 	},
+	Open: arg => {
+	    lib.logIOC("WMI.GetObject.Open", arg, "The script called WMI.GetObject.Open('" + arg + "').");
+	},
+        open: arg => {
+            lib.logIOC("WMI.GetObject.Open", arg, "The script called WMI.GetObject.Open('" + arg + "').");
+	},
+	LoadFromFile: arg => {
+	    lib.logIOC("WMI.GetObject.LoadFromFile", arg, "The script called WMI.GetObject.LoadFromFile().");
+	},
+	ReadText: arg => {
+	    lib.logIOC("WMI.GetObject.ReadText", arg, "The script called WMI.GetObject.ReadText().");
+	},
+	Close: function () {},
+	GetParentFolderName: function () {
+	    return "C:/Users/Sysop/Desktop/"
+	},
+	SaveToFile: function(fname) {
+	    lib.logIOC("WMI.GetObject.SaveToFile", fname, "The script called WMI.GetObject.SaveToFile().");
+	},
+	DeleteFile: function(fname) {
+	    lib.logIOC("WMI.GetObject.DeleteFile", fname, "The script called WMI.GetObject.DeleteFile().");
+	},
+        MoveFile: function(src, dest) {
+	    lib.logIOC("WMI.GetObject.MoveFile", {src: src, dest: dest}, "The script called WMI.GetObject.MoveFile().");
+	},
+        ShellExecute: function(cmd) {
+	    lib.logIOC("WMI.GetObject.ShellExecute", cmd, "The script ran WMI.GetObject.ShellExecute('" + cmd + "').");
+	},
+        send: function(arg) {
+	    lib.logIOC("WMI.GetObject.send", arg, "The script ran WMI.GetObject.send('" + arg + "').");
+	},
+        getResponseHeader: function() {
+	    lib.info("The script ran WMI.GetObject.getResponseHeader().");
+            return "{header}"
+	},
+        SetBinaryValue: function(key, subkey, value, blob) {
+            const fullKey = "" + subkey + "." + value;
+            lib.logIOC("WMI.GetObject.SetBinaryValue", {key: fullKey}, "The script wrote to registry key " + fullKey + " via WMI.");
+            lib.writeFile(fullKey + ".bin", blob);
+        },
     }, {
 	get(target, name) {
             //console.log("^^^^^^^^^^^");
