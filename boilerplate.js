@@ -581,9 +581,7 @@ function __createElement(tag) {
 	__name: "fake_elem",
 	pause: function () {},
 	play: function () {},
-	dataset: (new Proxy({}, {
-	    get: (target, name) => name in target ? target[name] : "???"
-	})),
+	dataset: lib.makeDefaultDict("???"),
         pathname: '/and/i/have/a/path.php',
 	checked: true,
 	nodeType: 9,
@@ -2369,9 +2367,7 @@ var Components = {
     __name: "Components",
     // Always return the same stubbed results for
     // Components.classes['....'].
-    classes: new Proxy({}, {
-        get: (target, name) => _fakeComponentClass
-    }),
+    classes: lib.makeDefaultDict(_fakeComponentClass),
     interfaces: {},
 }
 
