@@ -232,6 +232,18 @@ function doWscriptQuit(flag) {
     return _doWscriptQuit;
 }
 
+class DefaultDict {
+    constructor(defaultVal) {
+	return new Proxy({}, {
+	    get: (target, name) => name in target ? target[name] : defaultVal
+	})
+    }
+};
+
+function makeDefaultDict(i) {
+    return new DefaultDict(i);
+};
+
 module.exports = {
     argv,
     kill,
@@ -240,6 +252,7 @@ module.exports = {
     throttleCommands,
     noCasePropObj,
     doWscriptQuit,
+    makeDefaultDict,
     
     debug: log.bind(null, "debug"),
     verbose: log.bind(null, "verb"),
