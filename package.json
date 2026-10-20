@@ -48,6 +48,7 @@
     },
     "scripts": {
         "lint": "eslint run.js analyze.js test/ emulator/",
-        "test": "mocha test/"
+        "test": "mocha test/",
+        "docker-build": "docker build -t box-js -f integrations/docker/Dockerfile ."
     }
 }
