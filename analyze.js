@@ -920,6 +920,9 @@ if (argv["prepended-code"]) {
         prependedCode += fs.readFileSync(files[i], 'utf-8') + "\n\n"
     }
 
+    // hide box utilities
+    prependedCode += "\n\ndelete globalThis.box;\n\n";
+
     // Add in require() override code so that stubbed versions of some
     // packages can be loaded via require().
     const requireOverride = fs.readFileSync(path.join(__dirname, "require_override.js"), "utf8")
@@ -1085,6 +1088,8 @@ var wscript_proxy = new Proxy({
     }
 });
 
+const deferred = [];
+
 const sandbox = {
     saveAs : function(data, fname) {
         // TODO: If Blob need to extract the data.
@@ -1162,7 +1167,12 @@ const sandbox = {
     WScript: wscript_proxy,
     WSH: wscript_proxy,
     self: {},
-    require
+    require,
+    box: {
+      defer: function(f) {
+        deferred.push(f);
+      }
+    }
 };
 
 // See https://github.com/nodejs/node/issues/8071#issuecomment-240259088
@@ -1170,15 +1180,24 @@ const sandbox = {
 // which can be kinda messy with Proxies
 require("util").inspect.defaultOptions.customInspect = false;
 
+const runDeferred = `(function() {
+    const d = deferred;
+    delete globalThis.deferred;
+    d.forEach((e) => e());
+})()`;
+
 if (argv["dangerous-vm"]) {
     lib.verbose("Analyzing with native vm module (dangerous!)");
     const vm = require("vm");
     //console.log(code);
-    vm.runInNewContext(code, sandbox, {
+    const context = vm.createContext(sandbox);
+    vm.runInContext(code, context, {
         displayErrors: true,
         // lineOffset: -fs.readFileSync(path.join(__dirname, "patch.js"), "utf8").split("\n").length,
         filename: "sample.js",
     });
+    context.deferred = deferred;
+    vm.runInContext(runDeferred, context, {displayErrors: true, filename: "deferred.js"});
 } else {
     lib.debug("Analyzing with vm2 v" + require("vm2/package.json").version);
 
@@ -1196,17 +1215,6 @@ if (argv["dangerous-vm"]) {
     // document loading.
     code += "\nif ((typeof(document) != 'undefined') && (typeof(document.body) != 'undefined') && (typeof(document.body.onload) != 'undefined')) document.body.onload();\n"
 
-    // Run all of the collected onclick handler code snippets pulled
-    // from dynamically added HTML.
-    code += "\nfor (const handler of dynamicOnclickHandlers) {\ntry {\neval(handler);\n}\ncatch (e) {\nconsole.log(e.message);\nconsole.log(handler);\n}\n}\n";
-    
-    // Run all of the collected event listener callback functions 1
-    // more time after the original code has executed in case the DOM
-    // has changed and a callback changes its behavior based on the
-    // DOM contents.
-    code += "\nfor (const func of listenerCallbacks) {\nfunc(dummyEvent);\n}\n";
-    //console.log(code);
-    
     // Dump interesting variable values to files for later analysis.
     if (argv["dump-vars"]) {
 	//argv["no-kill"] = true;
@@ -1215,6 +1223,8 @@ if (argv["dangerous-vm"]) {
     
     try{
         vm.run(code);
+        vm.setGlobal("deferred", deferred);
+        vm.run(runDeferred);
     } catch (e) {
         lib.error("Sandbox execution failed:");
         console.log(e.stack);

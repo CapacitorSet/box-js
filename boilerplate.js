@@ -2132,6 +2132,7 @@ class DOMParser {
 // callbacks.
 function callDynamicHandlers() {
 
+    console.log("Running dynamic handlers...");
     // On click handlers.
     for (const handler of dynamicOnclickHandlers) {
         try {
@@ -2154,6 +2155,8 @@ function callDynamicHandlers() {
         }
     }
 }
+
+box.defer(callDynamicHandlers);
 
 // Treat console.warn or .error like console.log.
 console.warn = console.log;
